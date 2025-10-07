@@ -1,0 +1,16 @@
+{
+  "name": "dermatrack",
+  "version": "0.0.1",
+  "description": "Helps users track and understand their eczema symptoms and triggers.",
+  "homepage": "https://github.com/Bauli29/DermaTrack#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bauli29/DermaTrack.git"
+  },
+  "license": "ISC",
+  "author": "Bastian, Philip, Johanna, Sebastian, Sribriddhi",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
