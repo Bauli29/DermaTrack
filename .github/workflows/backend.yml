@@ -9,6 +9,7 @@ on:
     branches: [ main ]
     paths:
       - 'backend/**'
+  workflow_dispatch:  # Ermöglicht manuellen Start
 
 jobs:
   build:
