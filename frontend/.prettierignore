@@ -1,0 +1,27 @@
+# Prettier ignore file for DermaTrack Frontend
+
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Environment files
+.env*
+
+# Package files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+coverage/
+*.tgz
+*.tar.gz
+
+# Config files that should not be formatted
+*.config.js
+*.config.ts

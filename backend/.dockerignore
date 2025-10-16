@@ -1,0 +1,54 @@
+# Docker ignore file for Spring Boot backend
+
+# Build artifacts
+target/
+!target/*.jar
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Maven wrapper (keep the jar but ignore properties that might contain local paths)
+.mvn/wrapper/maven-wrapper.properties
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Documentation (not needed in container)
+README.md
+*.md
+
+# Docker files themselves (avoid recursive copying)
+Dockerfile*
+.dockerignore
+
+# Environment files (should be passed as env vars)
+.env
+.env.*
+
+# Test files (we skip tests in Docker build anyway)
+src/test/

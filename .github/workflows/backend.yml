@@ -1,0 +1,54 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '25'
+        
+    - name: Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-m2-
+        
+    # TODO: Enable tests once test structure and database config is ready
+    # - name: Run tests
+    #   run: |
+    #     cd backend
+    #     ./mvnw test
+    #   env:
+    #     SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/dermatrack_test
+    #     SPRING_DATASOURCE_USERNAME: postgres
+    #     SPRING_DATASOURCE_PASSWORD: postgres
+    #     SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+        
+    - name: Build application
+      run: |
+        cd backend
+        ./mvnw clean package -DskipTests
+        
+    - name: Deploy to Render
+      if: github.ref == 'refs/heads/main'
+      run: |
+        curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
