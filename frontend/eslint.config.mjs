@@ -26,7 +26,7 @@ export default [
 
   // Ignores
   {
-    ignores: ['node_modules/', '.next/', 'next-env.d.ts', 'dist/', 'build/'],
+    ignores: ['node_modules/', '.next/', 'next-env.d.ts'],
   },
 
   // General rules for all files
