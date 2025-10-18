@@ -20,10 +20,9 @@ public class DatabaseConfig {
         String databaseUrl = System.getenv("DATABASE_URL");
         
         if (databaseUrl != null && databaseUrl.startsWith("postgresql://")) {
-            // Convert Supabase/Heroku style URL to JDBC URL
+            // Convert Supabase/Heroku style URL to JDBC URL with SSL
             try {
                 URI uri = new URI(databaseUrl);
-                String jdbcUrl = "jdbc:postgresql://" + uri.getHost() + ":" + uri.getPort() + uri.getPath();
                 
                 // Extract username and password
                 String userInfo = uri.getUserInfo();
@@ -37,6 +36,14 @@ public class DatabaseConfig {
                         password = credentials[1];
                     }
                 }
+                
+                // Build JDBC URL with SSL for Supabase
+                String jdbcUrl = String.format(
+                    "jdbc:postgresql://%s:%d%s?sslmode=require", 
+                    uri.getHost(), 
+                    uri.getPort(), 
+                    uri.getPath()
+                );
                 
                 return DataSourceBuilder.create()
                     .driverClassName("org.postgresql.Driver")
