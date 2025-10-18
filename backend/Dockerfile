@@ -1,5 +1,5 @@
 # Multi-stage Docker build for Spring Boot application
-FROM maven:3.9.5-eclipse-temurin-25 AS build
+FROM maven:3.9.5-eclipse-temurin-21 AS build
 
 # Set working directory
 WORKDIR /app
@@ -13,7 +13,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Runtime stage - smaller image for production
-FROM eclipse-temurin:25-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 # Install wget for health checks
 RUN apk add --no-cache wget

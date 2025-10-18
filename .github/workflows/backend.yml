@@ -1,4 +1,4 @@
-name: Backend CI/CD
+name: Backend CI
 
 on:
   push:
@@ -9,11 +9,14 @@ on:
     branches: [ main ]
     paths:
       - 'backend/**'
-  workflow_dispatch:  # Ermöglicht manuellen Start
+  workflow_dispatch:
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     
     steps:
     - name: Checkout code
@@ -23,7 +26,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '25'
+        java-version: '21'
         
     - name: Cache Maven dependencies
       uses: actions/cache@v4
@@ -32,24 +35,35 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-m2-
+          
+    # TODO: Enable code quality checks once configured
+    # - name: Run static analysis (Checkstyle)
+    #   run: ./mvnw checkstyle:check
+    #
+    # - name: Run security analysis (SpotBugs)
+    #   run: ./mvnw spotbugs:check
+    #
+    # - name: Run dependency analysis
+    #   run: ./mvnw dependency-check:check
         
     # TODO: Enable tests once test structure and database config is ready
-    # - name: Run tests
-    #   run: |
-    #     cd backend
-    #     ./mvnw test
+    # - name: Run unit tests
+    #   run: ./mvnw test
+    #
+    # - name: Run integration tests
+    #   run: ./mvnw verify -P integration-tests
     #   env:
     #     SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/dermatrack_test
     #     SPRING_DATASOURCE_USERNAME: postgres
     #     SPRING_DATASOURCE_PASSWORD: postgres
     #     SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
         
-    - name: Build application
-      run: |
-        cd backend
-        ./mvnw clean package -DskipTests
+    - name: Build application (Maven)
+      run: ./mvnw clean package -DskipTests
+      
+    - name: Build Docker image (verification)
+      run: docker build -t dermatrack-backend:ci-test .
+      
+    # NOTE: Deployment handled automatically by Render via Dashboard integration
+    # Render builds and deploys Docker image automatically on git push to main branch
         
-    - name: Deploy to Render
-      if: github.ref == 'refs/heads/main'
-      run: |
-        curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
