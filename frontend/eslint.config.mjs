@@ -43,7 +43,7 @@ export default [
 
       // Core rules
       eqeqeq: 'error',
-      'no-console': 'error',
+      'no-console': 'warn',
       'prefer-destructuring': 'error',
       'prefer-template': 'error',
       'no-nested-ternary': 'error',

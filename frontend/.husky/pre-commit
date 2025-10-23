@@ -1,0 +1,10 @@
+# Change to frontend directory
+cd frontend
+
+pnpm run format:check
+
+pnpm run lint:check
+
+pnpm run build
+
+echo "✅ All pre-commit checks passed!"
