@@ -1,6 +1,7 @@
 'use client'
 import { DefaultTheme } from 'styled-components'
-import { lightTheme, darkTheme, TThemeName } from './themes'
+
+import { darkTheme, lightTheme, TThemeName } from './themes'
 
 export const getTheme = (themeName: TThemeName): DefaultTheme => {
   switch (themeName) {

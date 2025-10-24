@@ -1,14 +1,14 @@
 'use client'
-
-import { createContext, useState, useEffect, ReactNode } from 'react'
-import { TThemeName } from '@/lib/themes'
-import {
-  getTheme,
-  getSystemTheme,
-  saveThemePreference,
-  getThemePreference,
-} from '@/lib/theme-utils'
+import { createContext, ReactNode, useEffect, useState } from 'react'
 import { DefaultTheme } from 'styled-components'
+
+import {
+  getSystemTheme,
+  getTheme,
+  getThemePreference,
+  saveThemePreference,
+} from '@/lib/theme-utils'
+import { TThemeName } from '@/lib/themes'
 
 interface ThemeContextType {
   theme: DefaultTheme

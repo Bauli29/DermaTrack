@@ -1,7 +1,9 @@
 'use client'
 import { ReactNode } from 'react'
 import { ThemeProvider } from 'styled-components'
+
 import { ThemeContextProvider } from '@/context/theme-context'
+
 import { useTheme } from '@/hooks/use-theme'
 
 const ThemedWrapper = ({ children }: { children: ReactNode }) => {

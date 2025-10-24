@@ -19,5 +19,69 @@
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+
+  // --- Import Sorter Configuration ---
+  "importSorter.generalConfiguration.sortOnBeforeSave": true,
+  "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.type": "newLineEachExpressionAfterCountLimitExceptIfOnlyOne",
+  "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.count": 80,
+  "importSorter.importStringConfiguration.tabSize": 2,
+  "importSorter.importStringConfiguration.quoteMark": "single",
+  "importSorter.importStringConfiguration.hasSemicolon": false,
+  "importSorter.importStringConfiguration.trailingComma": "multiLine",
+  "importSorter.sortConfiguration.customOrderingRules.rules": [
+    {
+      "type": "importMember",
+      "regex": "^$",
+      "orderLevel": 5,
+      "disableSort": false
+    },
+    {
+      "regex": "^@/components/atoms/(.*)$",
+      "orderLevel": 30
+    },
+    {
+      "regex": "^@/components/molecules/(.*)$",
+      "orderLevel": 40
+    },
+    {
+      "regex": "^@/components/organisms/(.*)$",
+      "orderLevel": 50
+    },
+    {
+      "regex": "^@/components/templates/(.*)$",
+      "orderLevel": 60
+    },
+    {
+      "regex": "^@/app/(.*)$",
+      "orderLevel": 70
+    },
+    {
+      "regex": "^@/lib/(.*)$",
+      "orderLevel": 80
+    },
+    {
+      "regex": "^@/context/(.*)$",
+      "orderLevel": 90
+    },
+    {
+      "regex": "^@/hooks/(.*)$",
+      "orderLevel": 100
+    },
+    {
+      "regex": "^@/types/(.*)$",
+      "orderLevel": 110
+    },
+    {
+      "regex": "^@/(.*)$",
+      "orderLevel": 115
+    },
+    {
+      "regex": "^[./]",
+      "orderLevel": 130
+    }
+  ],
+
+  "chat.agent.enabled": true,
+  "github.copilot.chat.agent.autoFix": false
 }

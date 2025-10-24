@@ -1,6 +1,7 @@
-import StyledComponentsRegistry from '@/lib/registry'
-import ClientLayout from '@/lib/client-layout'
 import GlobalStyle from '@/app/global-style'
+
+import ClientLayout from '@/lib/client-layout'
+import StyledComponentsRegistry from '@/lib/registry'
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <html lang='en'>
