@@ -1,12 +1,6 @@
 'use client'
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from 'react'
+import { createContext, useState, useEffect, ReactNode } from 'react'
 import { TThemeName } from '@/lib/themes'
 import {
   getTheme,
@@ -23,7 +17,9 @@ interface ThemeContextType {
   setTheme: (themeName: TThemeName) => void
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
+export const ThemeContext = createContext<ThemeContextType | undefined>(
+  undefined
+)
 
 export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
   const [themeName, setThemeName] = useState<TThemeName>('light')
@@ -52,12 +48,4 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </ThemeContext.Provider>
   )
-}
-
-export const useTheme = () => {
-  const context = useContext(ThemeContext)
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider')
-  }
-  return context
 }
