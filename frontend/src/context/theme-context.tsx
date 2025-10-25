@@ -1,6 +1,5 @@
 'use client'
 import { createContext, ReactNode, useEffect, useState } from 'react'
-import { DefaultTheme } from 'styled-components'
 
 import {
   getSystemTheme,
@@ -10,14 +9,9 @@ import {
 } from '@/lib/theme-utils'
 import { TThemeName } from '@/lib/themes'
 
-interface ThemeContextType {
-  theme: DefaultTheme
-  themeName: TThemeName
-  toggleTheme: () => void
-  setTheme: (themeName: TThemeName) => void
-}
+import { IThemeContextType } from './types'
 
-export const ThemeContext = createContext<ThemeContextType | undefined>(
+export const ThemeContext = createContext<IThemeContextType | undefined>(
   undefined
 )
 
