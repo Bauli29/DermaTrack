@@ -25,7 +25,7 @@ export interface ITheme {
 }
 
 declare module 'styled-components' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/naming-convention
   export interface DefaultTheme extends ITheme {}
 }
 
