@@ -24,7 +24,7 @@ hs_err_pid*
 replay_pid*
 
 # PNPM files
-pnpm-lock.yaml
+# keep lockfile committed
 node_modules/.pnpm-workspace-state-v1.json
 
 # Environment files

@@ -35,3 +35,26 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 "<!-- CI/CD Test -->"
+
+
+---
+
+## Local Backend Integration
+
+During development, the frontend exposes a small proxy endpoint to talk to the Spring Boot backend without CORS hassles.
+
+- Health proxy route: `/api/backend-health` → calls `${process.env.BACKEND_URL || 'http://localhost:8080'}/actuator/health`
+- Configure backend URL for the frontend by creating `.env.local` in `frontend/` (see `.env.local.example`):
+
+```env
+BACKEND_URL=http://localhost:8080
+```
+
+After starting the backend on port 8080 and `npm run dev` in `frontend`, open http://localhost:3000 — the home page shows a "Backend Health" status.
+
+## Turbopack lockfile warning
+If Next.js warns about multiple lockfiles, choose a single package manager for the frontend:
+- Keep npm: keep `package-lock.json`, remove `pnpm-lock.yaml`.
+- Use PNPM: keep `pnpm-lock.yaml`, remove `package-lock.json` and run `pnpm install`.
+
+Let us know your preference and we will tidy up the lockfiles accordingly.
