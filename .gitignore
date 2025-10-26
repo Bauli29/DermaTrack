@@ -26,3 +26,12 @@ replay_pid*
 # PNPM files
 pnpm-lock.yaml
 node_modules/.pnpm-workspace-state-v1.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
