@@ -1,7 +1,6 @@
 {
   "name": "dermatrack",
   "version": "0.0.1",
-  "packageManager": "pnpm@9",
   "description": "Helps users track and understand their eczema symptoms and triggers.",
   "homepage": "https://github.com/Bauli29/DermaTrack#readme",
   "repository": {

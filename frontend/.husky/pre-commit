@@ -1,32 +1,16 @@
 #!/usr/bin/env sh
 set -e
 
-# Run from repo root; ensure we execute scripts in the frontend folder
+# Change to frontend directory since we're running from git root
 cd frontend
 
-# If dependencies are not installed yet, skip checks to not block commits
-if [ ! -d node_modules ]; then
-  echo "⚠️  Skipping pre-commit checks: 'node_modules' not found in ./frontend."
-  echo "    Run 'pnpm install' (or 'npm install') in the frontend folder to enable checks."
-  exit 0
-fi
-
-# Choose a package runner: prefer pnpm, then corepack pnpm, else npm
-if command -v pnpm >/dev/null 2>&1; then
-  PM_RUN="pnpm run"
-elif command -v corepack >/dev/null 2>&1; then
-  PM_RUN="corepack pnpm run"
-else
-  PM_RUN="npm run"
-fi
-
 echo "▶️  Checking code formatting..."
-$PM_RUN format:check || { echo "❌ format check failed"; exit 1; }
+pnpm run format:check
 
 echo "▶️  Running lint check..."
-$PM_RUN lint:check || { echo "❌ lint check failed"; exit 1; }
+pnpm run lint:check
 
 echo "▶️  Building project..."
-$PM_RUN build || { echo "❌ build failed"; exit 1; }
+pnpm run build
 
 echo "✅ All pre-commit checks passed!"

@@ -1,7 +1,6 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "packageManager": "pnpm@9",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
