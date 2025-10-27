@@ -1,26 +1,18 @@
 'use client'
 import styled, { css, keyframes } from 'styled-components'
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
-export type ButtonSize = 'sm' | 'md' | 'lg'
+import { IButtonStyleProps, TButtonSize, TButtonVariant } from './types'
 
-export interface ButtonStyleProps {
-  $variant: ButtonVariant
-  $size: ButtonSize
-  $fullWidth?: boolean
-  disabled?: boolean
-}
-
-const focusRing = css`
+export const focusRing = css`
   outline: 2px solid ${({ theme }) => theme.colors.focus};
   outline-offset: 2px;
 `
 
-const press = css`
+export const press = css`
   transform: translateY(0.5px) scale(0.995);
 `
 
-const baseButton = css<ButtonStyleProps>`
+export const baseButton = css<IButtonStyleProps>`
   -webkit-tap-highlight-color: transparent;
   display: inline-flex;
   align-items: center;
@@ -44,24 +36,27 @@ const baseButton = css<ButtonStyleProps>`
   ${({ $fullWidth }) => ($fullWidth ? 'width: 100%;' : '')}
 
   /* Sizes */
-  ${({ $size }) =>
-    $size === 'sm'
-      ? css`
-          height: 32px;
-          padding: 0 12px;
-          font-size: 0.875rem; /* 14px */
-        `
-      : $size === 'lg'
-        ? css`
-            height: 48px;
-            padding: 0 20px;
-            font-size: 1rem; /* 16px */
-          `
-        : css`
-            height: 40px;
-            padding: 0 16px;
-            font-size: 0.9375rem; /* 15px */
-          `}
+  ${({ $size }) => {
+    if ($size === 'sm') {
+      return css`
+        height: 32px;
+        padding: 0 12px;
+        font-size: 0.875rem; /* 14px */
+      `
+    }
+    if ($size === 'lg') {
+      return css`
+        height: 48px;
+        padding: 0 20px;
+        font-size: 1rem; /* 16px */
+      `
+    }
+    return css`
+      height: 40px;
+      padding: 0 16px;
+      font-size: 0.9375rem; /* 15px */
+    `
+  }}
 
   /* Variants */
   ${({ $variant, theme }) => {
@@ -154,7 +149,7 @@ const baseButton = css<ButtonStyleProps>`
   }
 `
 
-export const StyledButton = styled.button<ButtonStyleProps>`
+export const StyledButton = styled.button<IButtonStyleProps>`
   ${baseButton}
 `
 
@@ -164,7 +159,10 @@ const spin = keyframes`
   100% { transform: rotate(360deg); }
 `
 
-export const Spinner = styled.span<{ $size: ButtonSize; $variant: ButtonVariant }>`
+export const Spinner = styled.span<{
+  $size: TButtonSize
+  $variant: TButtonVariant
+}>`
   display: inline-block;
   border: 2px solid
     ${({ $variant, theme }) =>
@@ -172,24 +170,29 @@ export const Spinner = styled.span<{ $size: ButtonSize; $variant: ButtonVariant 
         ? `${theme.colors.text}80`
         : 'rgba(255, 255, 255, 0.5)'};
   border-top-color: ${({ $variant, theme }) =>
-    $variant === 'outline' || $variant === 'ghost' ? theme.colors.text : 'rgba(255, 255, 255, 1)'};
+    $variant === 'outline' || $variant === 'ghost'
+      ? theme.colors.text
+      : 'rgba(255, 255, 255, 1)'};
   border-radius: 50%;
   animation: ${spin} 1s linear infinite;
-  ${({ $size }) =>
-    $size === 'sm'
-      ? css`
-          width: 14px;
-          height: 14px;
-        `
-      : $size === 'lg'
-        ? css`
-            width: 18px;
-            height: 18px;
-          `
-        : css`
-            width: 16px;
-            height: 16px;
-          `}
+  ${({ $size }) => {
+    if ($size === 'sm') {
+      return css`
+        width: 14px;
+        height: 14px;
+      `
+    }
+    if ($size === 'lg') {
+      return css`
+        width: 18px;
+        height: 18px;
+      `
+    }
+    return css`
+      width: 16px;
+      height: 16px;
+    `
+  }}
 `
 
 export const ButtonLabel = styled.span`
