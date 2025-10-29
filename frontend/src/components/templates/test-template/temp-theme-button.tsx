@@ -6,7 +6,7 @@ const ThemeButton = () => {
   const handleClick = () => {
     toggleTheme()
   }
-  return <button onClick={handleClick}>Theme Button</button>
+  return <button onClick={handleClick}>Toggle Theme</button>
 }
 
 export default ThemeButton

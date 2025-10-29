@@ -1,26 +1,26 @@
-import { ButtonHTMLAttributes, ReactNode } from 'react'
-
-export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
-  size?: 'sm' | 'md' | 'lg'
-  fullWidth?: boolean
-  loading?: boolean
-  startIcon?: ReactNode
-  endIcon?: ReactNode
-}
+import { ButtonHTMLAttributes } from 'react'
 
 export type TButtonVariant =
   | 'primary'
   | 'secondary'
-  | 'outline'
+  | 'ghost-outline'
   | 'ghost'
   | 'danger'
+  | 'primary-outline'
+  | 'secondary-outline'
+  | 'danger-outline'
 
 export type TButtonSize = 'sm' | 'md' | 'lg'
+
+export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: TButtonVariant
+  size?: TButtonSize
+  fullWidth?: boolean
+  disabled?: boolean
+}
 
 export interface IButtonStyleProps {
   $variant: TButtonVariant
   $size: TButtonSize
   $fullWidth?: boolean
-  disabled?: boolean
 }
