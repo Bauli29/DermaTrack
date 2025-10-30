@@ -1,4 +1,5 @@
 import Button from '@/components/atoms/button'
+import Icon from '@/components/atoms/Icon'
 
 import * as SC from './styles'
 import ThemeButton from './temp-theme-button'
@@ -32,6 +33,11 @@ const TestTemplate = () => (
       <Button variant='danger-outline' size='md'>
         Danger Outline
       </Button>
+
+      <Icon name='home' size='lg' color='primary' aria-label='home button' />
+      <Icon name='settings' size='md' color='secondary' />
+      <Icon name='delete' size='sm' color='error' />
+      <Icon name='check_circle' size='sm' color='error' />
     </>
   </SC.TestPageWrapper>
 )
