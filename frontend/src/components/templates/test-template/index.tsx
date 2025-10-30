@@ -1,5 +1,3 @@
-'use client'
-
 import Button from '@/components/atoms/button'
 import Icon from '@/components/atoms/Icon'
 
