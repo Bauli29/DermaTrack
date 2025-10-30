@@ -47,12 +47,7 @@ const colorStyles = (theme: ITheme) => ({
 })
 
 export const Icon = styled.span<IStyledIconProps>`
-  font-family: 'Material Symbols Rounded';
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 300,
-    'GRAD' 0,
-    'opsz' 24;
+  font-family: 'Material Symbols Outlined';
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -73,14 +68,8 @@ export const Icon = styled.span<IStyledIconProps>`
   ${({ $clickable }) =>
     $clickable &&
     css`
-      transition: opacity 0.2s ease;
-
       &:hover {
-        opacity: 0.7;
-      }
-
-      &:active {
-        opacity: 0.5;
+        filter: brightness(0.85);
       }
     `}
 `

@@ -1,7 +1,5 @@
-'use client'
-import React from 'react'
-import { IIconProps } from './types'
 import * as SC from './styles'
+import { IIconProps } from './types'
 
 const Icon = ({
   name,
