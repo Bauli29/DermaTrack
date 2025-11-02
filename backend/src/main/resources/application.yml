@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: backend
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            '[non_contextual_creation]': true
+  datasource:
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 20000
+      idle-timeout: 300000
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+
+logging:
+  level:
+    '[org.springframework.web]': INFO
+    '[de.dermatrack]': DEBUG
+    '[org.hibernate.SQL]': WARN

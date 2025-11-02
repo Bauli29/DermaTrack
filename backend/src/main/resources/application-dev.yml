@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL}
+  jpa:
+    show-sql: true
+
+logging:
+  level:
+    '[de.dermatrack]': DEBUG
+    '[org.hibernate.SQL]': DEBUG
