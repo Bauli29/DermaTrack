@@ -19,40 +19,37 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: 10
+        
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: frontend/package.json
+        node-version: '20'
+        cache: 'pnpm'
+        cache-dependency-path: frontend/pnpm-lock.yaml
         
     - name: Install dependencies
       run: |
         cd frontend
-        npm install
+        pnpm install
         
     - name: Lint code
       run: |
         cd frontend
-        npm run lint
+        pnpm run lint
         
-    # TODO: Enable formatting check once ESLint is properly configured
-    # - name: Check code formatting
-    #   run: |
-    #     cd frontend
-    #     npm run format:check
-        
-    # TODO: Enable tests once test structure is implemented
-    # - name: Run tests
-    #   run: |
-    #     cd frontend
-    #     npm run test:ci
+    - name: Check code formatting
+      run: |
+        cd frontend
+        pnpm run format:check
         
     - name: Build application
       run: |
         cd frontend
-        npm run build
+        pnpm run build
         
     # NOTE: Deployment handled automatically by Vercel via Dashboard integration
     # No manual deployment step needed - Vercel deploys on git push to main branch
-        
