@@ -2,6 +2,7 @@ import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
 import pluginReact from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
+import nextPlugin from '@next/eslint-plugin-next'
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -10,6 +11,8 @@ export default [
   ...tseslint.configs.recommended,
   ...tseslint.configs.stylisticTypeChecked,
   pluginReact.configs.flat.recommended,
+
+  nextPlugin.configs['core-web-vitals'],
 
   // Global settings
   {
@@ -33,7 +36,6 @@ export default [
   {
     plugins: { 'react-hooks': reactHooks },
     rules: {
-      // Modern JavaScript rules
       'no-var': 'error',
       'prefer-const': 'error',
       'prefer-arrow-callback': 'error',
@@ -63,6 +65,9 @@ export default [
       // React Hooks rules
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+
+      // Next.js rules
+      '@next/next/no-page-custom-font': 'off',
     },
   },
 
