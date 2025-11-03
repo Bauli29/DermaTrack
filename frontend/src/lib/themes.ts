@@ -35,77 +35,77 @@ export type TThemeName = 'light' | 'dark'
 export const lightTheme: ITheme = {
   colors: {
     // Primary brand colors
-    primary: '#2563eb',
-    secondary: '#10b981',
+    primary: '#4A90E2', // Soft blue (accessible on white + readable text)
+    secondary: '#A678DE', // Pastel lavender
 
     // Background colors
-    background: '#ffffff',
-    surface: '#f8fafc',
-    card: '#ffffff',
+    background: '#F9FAFB', // Gentle off-white background
+    surface: '#FFFFFF', // White panels
+    card: '#F0F2F5', // Slight contrast for cards
 
     // Text colors
-    text: '#1f2937',
-    textSecondary: '#6b7280',
-    textMuted: '#9ca3af',
+    text: '#1A1A1A', // Near-black text
+    textSecondary: '#4F4F4F', // Medium gray
+    textMuted: '#888888', // Muted text
 
     // UI element colors
-    border: '#e5e7eb',
-    borderLight: '#f3f4f6',
-    shadow: 'rgba(0, 0, 0, 0.1)',
+    border: '#DDDDDD', // Subtle border
+    borderLight: '#E9E9E9',
+    shadow: '#0000001A', // Light shadow
 
     // Status colors
-    success: '#10b981',
-    warning: '#f59e0b',
-    error: '#ef4444',
-    info: '#3b82f6',
+    success: '#6CCB7C', // Soft green
+    warning: '#FFD166', // Warm pastel yellow
+    error: '#E57373', // Soft red
+    info: '#5BC0EB', // Light cyan-blue
 
     // Interactive colors
-    hover: '#f3f4f6',
-    active: '#e5e7eb',
-    focus: '#93c5fd',
+    hover: '#E6F0FF', // Soft blue hover tint
+    active: '#4A90E2', // Same as primary for consistency
+    focus: '#9AC9FF', // Light blue focus ring
 
     // Medical/health specific colors
-    healthy: '#22c55e',
-    attention: '#f97316',
-    critical: '#dc2626',
+    healthy: '#5AD66F', // Green accent
+    attention: '#F5A623', // Orange pastel
+    critical: '#D32F2F', // Accessible dark red
   },
 }
 
 export const darkTheme: ITheme = {
   colors: {
     // Primary brand colors
-    primary: '#3b82f6',
-    secondary: '#34d399',
+    primary: '#5AB0FF', // Bright blue accent
+    secondary: '#C58BFF', // Violet accent
 
     // Background colors
-    background: '#0f172a',
-    surface: '#1e293b',
-    card: '#334155',
+    background: '#0D1117', // Deep neutral dark
+    surface: '#161B22', // Elevated surfaces
+    card: '#1E242D',
 
     // Text colors
-    text: '#f1f5f9',
-    textSecondary: '#cbd5e1',
-    textMuted: '#94a3b8',
+    text: '#E6E6E6', // Soft white text
+    textSecondary: '#B3B3B3',
+    textMuted: '#888888',
 
     // UI element colors
-    border: '#475569',
-    borderLight: '#334155',
-    shadow: 'rgba(0, 0, 0, 0.3)',
+    border: '#2A2F37',
+    borderLight: '#3C4149',
+    shadow: '#00000066',
 
     // Status colors
-    success: '#22c55e',
-    warning: '#fbbf24',
-    error: '#f87171',
-    info: '#60a5fa',
+    success: '#3DDC97', // Vibrant mint green
+    warning: '#F4C430', // Warm gold
+    error: '#FF6B6B', // Bright coral red
+    info: '#4FC3F7',
 
     // Interactive colors
-    hover: '#475569',
-    active: '#64748b',
-    focus: '#3b82f6',
+    hover: '#1C2330', // Slightly lighter surface
+    active: '#5AB0FF',
+    focus: '#FF9E9E', // Soft pink focus glow
 
     // Medical/health specific colors
-    healthy: '#4ade80',
-    attention: '#fb923c',
-    critical: '#f87171',
+    healthy: '#4ADE80', // Lime green
+    attention: '#FFD166', // Yellow-orange
+    critical: '#E84855', // Strong red-pink
   },
 }
