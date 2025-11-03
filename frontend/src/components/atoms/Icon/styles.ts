@@ -1,5 +1,3 @@
-// /Users/proettgen/dev/DHBW/DermaTrack/frontend/src/components/atoms/icon/styles.ts
-
 'use client'
 import styled, { css } from 'styled-components'
 
@@ -9,19 +7,19 @@ import { IStyledIconProps } from './types'
 
 const sizeStyles = {
   sm: css`
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: 1rem; // 16px
+    width: 1rem;
+    height: 1rem;
   `,
   md: css`
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    font-size: 1.25rem; // 20px
+    width: 1.25rem;
+    height: 1.25rem;
   `,
   lg: css`
-    font-size: 28px;
-    width: 28px;
-    height: 28px;
+    font-size: 1.5rem; // 24px
+    width: 1.5rem;
+    height: 1.5rem;
   `,
 }
 
@@ -56,14 +54,14 @@ export const Icon = styled.span<IStyledIconProps>`
   vertical-align: middle;
   cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
 
-  ${({ $spacing }) => $spacing && `margin: ${$spacing};`}
+  ${({ $spacing }) => $spacing && `margin: ${$spacing};`} //should be in rem
 
   /* Sizes */
   ${({ $size }) => sizeStyles[$size]}
-  
+
   /* Colors */
   ${({ $color, theme }) => colorStyles(theme)[$color]}
-  
+
   /* Hover effect for clickable icons */
   ${({ $clickable }) =>
     $clickable &&

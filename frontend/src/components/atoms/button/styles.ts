@@ -7,19 +7,19 @@ import { IButtonStyleProps } from './types'
 
 const sizeStyles = {
   sm: css`
-    height: 32px;
-    padding: 0 12px;
-    font-size: 0.875rem;
+    height: 2rem; // 32px
+    padding: 0 0.75rem; // 12px
+    font-size: 0.875rem; // 14px
   `,
   md: css`
-    height: 40px;
-    padding: 0 16px;
-    font-size: 0.9375rem;
+    height: 2.5rem; // 40px
+    padding: 0 1rem; // 16px
+    font-size: 1rem; // 16px (WCAG minimum)
   `,
   lg: css`
-    height: 48px;
-    padding: 0 20px;
-    font-size: 1rem;
+    height: 3rem; // 48px
+    padding: 0 1.25rem; // 20px
+    font-size: 1.125rem; // 18px
   `,
 }
 
@@ -69,12 +69,13 @@ export const StyledButton = styled.button<IButtonStyleProps>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  border-radius: 5px;
+  gap: 0.5rem; // 8px
+  border-radius: 0.3125rem; // 5px
   border: 1px solid transparent;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
+  line-height: 1.5;
 
   ${({ $fullWidth }) => $fullWidth && 'width: 100%;'}
 
