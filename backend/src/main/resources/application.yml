@@ -10,7 +10,7 @@ spring:
       hibernate:
         jdbc:
           lob:
-            '[non_contextual_creation]': true
+            "[non_contextual_creation]": true
   datasource:
     hikari:
       maximum-pool-size: 5
@@ -34,6 +34,6 @@ management:
 
 logging:
   level:
-    '[org.springframework.web]': INFO
-    '[de.dermatrack]': DEBUG
-    '[org.hibernate.SQL]': WARN
+    "[org.springframework.web]": INFO
+    "[de.dermatrack]": DEBUG
+    "[org.hibernate.SQL]": WARN
