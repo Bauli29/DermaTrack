@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service  // Spring annotation to denote a service component
@@ -68,14 +67,4 @@ public class DiaryService {
         IDiaryEntryRepository.deleteById(id);
     }
 
-    /**
-     * Check if diary entry exists by ID
-     * @param id the UUID to check
-     * @return true if entry exists, false otherwise
-     */
-    @Transactional(readOnly = true)
-    public boolean existsById(UUID id) {
-        log.debug("Service: Checking if diary entry exists by id: {}", id);
-        return IDiaryEntryRepository.existsById(id);
-    }
 }
