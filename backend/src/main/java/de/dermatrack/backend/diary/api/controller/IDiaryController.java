@@ -2,14 +2,16 @@ package de.dermatrack.backend.diary.api.controller;
 
 import de.dermatrack.backend.diary.api.model.DiaryEntry;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/diary")
-// @Validated  // TODO: Add validation later
+@Validated
 //TODO: Add Swagger annotations and rm javadocs
 public interface IDiaryController {
 
@@ -34,7 +36,7 @@ public interface IDiaryController {
      * @return the created diary entry
      */
     @PostMapping()
-    ResponseEntity<DiaryEntry> createDiaryEntry(@RequestBody DiaryEntry diaryEntry);
+    ResponseEntity<DiaryEntry> createDiaryEntry(@RequestBody @Valid DiaryEntry diaryEntry);
 
     /**
      * PUT - Update existing diary entry
@@ -45,7 +47,7 @@ public interface IDiaryController {
     @PutMapping("/{id}")
     ResponseEntity<DiaryEntry> updateDiaryEntry(
             @PathVariable UUID id,
-            @RequestBody DiaryEntry diaryEntry
+            @RequestBody @Valid DiaryEntry diaryEntry
     );
 
     /**

@@ -2,6 +2,7 @@ package de.dermatrack.backend.diary.service;
 
 import de.dermatrack.backend.diary.api.model.DiaryEntry;
 import de.dermatrack.backend.diary.api.repository.IDiaryEntryRepository;
+import de.dermatrack.backend.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,19 +26,21 @@ public class DiaryService {
      * @return the saved diary entry
      */
     public DiaryEntry save(DiaryEntry diaryEntry) {
-        log.debug("Saving diary entry: {}", diaryEntry.getId());
+        log.debug("Service: Saving diary entry: {}", diaryEntry.getId());
         return IDiaryEntryRepository.save(diaryEntry);
     }
 
     /**
-     * Find diary entry by ID
+     * Find diary entry by ID or throw exception
      * @param id the UUID of the entry
-     * @return Optional containing the entry if found
+     * @return the diary entry
+     * @throws ResourceNotFoundException if entry not found
      */
     @Transactional(readOnly = true)
-    public Optional<DiaryEntry> findById(UUID id) {
-        log.debug("Finding diary entry by id: {}", id);
-        return IDiaryEntryRepository.findById(id);
+    public DiaryEntry findById(UUID id) {
+        log.debug("Service: Finding diary entry by id: {}", id);
+        return IDiaryEntryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("DiaryEntry", "id", id));
     }
 
     /**
@@ -46,19 +49,20 @@ public class DiaryService {
      */
     @Transactional(readOnly = true)
     public List<DiaryEntry> findAll() {
-        log.debug("Finding all diary entries");
+        log.debug("Service: Finding all diary entries");
         return IDiaryEntryRepository.findAll();
     }
 
     /**
      * Delete diary entry by ID
      * @param id the UUID of the entry to delete
+     * @throws ResourceNotFoundException if entry not found
      */
     public void deleteById(UUID id) {
-        log.debug("Deleting diary entry by id: {}", id);
+        log.debug("Service: Deleting diary entry by id: {}", id);
 
         if (!IDiaryEntryRepository.existsById(id)) {
-            throw new IllegalArgumentException("Diary entry not found with id: " + id);
+            throw new ResourceNotFoundException("DiaryEntry", "id", id);
         }
 
         IDiaryEntryRepository.deleteById(id);
@@ -71,7 +75,7 @@ public class DiaryService {
      */
     @Transactional(readOnly = true)
     public boolean existsById(UUID id) {
-        log.debug("Checking if diary entry exists by id: {}", id);
+        log.debug("Service: Checking if diary entry exists by id: {}", id);
         return IDiaryEntryRepository.existsById(id);
     }
 }

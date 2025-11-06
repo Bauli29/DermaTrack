@@ -1,4 +1,4 @@
-package de.dermatrack.backend.config;
+package de.dermatrack.backend.exception;
 
 import lombok.Builder;
 import lombok.Data;

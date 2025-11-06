@@ -1,0 +1,9 @@
+
+${AnsiColor.WHITE} Awesome DERMATRACK Application
+
+${AnsiColor.BRIGHT_YELLOW}       o_o    @_@
+${AnsiColor.BRIGHT_YELLOW}      /||\   /||\
+${AnsiColor.BRIGHT_YELLOW}      / \\   / \\
+${AnsiColor.BRIGHT_RED}    *scratch* *itch*
+
+${AnsiColor.WHITE} :: Spring Boot ${spring-boot.version} ::${AnsiColor.DEFAULT}

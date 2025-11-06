@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -15,11 +16,11 @@ public class SecurityConfig {
     @Profile("local") // Only for local development against dev database
     public SecurityFilterChain localSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Disable CSRF for API testing
+            .csrf(AbstractHttpConfigurer::disable)               // Disable CSRF for API testing
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/**").permitAll()        // Allow all API operations (GET, POST, PUT, DELETE)
                 .requestMatchers("/actuator/**").permitAll()   // Allow health checks and monitoring
-                .anyRequest().permitAll()                      // Allow everything else too
+                .anyRequest().permitAll()                        // Allow everything else too
             );
         
         return http.build();

@@ -2,7 +2,6 @@ package de.dermatrack.backend.diary.api.controller;
 
 import de.dermatrack.backend.diary.api.model.DiaryEntry;
 import de.dermatrack.backend.diary.service.DiaryService;
-import de.dermatrack.backend.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,6 +17,7 @@ import java.util.UUID;
 public class DiaryController implements IDiaryController {
 
     private final DiaryService diaryService;
+    // Service handles all exceptions
 
     @Override
     public ResponseEntity<List<DiaryEntry>> getAllDiaryEntries() {
@@ -32,8 +32,7 @@ public class DiaryController implements IDiaryController {
     public ResponseEntity<DiaryEntry> getDiaryEntryById(UUID id) {
         log.debug("Controller: Getting diary entry by id: {}", id);
 
-        DiaryEntry entry = diaryService.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("DiaryEntry", "id", id));
+        DiaryEntry entry = diaryService.findById(id);
 
         return ResponseEntity.ok(entry);
     }
@@ -51,11 +50,13 @@ public class DiaryController implements IDiaryController {
     public ResponseEntity<DiaryEntry> updateDiaryEntry(UUID id, DiaryEntry diaryEntry) {
         log.debug("Controller: Updating diary entry with id: {}", id);
 
-        if (!diaryService.existsById(id)) {
-            throw new ResourceNotFoundException("DiaryEntry", "id", id);
-        }
+        // Get the existing entry to preserve createdAt
+        DiaryEntry existingEntry = diaryService.findById(id);
 
+        // Set the ID and preserve createdAt
         diaryEntry.setId(id);
+        diaryEntry.setCreatedAt(existingEntry.getCreatedAt());
+
         DiaryEntry updatedEntry = diaryService.save(diaryEntry);
 
         return ResponseEntity.ok(updatedEntry);
@@ -65,11 +66,9 @@ public class DiaryController implements IDiaryController {
     public ResponseEntity<Void> deleteDiaryEntry(UUID id) {
         log.debug("Controller: Deleting diary entry with id: {}", id);
 
-        if (!diaryService.existsById(id)) {
-            throw new ResourceNotFoundException("DiaryEntry", "id", id);
-        }
-
+        
         diaryService.deleteById(id);
+        
         return ResponseEntity.noContent().build();
     }
 }

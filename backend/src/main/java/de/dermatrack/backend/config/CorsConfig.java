@@ -25,7 +25,7 @@ public class CorsConfig implements WebMvcConfigurer {
             // ===========================================
             
             // LOCAL DEVELOPMENT
-            "http://localhost:3000",         // React/Next.js default
+            "http://localhost:3000",          // React/Next.js default
             
             // PRODUCTION DEPLOYMENT
             "https://derma-track.vercel.app"  // Production frontend
