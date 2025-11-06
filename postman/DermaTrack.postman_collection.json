@@ -1,0 +1,192 @@
+{
+	"info": {
+		"_postman_id": "fd9db013-ec8a-469e-aad4-1941b0d57702",
+		"name": "DermaTrack",
+		"description": "Postman Collection to make development and testing easier.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "45256808"
+	},
+	"item": [
+		{
+			"name": "Backend",
+			"item": [
+				{
+					"name": "Actuator",
+					"item": [
+						{
+							"name": "Backend Health",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": "{{backend-base-url}}/actuator/health"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Diary",
+					"item": [
+						{
+							"name": "Diary All",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": "{{backend-base-url}}/api/diary",
+								"description": "Returns all diaries in the table."
+							},
+							"response": []
+						},
+						{
+							"name": "Diary By Id",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": "{{backend-base-url}}/api/diary/{{id}}"
+							},
+							"response": []
+						},
+						{
+							"name": "Diary By Id",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{backend-base-url}}/api/diary/{{id}}",
+									"host": [
+										"{{backend-base-url}}"
+									],
+									"path": [
+										"api",
+										"diary",
+										"{{id}}"
+									],
+									"query": [
+										{
+											"key": "",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Diary New",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{backend-base-url}}/api/diary"
+							},
+							"response": [
+								{
+									"name": "Diary New",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"allergies\": 3,\n    \"infections\": 0,\n    \"stressLevel\": 7,\n    \"sleep\": 6,\n    \"nutrition\": 8,\n    \"symptoms\": 4,\n    \"miscellaneous\": \"TESTDATA\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{backend-base-url}}/api/diary"
+									},
+									"_postman_previewlanguage": "Text",
+									"header": [],
+									"cookie": [
+										{
+											"expires": "Invalid Date",
+											"domain": "",
+											"path": ""
+										}
+									],
+									"body": ""
+								}
+							]
+						},
+						{
+							"name": "Diary Update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{backend-base-url}}/api/diary/{{id}}"
+							},
+							"response": [
+								{
+									"name": "Diary Update",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"allergies\": 5,\n    \"infections\": 5,\n    \"stressLevel\": 5,\n    \"sleep\": 5,\n    \"nutrition\": 5,\n    \"symptoms\": 5,\n    \"miscellaneous\": \"TESTDATA\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": "{{backend-base-url}}/api/diary/{{id}}"
+									},
+									"_postman_previewlanguage": "",
+									"header": [],
+									"cookie": [],
+									"body": ""
+								}
+							]
+						}
+					]
+				}
+			],
+			"description": "These requests are usually not exposed"
+		}
+	]
+}
