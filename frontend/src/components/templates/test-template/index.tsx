@@ -1,14 +1,23 @@
 import Button from '@/components/atoms/button'
 import Icon from '@/components/atoms/Icon'
+import Headline from '@/components/atoms/Headline'
 
 import * as SC from './styles'
 import ThemeButton from './temp-theme-button'
 
 const TestTemplate = () => (
   <SC.TestPageWrapper>
-    <h1>Test Template</h1>
+    <Headline variant='h1' color='text' align='center'>
+      Test Template
+    </Headline>
     <ThemeButton />
     <>
+      <Headline variant='h2' color='primary' align='left'>
+        Primary Section
+      </Headline>
+      <Headline variant='h3' color='secondary' align='left' noSpacing>
+        Buttons
+      </Headline>
       <Button variant='primary' size='md'>
         Primary
       </Button>
@@ -34,6 +43,9 @@ const TestTemplate = () => (
         Danger Outline
       </Button>
 
+      <Headline variant='h3' color='secondary' align='left' noSpacing>
+        Icons
+      </Headline>
       <Icon name='home' size='lg' color='primary' aria-label='home button' />
       <Icon name='settings' size='md' color='secondary' />
       <Icon name='delete' size='sm' color='error' />
