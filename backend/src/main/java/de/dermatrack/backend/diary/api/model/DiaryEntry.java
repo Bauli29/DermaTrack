@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -28,7 +30,8 @@ public class DiaryEntry {
     @Id
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "UUID DEFAULT gen_random_uuid()")
-    @Schema(description = "Unique identifier of the diary entry", example = "c56a4180-65aa-42ec-a945-5fd21dec0538")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "Unique identifier of the diary entry", example = "c56a4180-65aa-42ec-a945-5fd21dec0538", accessMode = Schema.AccessMode.READ_ONLY)
     private UUID id;
 
     @Column(
@@ -36,7 +39,8 @@ public class DiaryEntry {
             nullable = false,
             columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT now()"
     )
-    @Schema(description = "Creation timestamp (UTC)", type = "string", format = "date-time")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "Creation timestamp (UTC)", type = "string", format = "date-time", accessMode = Schema.AccessMode.READ_ONLY)
     private OffsetDateTime createdAt;
 
     @Column(name = "allergies")
