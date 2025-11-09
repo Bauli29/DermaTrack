@@ -22,46 +22,6 @@ export interface ITheme {
     attention: string
     critical: string
   }
-  typography: {
-    headings: {
-      h1: {
-        fontSize: string
-        lineHeight: number
-        spacingAfter: string
-        fontWeight: number
-      }
-      h2: {
-        fontSize: string
-        lineHeight: number
-        spacingAfter: string
-        fontWeight: number
-      }
-      h3: {
-        fontSize: string
-        lineHeight: number
-        spacingAfter: string
-        fontWeight: number
-      }
-      h4: {
-        fontSize: string
-        lineHeight: number
-        spacingAfter: string
-        fontWeight: number
-      }
-      h5: {
-        fontSize: string
-        lineHeight: number
-        spacingAfter: string
-        fontWeight: number
-      }
-      h6: {
-        fontSize: string
-        lineHeight: number
-        spacingAfter: string
-        fontWeight: number
-      }
-    }
-  }
 }
 
 declare module 'styled-components' {
@@ -109,46 +69,6 @@ export const lightTheme: ITheme = {
     attention: '#F5A623', // Orange pastel
     critical: '#D32F2F', // Accessible dark red
   },
-  typography: {
-    headings: {
-      h1: {
-        fontSize: '2.2rem', // ~35px
-        lineHeight: 1.3,
-        spacingAfter: '3rem', // 2.2 × 1.3
-        fontWeight: 700,
-      },
-      h2: {
-        fontSize: '1.9rem', // ~30px
-        lineHeight: 1.35,
-        spacingAfter: '2.565rem', // 1.9 × 1.35
-        fontWeight: 700,
-      },
-      h3: {
-        fontSize: '1.6rem', // ~26px
-        lineHeight: 1.4,
-        spacingAfter: '2.24rem', // 1.6 × 1.4
-        fontWeight: 600,
-      },
-      h4: {
-        fontSize: '1.4rem', // ~22px
-        lineHeight: 1.45,
-        spacingAfter: '2rem', // 1.4 × 1.45
-        fontWeight: 600,
-      },
-      h5: {
-        fontSize: '1.2rem', // ~19px
-        lineHeight: 1.5,
-        spacingAfter: '1.8rem', // 1.2 × 1.5
-        fontWeight: 600,
-      },
-      h6: {
-        fontSize: '1rem', // ~16px
-        lineHeight: 1.5, // 1 × 1.5
-        spacingAfter: '1.5rem', // 1.5 × 1
-        fontWeight: 600,
-      },
-    },
-  },
 }
 
 export const darkTheme: ITheme = {
@@ -187,45 +107,5 @@ export const darkTheme: ITheme = {
     healthy: '#4ADE80', // Lime green
     attention: '#FFD166', // Yellow-orange
     critical: '#E84855', // Strong red-pink
-  },
-  typography: {
-    headings: {
-      h1: {
-        fontSize: '2.2rem', // ~35px
-        lineHeight: 1.3,
-        spacingAfter: '3rem', // 2.2 × 1.3
-        fontWeight: 700,
-      },
-      h2: {
-        fontSize: '1.9rem', // ~30px
-        lineHeight: 1.35,
-        spacingAfter: '2.565rem', // 1.9 × 1.35
-        fontWeight: 700,
-      },
-      h3: {
-        fontSize: '1.6rem', // ~26px
-        lineHeight: 1.4,
-        spacingAfter: '2.24rem', // 1.6 × 1.4
-        fontWeight: 600,
-      },
-      h4: {
-        fontSize: '1.4rem', // ~22px
-        lineHeight: 1.45,
-        spacingAfter: '2rem', // 1.4 × 1.45
-        fontWeight: 600,
-      },
-      h5: {
-        fontSize: '1.2rem', // ~19px
-        lineHeight: 1.5,
-        spacingAfter: '1.8rem', // 1.2 × 1.5
-        fontWeight: 600,
-      },
-      h6: {
-        fontSize: '1rem', // ~16px
-        lineHeight: 1.5, // 1 × 1.5
-        spacingAfter: '1.5rem', // 1.5 × 1
-        fontWeight: 600,
-      },
-    },
   },
 }

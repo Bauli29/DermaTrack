@@ -11,7 +11,7 @@ export interface IHeadlineProps extends HTMLAttributes<HTMLHeadingElement> {
   variant?: THeadlineVariant
   color?: THeadlineColor
   align?: THeadlineAlign
-  // If true, removes the default bottom spacing from the theme (useful when stacking tightly)
+  // If true, removes the default bottom spacing from the component's local tokens (useful when stacking tightly)
   noSpacing?: boolean
   // Optional full CSS margin override (e.g., "0 0 1rem 0"). If provided, it wins over spacing.
   margin?: string
