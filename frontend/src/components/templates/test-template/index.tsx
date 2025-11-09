@@ -6,6 +6,7 @@ import Button from '@/components/atoms/button'
 import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
 import Slider from '@/components/atoms/Slider'
+import Text from '@/components/atoms/Text'
 
 import * as SC from './styles'
 import ThemeButton from './temp-theme-button'
@@ -67,9 +68,9 @@ const TestTemplate = () => {
         <Headline variant='h3' color='secondary' align='left' noSpacing>
           Sliders
         </Headline>
-        <p style={{ marginBottom: '10px', fontSize: '14px' }}>
+        <Text size='small' color='textSecondary' noSpacing>
           Basic Slider (0-100): {basicSliderValue}
-        </p>
+        </Text>
         <Slider
           min={0}
           max={100}
@@ -80,9 +81,9 @@ const TestTemplate = () => {
           margin='0 0 2rem 0'
         />
 
-        <p style={{ marginBottom: '10px', fontSize: '14px' }}>
+        <Text size='small' color='textSecondary' noSpacing>
           Temperature Slider (-10°C to 40°C): {temperatureValue}°C
-        </p>
+        </Text>
         <Slider
           min={-10}
           max={40}
@@ -93,6 +94,45 @@ const TestTemplate = () => {
           width='250px'
           margin='0 0 1rem 0'
         />
+
+        <Headline variant='h3' color='secondary' align='left' noSpacing>
+          Text
+        </Headline>
+        <Text size='small' color='textMuted'>
+          Small muted text for helper captions or descriptions.
+        </Text>
+        <Text size='medium' color='text'>
+          Medium default body text. This should be the go-to size on mobile for
+          readability.
+        </Text>
+        <Text size='large' color='text' weight={500}>
+          Large text with semi-bold weight for emphasis while remaining
+          body-style.
+        </Text>
+        <Text size='medium' color='primary' align='center'>
+          Center-aligned primary colored text.
+        </Text>
+        <Text size='medium' color='secondary' align='right'>
+          Right-aligned secondary colored text.
+        </Text>
+        <Text size='small' color='text' truncate style={{ maxWidth: '200px' }}>
+          This is a very long line that will be truncated with an ellipsis when
+          it exceeds the container width.
+        </Text>
+        <Text
+          size='small'
+          color='text'
+          maxLines={2}
+          style={{ maxWidth: '220px' }}
+        >
+          This is a longer paragraph that will be clamped to two lines. If the
+          text exceeds two lines, it will be gracefully truncated while
+          maintaining readability across different screen sizes.
+        </Text>
+        <Text size='medium' color='textMuted' noWrap>
+          No-wrap text: will not break into multiple lines even if the container
+          is narrow.
+        </Text>
       </>
     </SC.TestPageWrapper>
   )
