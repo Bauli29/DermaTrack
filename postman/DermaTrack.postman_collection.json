@@ -1,12 +1,221 @@
 {
 	"info": {
-		"_postman_id": "f9b36ea4-52f1-481e-83f8-7da1ee430072",
+		"_postman_id": "50bb0182-3a13-4362-b9a3-f079eb74e565",
 		"name": "DermaTrack",
 		"description": "Postman Collection to make development and testing easier.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "45256808"
 	},
 	"item": [
+		{
+			"name": "Frontend",
+			"item": [
+				{
+					"name": "Diary",
+					"item": [
+						{
+							"name": "Diary All",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{frontend-base-url}}/api/diary",
+									"host": [
+										"{{frontend-base-url}}"
+									],
+									"path": [
+										"api",
+										"diary"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Diary By Id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{frontend-base-url}}/api/diary/{{id}}",
+									"host": [
+										"{{frontend-base-url}}"
+									],
+									"path": [
+										"api",
+										"diary",
+										"{{id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Diary By Id",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{frontend-base-url}}/api/diary/{{id}}",
+									"host": [
+										"{{frontend-base-url}}"
+									],
+									"path": [
+										"api",
+										"diary",
+										"{{id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Diary Create",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{frontend-base-url}}/api/diary",
+									"host": [
+										"{{frontend-base-url}}"
+									],
+									"path": [
+										"api",
+										"diary"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Diary Create",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"allergies\": 3,\n    \"infections\": 0,\n    \"stressLevel\": 7,\n    \"sleep\": 6,\n    \"nutrition\": 8,\n    \"symptoms\": 4,\n    \"miscellaneous\": \"TESTDATA\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{frontend-base-url}}/api/diary",
+											"host": [
+												"{{frontend-base-url}}"
+											],
+											"path": [
+												"api",
+												"diary"
+											]
+										}
+									},
+									"_postman_previewlanguage": "",
+									"header": [],
+									"cookie": [
+										{
+											"expires": "Invalid Date",
+											"domain": "",
+											"path": ""
+										}
+									],
+									"body": ""
+								}
+							]
+						},
+						{
+							"name": "Diary Update",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{frontend-base-url}}/api/diary/{{id}}",
+									"host": [
+										"{{frontend-base-url}}"
+									],
+									"path": [
+										"api",
+										"diary",
+										"{{id}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Diary Update",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"allergies\": 5,\n    \"infections\": 5,\n    \"stressLevel\": 5,\n    \"sleep\": 5,\n    \"nutrition\": 5,\n    \"symptoms\": 5,\n    \"miscellaneous\": \"TESTDATA\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{frontend-base-url}}/api/diary/{{id}}",
+											"host": [
+												"{{frontend-base-url}}"
+											],
+											"path": [
+												"api",
+												"diary",
+												"{{id}}"
+											]
+										}
+									},
+									"_postman_previewlanguage": "",
+									"header": [],
+									"cookie": [
+										{
+											"expires": "Invalid Date",
+											"domain": "",
+											"path": ""
+										}
+									],
+									"body": ""
+								}
+							]
+						}
+					]
+				}
+			],
+			"description": "These endpoints are usually exposed"
+		},
 		{
 			"name": "Backend",
 			"item": [
@@ -113,7 +322,7 @@
 							"response": []
 						},
 						{
-							"name": "Diary New",
+							"name": "Diary Create",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -261,7 +470,18 @@
 					"name": "Swagger JSON",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "{{backend-base-url}}/api/v3/api-docs",
+							"host": [
+								"{{backend-base-url}}"
+							],
+							"path": [
+								"api",
+								"v3",
+								"api-docs"
+							]
+						}
 					},
 					"response": []
 				},
@@ -269,7 +489,17 @@
 					"name": "Swagger UI",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "{{backend-base-url}}/swagger-ui/index.html",
+							"host": [
+								"{{backend-base-url}}"
+							],
+							"path": [
+								"swagger-ui",
+								"index.html"
+							]
+						}
 					},
 					"response": []
 				}
