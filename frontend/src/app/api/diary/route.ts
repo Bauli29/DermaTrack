@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
+
+import {
+  isValidationError,
+  validateRequestOrThrow,
+} from '@/lib/validation-helper'
 
 import { IDiaryEntry } from '@/types/diary'
 
@@ -18,7 +22,7 @@ export const GET = async (): Promise<NextResponse> => {
       headers: {
         'Content-Type': 'application/json',
       },
-      cache: 'no-store', // Ensure fresh data
+      cache: 'no-store',
     })
 
     if (!response.ok) {
@@ -49,14 +53,15 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
   try {
     const body = await request.json()
 
-    const diaryEntry = DiaryEntrySchema.parse(body)
+    // Validate and throw if invalid
+    const validatedData = validateRequestOrThrow(DiaryEntrySchema, body)
 
     const response = await fetch(`${BACKEND_API_URL}/api/diary`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(diaryEntry),
+      body: JSON.stringify(validatedData),
     })
 
     if (!response.ok) {
@@ -71,17 +76,9 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 
     return NextResponse.json(createdEntry, { status: 201 })
   } catch (error) {
-    // Handle Zod validation errors
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          error: 'Validation failed',
-          details: error.issues.map(
-            issue => `${issue.path.join('.')}: ${issue.message}`
-          ),
-        },
-        { status: 400 }
-      )
+    // Handle validation errors
+    if (isValidationError(error)) {
+      return NextResponse.json(error.validationError, { status: 400 })
     }
 
     // Handle JSON parsing errors

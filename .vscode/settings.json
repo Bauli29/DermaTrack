@@ -74,8 +74,12 @@
       "orderLevel": 110
     },
     {
+      "regex": "^@/validation/(.*)$",
+      "orderLevel": 120
+    },
+    {
       "regex": "^@/(.*)$",
-      "orderLevel": 115
+      "orderLevel": 125
     },
     {
       "regex": "^[./]",
