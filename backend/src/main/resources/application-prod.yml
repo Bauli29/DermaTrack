@@ -4,7 +4,12 @@ spring:
   jpa:
     show-sql: false
 
+app:
+  auth:
+    username: ${AUTH_USERNAME}
+    password: ${AUTH_PASSWORD}
+
 logging:
   level:
-    '[de.dermatrack]': INFO
-    '[org.hibernate.SQL]': WARN
+    "[de.dermatrack]": INFO
+    "[org.hibernate.SQL]": WARN

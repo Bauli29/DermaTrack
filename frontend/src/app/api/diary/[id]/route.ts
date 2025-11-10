@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { secureFetch } from '@/lib/backend-client'
 import {
   isValidationError,
   validateRequestOrThrow,
@@ -8,8 +9,6 @@ import {
 import { IDiaryEntry } from '@/types/diary'
 
 import { DiaryEntrySchema } from '@/validation/diary'
-
-const BACKEND_API_URL = process.env.BACKEND_API_URL ?? 'http://localhost:8080'
 
 /**
  * GET /api/diary/[id] - Fetch a single diary entry by ID
@@ -23,9 +22,8 @@ export const GET = async function (
 ) {
   try {
     const { id } = await params
-    const response = await fetch(`${BACKEND_API_URL}/api/diary/${id}`, {
+    const response = await secureFetch(`/api/diary/${id}`, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
     })
 
     if (!response.ok) {
@@ -37,10 +35,7 @@ export const GET = async function (
     }
 
     const data: IDiaryEntry = await response.json()
-
-    return NextResponse.json(data, {
-      status: 200,
-    })
+    return NextResponse.json(data, { status: 200 })
   } catch {
     return NextResponse.json(
       { error: 'Internal server error while fetching diary entry' },
@@ -61,7 +56,7 @@ export const DELETE = async function (
 ) {
   try {
     const { id } = await params
-    const response = await fetch(`${BACKEND_API_URL}/api/diary/${id}`, {
+    const response = await secureFetch(`/api/diary/${id}`, {
       method: 'DELETE',
     })
 
@@ -99,9 +94,8 @@ export const PUT = async function (
     // Validate and throw if invalid
     const validatedData = validateRequestOrThrow(DiaryEntrySchema, body)
 
-    const response = await fetch(`${BACKEND_API_URL}/api/diary/${id}`, {
+    const response = await secureFetch(`/api/diary/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(validatedData),
     })
 

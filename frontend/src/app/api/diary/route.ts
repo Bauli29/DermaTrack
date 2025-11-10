@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { secureFetch } from '@/lib/backend-client'
 import {
   isValidationError,
   validateRequestOrThrow,
@@ -9,19 +10,14 @@ import { IDiaryEntry } from '@/types/diary'
 
 import { DiaryEntrySchema } from '@/validation/diary'
 
-const BACKEND_API_URL = process.env.BACKEND_API_URL ?? 'http://localhost:8080'
-
 /**
  * GET /api/diary - Fetch all diary entries
  * @returns NextResponse with array of diary entries or error message
  */
 export const GET = async (): Promise<NextResponse> => {
   try {
-    const response = await fetch(`${BACKEND_API_URL}/api/diary`, {
+    const response = await secureFetch('/api/diary', {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       cache: 'no-store',
     })
 
@@ -56,11 +52,8 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
     // Validate and throw if invalid
     const validatedData = validateRequestOrThrow(DiaryEntrySchema, body)
 
-    const response = await fetch(`${BACKEND_API_URL}/api/diary`, {
+    const response = await secureFetch('/api/diary', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(validatedData),
     })
 
