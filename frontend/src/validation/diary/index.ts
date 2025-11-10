@@ -49,6 +49,9 @@ export const DiaryEntrySchema = z
       .max(5000, 'Miscellaneous notes cannot exceed 5000 characters')
       .optional(),
   })
-  .strict() // This rejects unknown keys like
+  .strict() // Rejects unknown keys
+  .refine(data => Object.values(data).some(v => v !== undefined), {
+    message: 'At least one field must be provided',
+  })
 
 export type TDiaryEntryInput = z.infer<typeof DiaryEntrySchema>
