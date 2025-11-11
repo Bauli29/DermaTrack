@@ -41,8 +41,7 @@ export const DiaryEntrySchema = z
       .number()
       .int('Symptoms rating must be a whole number')
       .min(0, 'Symptoms rating cannot be less than 0')
-      .max(10, 'Symptoms rating cannot be greater than 10')
-      .optional(),
+      .max(10, 'Symptoms rating cannot be greater than 10'),
 
     miscellaneous: z
       .string()
