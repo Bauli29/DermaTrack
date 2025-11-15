@@ -7,6 +7,7 @@ import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
 import Slider from '@/components/atoms/Slider'
 import Text from '@/components/atoms/Text'
+import TextArea from '@/components/molecules/TextArea'
 
 import * as SC from './styles'
 import ThemeButton from './temp-theme-button'
@@ -14,6 +15,9 @@ import ThemeButton from './temp-theme-button'
 const TestTemplate = () => {
   const [basicSliderValue, setBasicSliderValue] = useState(50)
   const [temperatureValue, setTemperatureValue] = useState(20)
+  const [notes, setNotes] = useState('')
+  const [successNotes, setSuccessNotes] = useState('Everything looks great!')
+  const [errorNotes, setErrorNotes] = useState('This input is invalid...')
 
   return (
     <SC.TestPageWrapper>
@@ -133,6 +137,46 @@ const TestTemplate = () => {
           No-wrap text: will not break into multiple lines even if the container
           is narrow.
         </Text>
+
+        <Headline variant='h3' color='secondary' align='left' noSpacing>
+          Text Areas
+        </Headline>
+        {/* Default */}
+        <TextArea
+          label='Daily notes'
+          placeholder='Type your notes here (multi-line)...'
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          helperText={`Characters: ${notes.length}`}
+          margin='0 0 1rem 0'
+        />
+
+        {/* Success state */}
+        <TextArea
+          label='Validation: success'
+          value={successNotes}
+          onChange={e => setSuccessNotes(e.target.value)}
+          validation='success'
+          helperText='Looks good!'
+          margin='0 0 1rem 0'
+        />
+
+        {/* Error state */}
+        <TextArea
+          label='Validation: error'
+          value={errorNotes}
+          onChange={e => setErrorNotes(e.target.value)}
+          validation='error'
+          helperText='Please correct the highlighted issues.'
+          margin='0 0 1rem 0'
+        />
+
+        {/* Disabled */}
+        <TextArea
+          label='Disabled field'
+          placeholder='Cannot type here'
+          disabled
+        />
       </>
     </SC.TestPageWrapper>
   )
