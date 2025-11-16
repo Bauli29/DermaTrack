@@ -35,6 +35,11 @@ export interface ITextAreaProps
    * Max visual width (e.g., '100%', '320px'). Useful inside forms.
    */
   maxWidth?: string
+  /**
+   * If true the textarea behaves like a single-line input (rows=1,
+   * no vertical resize and tighter vertical padding). Useful for login/registration fields.
+   */
+  singleLine?: boolean
 }
 
 export interface IStyledContainerProps {
@@ -47,6 +52,7 @@ export interface IStyledTextAreaProps {
   $hasLabel: boolean
   $validation: TValidationState
   $disabled?: boolean
+  $singleLine?: boolean
 }
 
 export interface IStatusIconProps {

@@ -35,6 +35,7 @@ const TextArea = ({
   helperText,
   fullWidth = true,
   margin,
+  singleLine = false,
   maxWidth,
   disabled,
   id,
@@ -50,6 +51,9 @@ const TextArea = ({
   // Determine validation icon and visibility
   const showSuccess = validation === 'success'
   const showError = validation === 'error'
+
+  // If singleLine is requested, force rows to 1 for layout and accessibility
+  const effectiveRows = singleLine ? 1 : rows
 
   return (
     <SC.Container $fullWidth={fullWidth} $margin={margin} $maxWidth={maxWidth}>
@@ -71,10 +75,11 @@ const TextArea = ({
           id={fieldId}
           $hasLabel={!!label}
           $validation={validation}
+          $singleLine={singleLine}
           $disabled={disabled}
           disabled={disabled}
           placeholder={placeholder}
-          rows={rows}
+          rows={effectiveRows}
           aria-invalid={showError}
           aria-describedby={helperId}
           {...rest}

@@ -41,13 +41,27 @@ export const FieldWrapper = styled.div`
 export const StyledTextArea = styled.textarea<IStyledTextAreaProps>`
   /* 1) Sizing & box model */
   width: 100%;
+  /* default multi-line sizing; single-line variant will override these via prop */
   min-height: 6rem; /* ~96px: comfortable touch target for multi-line input */
   padding: 0.75rem 2.5rem 0.75rem 0.75rem; /* extra right padding to avoid overlapping the status icon */
   border-radius: 0.5rem; /* slightly more rounded than buttons for large field */
+
+  /* If the single-line variant is requested, use a tighter height/padding and disable vertical resize */
+  ${({ $singleLine }) =>
+    $singleLine &&
+    `
+    /* enforce an exact height and hide vertical overflow to avoid scrollbars */
+    min-height: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem 2.5rem 0.5rem 0.5rem;
+    overflow-y: hidden;
+    line-height: 1.4;
+  `}
   border: 1px solid
     ${({ theme, $validation }) => getValidationColor($validation, theme)};
   box-sizing: border-box;
-  resize: vertical; /* allow vertical resizing on larger screens; on mobile, UA usually hides handles */
+  /* control resize based on variant: single-line inputs shouldn't be resizable */
+  resize: ${({ $singleLine }) => ($singleLine ? 'none' : 'vertical')};
 
   /* 2) Colors (from theme) */
   background: ${({ theme }) => theme.colors.surface};
