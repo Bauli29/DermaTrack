@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 
 import Button from '@/components/atoms/button'
 import Headline from '@/components/atoms/Headline'
+import Icon from '@/components/atoms/Icon'
 import TextArea from '@/components/molecules/TextArea'
 import type { TValidationState } from '@/components/molecules/TextArea/types'
 import * as SC from './styles'
@@ -13,6 +14,9 @@ const DailyTrackingTemplate = () => {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
+  // Password visibility state
+  const [showPassword, setShowPassword] = useState(false)
 
   // simple validation state used by the TextArea component
   const [emailValidation, setEmailValidation] =
@@ -28,7 +32,16 @@ const DailyTrackingTemplate = () => {
 
   const validatePassword = (value: string): TValidationState => {
     if (value.length === 0) return 'none'
-    return value.length >= 8 ? 'success' : 'error'
+    // Password muss mindestens 8 Zeichen haben und verschiedene Kriterien erfüllen
+    const hasLength = value.length >= 8
+    const hasUpper = /[A-Z]/.test(value)
+    const hasLower = /[a-z]/.test(value)
+    const hasNumber = /[0-9]/.test(value)
+    const hasSpecial = /[^a-zA-Z0-9]/.test(value)
+
+    return hasLength && hasUpper && hasLower && hasNumber && hasSpecial
+      ? 'success'
+      : 'error'
   }
 
   const onSubmit = (e: React.FormEvent) => {
@@ -59,7 +72,7 @@ const DailyTrackingTemplate = () => {
         </Headline>
 
         <TextArea
-          label='E-Mail'
+          label='Email'
           placeholder='name@example.com'
           value={email}
           singleLine
@@ -69,34 +82,61 @@ const DailyTrackingTemplate = () => {
             setEmailValidation(validateEmail(v))
           }}
           onBlur={() => setEmailValidation(validateEmail(email))}
-          helperText={
-            emailValidation === 'error'
-              ? 'Ungültige E‑Mail'
-              : `Characters: ${email.length}`
-          }
+          helperText={emailValidation === 'error' ? 'Invalid email' : ''}
           validation={emailValidation}
           margin='0 0 1rem 0'
         />
 
-        <TextArea
-          label='Password'
-          placeholder='passWot@452'
-          singleLine
-          value={password}
-          onChange={e => {
-            const v = (e.target as HTMLTextAreaElement).value
-            setPassword(v)
-            setPasswordValidation(validatePassword(v))
-          }}
-          onBlur={() => setPasswordValidation(validatePassword(password))}
-          helperText={
-            passwordValidation === 'error'
-              ? 'Passwort mind. 8 Zeichen'
-              : `Characters: ${password.length}`
-          }
-          validation={passwordValidation}
-          margin='0 0 1rem 0'
-        />
+        <SC.PasswordContainer>
+          <SC.PasswordLabel>
+            <Headline variant='h4' noSpacing>
+              Password
+            </Headline>
+          </SC.PasswordLabel>
+          <SC.PasswordFieldWrapper>
+            <SC.PasswordInput
+              type={showPassword ? 'text' : 'password'}
+              placeholder='passWot@452'
+              value={password}
+              onChange={e => {
+                const v = e.target.value
+                setPassword(v)
+                setPasswordValidation(validatePassword(v))
+              }}
+              onBlur={() => setPasswordValidation(validatePassword(password))}
+              $validation={passwordValidation}
+            />
+            <SC.PasswordToggleIcon
+              type='button'
+              $visible={password.length > 0}
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              <Icon
+                name={showPassword ? 'visibility_off' : 'visibility'}
+                color='secondary'
+                size='sm'
+              />
+            </SC.PasswordToggleIcon>
+            <SC.PasswordStatusIcon
+              $visible={passwordValidation === 'success'}
+              $type='success'
+            >
+              <Icon name='check_circle' color='success' size='md' />
+            </SC.PasswordStatusIcon>
+            <SC.PasswordStatusIcon
+              $visible={passwordValidation === 'error'}
+              $type='error'
+            >
+              <Icon name='cancel' color='error' size='md' />
+            </SC.PasswordStatusIcon>
+          </SC.PasswordFieldWrapper>
+          <SC.PasswordHelperText $error={passwordValidation === 'error'}>
+            {passwordValidation === 'error'
+              ? 'Min. 8 characters, upper/lowercase, number & special character'
+              : ''}
+          </SC.PasswordHelperText>
+        </SC.PasswordContainer>
         <Button
           variant='primary'
           size='md'
@@ -109,9 +149,14 @@ const DailyTrackingTemplate = () => {
           Forgot Password?
         </Button>
         <SC.SignInPrompt>
-          <SC.Label>Already a member?</SC.Label>
-          <Button variant='ghost' size='md'>
-            Sign In
+          <SC.Label>Don&apos;t have an account?</SC.Label>
+          <Button
+            variant='ghost'
+            size='md'
+            type='button'
+            onClick={() => router.push('/register')}
+          >
+            Register
           </Button>
         </SC.SignInPrompt>
       </SC.Card>

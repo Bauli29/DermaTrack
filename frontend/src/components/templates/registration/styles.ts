@@ -37,7 +37,7 @@ const getHoverBorderColor = (validation: TValidationState, theme: ITheme) => {
   return theme.colors.borderLight
 }
 
-export const LoginPageWrapper = styled.div`
+export const RegistrationPageWrapper = styled.div`
   padding: 20px;
   color: ${({ theme }) => theme.colors.primary};
   display: flex;
@@ -45,7 +45,8 @@ export const LoginPageWrapper = styled.div`
   align-items: center;
   gap: 10px;
 `
-// Card-like surface for the form
+
+// Card-like surface for the form - identical to login
 export const Card = styled.div`
   background: ${({ theme }) => theme.colors.surface};
   border: 1px solid ${({ theme }) => theme.colors.borderLight};
@@ -75,6 +76,70 @@ export const SignInPrompt = styled.div`
   gap: 4px;
   justify-content: center;
   align-items: center;
+`
+
+// Zusätzliche Styles für die Registrierung
+export const NameRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+`
+
+export const CheckboxContainer = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  padding: 0.5rem 0;
+`
+
+export const Checkbox = styled.input`
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0;
+  margin-top: 0.125rem; /* Align with first line of text */
+
+  accent-color: ${({ theme }) => theme.colors.primary};
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+`
+
+export const CheckboxLabel = styled.label`
+  cursor: pointer;
+  flex: 1;
+  line-height: 1.4;
+  font-size: 0.9rem;
+  color: ${({ theme }) => theme.colors.textSecondary};
+
+  &:has(input:disabled) {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+`
+
+export const Link = styled.a`
+  color: ${({ theme }) => theme.colors.primary};
+  text-decoration: underline;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &:focus {
+    outline: 2px solid ${({ theme }) => theme.colors.primary};
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 `
 
 // Password field components
