@@ -3,11 +3,13 @@ package de.dermatrack.backend.auth.api.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,14 +19,15 @@ import java.util.UUID;
 
 @Entity
 @Table(
-    name = "user",
+    name = "app_user",
     indexes = {
         @Index(name = "idx_user_email", columnList = "email", unique = true),
         @Index(name = "idx_user_username", columnList = "username", unique = true)
     }
 )
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "User data")
@@ -47,6 +50,8 @@ public class User {
     @Column(name = "username", unique = true, nullable = false, length = 50)
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @Pattern(regexp = "^[a-zA-Z0-9_-]+$", 
+             message = "Username can only contain letters, numbers, underscores and hyphens")
     @Schema(description = "Unique username", example = "HenryTheGreat")
     private String username;
 
