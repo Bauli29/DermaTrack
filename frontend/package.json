@@ -20,10 +20,13 @@
   },
   "dependencies": {
     "next": "16.0.1",
+    "next-swagger-doc": "^0.4.1",
     "pnpm": "^10.20.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "styled-components": "^6.1.19",
+    "swagger-ui": "^5.30.2",
+    "swagger-ui-react": "^5.30.2",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -34,6 +37,8 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@types/styled-components": "^5.1.35",
+    "@types/swagger-ui": "^5.21.1",
+    "@types/swagger-ui-react": "^5.18.0",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
     "eslint": "^9.38.0",
