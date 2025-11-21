@@ -57,6 +57,9 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.35
         version: 5.1.35
+      '@types/swagger-ui':
+        specifier: ^5.21.1
+        version: 5.21.1
       '@types/swagger-ui-react':
         specifier: ^5.18.0
         version: 5.18.0
@@ -643,6 +646,9 @@ packages:
 
   '@types/swagger-ui-react@5.18.0':
     resolution: {integrity: sha512-c2M9adVG7t28t1pq19K9Jt20VLQf0P/fwJwnfcmsVVsdkwCWhRmbKDu+tIs0/NGwJ/7GY8lBx+iKZxuDI5gDbw==}
+
+  '@types/swagger-ui@5.21.1':
+    resolution: {integrity: sha512-DUmUH59eeOtvAqcWwBduH2ws0cc5i95KHsXCS4FsOfbUq/clW8TN+HqRBj7q5p9MSsSNK43RziIGItNbrAGLxg==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -3296,6 +3302,8 @@ snapshots:
   '@types/swagger-ui-react@5.18.0':
     dependencies:
       '@types/react': 19.2.2
+
+  '@types/swagger-ui@5.21.1': {}
 
   '@types/trusted-types@2.0.7':
     optional: true
