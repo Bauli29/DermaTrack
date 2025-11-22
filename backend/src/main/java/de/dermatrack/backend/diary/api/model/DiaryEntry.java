@@ -80,7 +80,7 @@ public class DiaryEntry {
     private Integer symptoms;
 
     @Column(name = "miscellaneous", columnDefinition = "TEXT")
-    @Schema(description = "Free text notes / miscellaneous information")
+    @Schema(description = "Free text notes / miscellaneous information", example = "Today was a good day")
     private String miscellaneous;
 
     @PrePersist

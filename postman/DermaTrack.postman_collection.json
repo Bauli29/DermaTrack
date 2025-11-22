@@ -1,10 +1,11 @@
 {
 	"info": {
-		"_postman_id": "50bb0182-3a13-4362-b9a3-f079eb74e565",
+		"_postman_id": "88f253f5-1d33-4410-8e99-23941e362bf8",
 		"name": "DermaTrack",
 		"description": "Postman Collection to make development and testing easier.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "45256808"
+		"_exporter_id": "41133988",
+		"_collection_link": "https://dermatrack.postman.co/workspace/DermaTrack~ffd5e448-f7d9-4f35-b6ab-dddf46f18190/collection/41133988-88f253f5-1d33-4410-8e99-23941e362bf8?action=share&source=collection_link&creator=41133988"
 	},
 	"item": [
 		{
@@ -126,7 +127,7 @@
 											]
 										}
 									},
-									"_postman_previewlanguage": "",
+									"_postman_previewlanguage": "Text",
 									"header": [],
 									"cookie": [
 										{
@@ -198,7 +199,7 @@
 											]
 										}
 									},
-									"_postman_previewlanguage": "",
+									"_postman_previewlanguage": "Text",
 									"header": [],
 									"cookie": [
 										{
@@ -467,7 +468,7 @@
 			"name": "Documentation",
 			"item": [
 				{
-					"name": "Swagger JSON",
+					"name": "Backend Swagger JSON",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -486,7 +487,7 @@
 					"response": []
 				},
 				{
-					"name": "Swagger UI",
+					"name": "Backend Swagger UI",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -498,6 +499,41 @@
 							"path": [
 								"swagger-ui",
 								"index.html"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Frontend Swagger JSON",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{frontend-base-url}}/api/docs",
+							"host": [
+								"{{frontend-base-url}}"
+							],
+							"path": [
+								"api",
+								"docs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Frontend & Backend Swagger UI",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{frontend-base-url}}/swagger",
+							"host": [
+								"{{frontend-base-url}}"
+							],
+							"path": [
+								"swagger"
 							]
 						}
 					},
