@@ -26,15 +26,16 @@ public class SecurityConfig {
     private String password;
     
     @Bean
-    @Profile("local") // Only for local development against dev database
+    @Profile({"local-h2", "local-neon"}) // Only for local development and against dev database
     public SecurityFilterChain localSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/**").permitAll()        // Allow all API operations (GET, POST, PUT, DELETE)
-                .requestMatchers("/actuator/**").permitAll()   // Allow health checks and monitoring
-                .anyRequest().permitAll()                        // Allow everything else too
-            );
+                .anyRequest().permitAll()                      // Allow everything
+            )
+            .headers(headers -> headers
+            .frameOptions(frameOptions -> frameOptions.disable()) // Required for H2 console
+        );
         
         return http.build();
     }

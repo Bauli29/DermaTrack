@@ -21,6 +21,32 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "[java]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.defaultFormatter": "redhat.java"
+  },
+  "[xml]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.defaultFormatter": "redhat.vscode-xml"
+  },
+  "[yaml]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced"
+  },
+  "[yml]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced"
+  },
 
   // --- Import Sorter Configuration ---
   "importSorter.generalConfiguration.sortOnBeforeSave": true,
@@ -87,9 +113,24 @@
     }
   ],
 
+  // --- Java Configuration ---
   "chat.agent.enabled": true,
   "github.copilot.chat.agent.autoFix": false,
-  "[java]": {
-    "editor.defaultFormatter": "redhat.java"
-  }
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.format.settings.url": "${workspaceFolder}/.vscode/java-formatter.xml",
+  "java.format.settings.profile": "GoogleStyle",
+  "java.format.enabled": true,
+  "java.saveActions.organizeImports": true,
+
+  // --- XML Configuration ---
+  "xml.format.enabled": true,
+  "xml.format.splitAttributes": "preserve",
+  "xml.format.joinContentLines": false,
+  "xml.format.preserveEmptyContent": true,
+  "xml.format.maxLineWidth": 120,
+
+  // --- YAML Configuration ---
+  "yaml.format.enable": true,
+  "yaml.format.singleQuote": false,
+  "yaml.format.bracketSpacing": true
 }

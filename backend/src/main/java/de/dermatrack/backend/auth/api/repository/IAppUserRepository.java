@@ -1,20 +1,20 @@
-package de.dermatrack.backend.diary.api.repository;
+package de.dermatrack.backend.auth.api.repository;
 
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import de.dermatrack.backend.diary.api.model.DiaryEntry;
+import de.dermatrack.backend.auth.api.model.AppUser;
 
 @Repository
-public interface IDiaryEntryRepository extends JpaRepository<DiaryEntry, UUID> {
+public interface IAppUserRepository extends JpaRepository<AppUser, UUID> {
 
     // All basic CRUD operations are inherited from JpaRepository:
 
-    // save(DiaryEntry) - Create/Update
+    // save(User) - Create/Update
     // findById(UUID) - Find by ID
-    // findAll() - Get all entries
+    // findAll() - Get all users
     // deleteById(UUID) - Delete by ID
     // existsById(UUID) - Check existence by ID
 }
