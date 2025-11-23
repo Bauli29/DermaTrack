@@ -88,5 +88,8 @@
   ],
 
   "chat.agent.enabled": true,
-  "github.copilot.chat.agent.autoFix": false
+  "github.copilot.chat.agent.autoFix": false,
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java"
+  }
 }

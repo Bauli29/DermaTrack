@@ -46,7 +46,7 @@ public class DiaryEntry {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @Schema(description = "Creation timestamp (UTC)", type = "string", format = "date-time", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "Creation timestamp (UTC)", example = "2025-11-23T11:56:26.958Z", type = "string", format = "date-time", accessMode = Schema.AccessMode.READ_ONLY)
     private OffsetDateTime createdAt;
 
     @Column(name = "allergies")
