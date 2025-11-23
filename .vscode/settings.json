@@ -113,9 +113,11 @@
     }
   ],
 
-  // --- Java Configuration ---
   "chat.agent.enabled": true,
   "github.copilot.chat.agent.autoFix": false,
+
+  // --- Java Configuration ---
+
   "java.configuration.updateBuildConfiguration": "interactive",
   "java.format.settings.url": "${workspaceFolder}/.vscode/java-formatter.xml",
   "java.format.settings.profile": "GoogleStyle",
