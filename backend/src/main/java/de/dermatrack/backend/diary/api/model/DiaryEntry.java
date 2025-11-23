@@ -1,30 +1,37 @@
 package de.dermatrack.backend.diary.api.model;
 
-import jakarta.persistence.*;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+import org.hibernate.annotations.UuidGenerator;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import de.dermatrack.backend.auth.api.model.AppUser;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.time.OffsetDateTime;
-import java.util.UUID;
-
-import de.dermatrack.backend.auth.api.model.User;
 
 @Entity
-@Table(
-    name = "diary_entry",
-    indexes = {
+@Table(name = "diary_entry", indexes = {
         @Index(name = "idx_diary_entry_created_at", columnList = "created_at"),
         @Index(name = "idx_diary_entry_user_id", columnList = "user_id")
-    }
-)
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,10 +46,11 @@ public class DiaryEntry {
     @Schema(description = "Unique identifier of the diary entry", example = "c56a4180-65aa-42ec-a945-5fd21dec0538", accessMode = Schema.AccessMode.READ_ONLY)
     private UUID id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_diary_entry_user"))
     @Schema(description = "Owner user of this diary entry")
-    private User user;
+    private AppUser user;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -94,5 +102,11 @@ public class DiaryEntry {
         if (createdAt == null) {
             createdAt = OffsetDateTime.now();
         }
+    }
+
+    @JsonProperty("userId")
+    @Schema(description = "ID of the user who owns this entry", example = "c56a4180-65aa-42ec-a945-5fd21dec0538")
+    public UUID getUserId() {
+        return user != null ? user.getId() : null;
     }
 }

@@ -30,8 +30,8 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "User data")
-public class User {
+@Schema(description = "AppUser data")
+public class AppUser {
 
     @Id
     @UuidGenerator
@@ -44,7 +44,7 @@ public class User {
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be a valid email address")
     @Size(min = 5, max = 100, message = "Email must be between 5 and 100 characters")
-    @Schema(description = "User email address", example = "name@example.com")
+    @Schema(description = "AppUser email address", example = "name@example.com")
     private String email;
     
     @Column(name = "username", unique = true, nullable = false, length = 50)
@@ -57,7 +57,7 @@ public class User {
 
     @Column(name = "password", nullable = false, length = 255)
     @NotBlank(message = "Password is required")
-    @Schema(description = "User password (hashed)", accessMode = Schema.AccessMode.WRITE_ONLY)
+    @Schema(description = "AppUser password (hashed)", accessMode = Schema.AccessMode.WRITE_ONLY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 

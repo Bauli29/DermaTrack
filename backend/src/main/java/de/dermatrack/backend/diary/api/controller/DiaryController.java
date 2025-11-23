@@ -1,15 +1,16 @@
 package de.dermatrack.backend.diary.api.controller;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
+
 import de.dermatrack.backend.diary.api.model.DiaryEntry;
 import de.dermatrack.backend.diary.service.DiaryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -66,9 +67,8 @@ public class DiaryController implements IDiaryController {
     public ResponseEntity<Void> deleteDiaryEntry(UUID id) {
         log.debug("Controller: Deleting diary entry with id: {}", id);
 
-        
         diaryService.deleteById(id);
-        
+
         return ResponseEntity.noContent().build();
     }
 }

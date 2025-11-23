@@ -1,9 +1,9 @@
 package de.dermatrack.backend.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.lang.NonNull;
 
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
@@ -19,18 +19,18 @@ public class CorsConfig implements WebMvcConfigurer {
     }
 
     private String[] getAllowedOrigins() {
-        return new String[]{
-            // ===========================================
-            // FRONTEND URLS - All allowed origins
-            // ===========================================
-            
-            // LOCAL DEVELOPMENT
-            "http://localhost:3000",          // React/Next.js default
-            
-            // PRODUCTION DEPLOYMENT
-            "https://derma-track.vercel.app"  // Production frontend
-            
-            // ===========================================
+        return new String[] {
+                // ===========================================
+                // FRONTEND URLS - All allowed origins
+                // ===========================================
+
+                // LOCAL DEVELOPMENT
+                "http://localhost:3000", // React/Next.js default
+
+                // PRODUCTION DEPLOYMENT
+                "https://derma-track.vercel.app" // Production frontend
+
+                // ===========================================
         };
     }
 }

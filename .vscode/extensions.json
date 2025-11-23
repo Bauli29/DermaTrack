@@ -1,3 +1,10 @@
 {
-  "recommendations": ["mike-co.import-sorter"]
+  "recommendations": [
+    "mike-co.import-sorter",
+    "vscjava.vscode-java-pack",
+    "redhat.java",
+    "vscjava.vscode-maven",
+    "redhat.vscode-xml",
+    "redhat.vscode-yaml"
+  ]
 }

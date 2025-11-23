@@ -1,14 +1,16 @@
 'use client'
 import { useRouter } from 'next/navigation'
+import { useMemo, useState } from 'react'
 
 import Button from '@/components/atoms/button'
 import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
-import TextArea from '@/components/molecules/TextArea'
-import type { TValidationState } from '@/components/molecules/TextArea/types'
-import * as SC from './styles'
-import { useMemo, useState } from 'react'
 
+import TextArea from '@/components/molecules/TextArea'
+
+import * as SC from './styles'
+
+import type { TValidationState } from '@/components/molecules/TextArea/types'
 const DailyTrackingTemplate = () => {
   const router = useRouter()
 
@@ -32,7 +34,7 @@ const DailyTrackingTemplate = () => {
 
   const validatePassword = (value: string): TValidationState => {
     if (value.length === 0) return 'none'
-    // Password muss mindestens 8 Zeichen haben und verschiedene Kriterien erfüllen
+    // password validation
     const hasLength = value.length >= 8
     const hasUpper = /[A-Z]/.test(value)
     const hasLower = /[a-z]/.test(value)
