@@ -5,8 +5,9 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,14 +15,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import de.dermatrack.backend.auth.api.model.User;
+
 @Entity
 @Table(
     name = "diary_entry",
     indexes = {
-        @Index(name = "DiaryEntry_Created_at_idx", columnList = "created_at")
+        @Index(name = "idx_diary_entry_created_at", columnList = "created_at"),
+        @Index(name = "idx_diary_entry_user_id", columnList = "user_id")
     }
 )
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Diary entry capturing daily ratings and notes")
@@ -29,16 +34,17 @@ public class DiaryEntry {
 
     @Id
     @UuidGenerator
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "UUID DEFAULT gen_random_uuid()")
+    @Column(name = "id", updatable = false, nullable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "Unique identifier of the diary entry", example = "c56a4180-65aa-42ec-a945-5fd21dec0538", accessMode = Schema.AccessMode.READ_ONLY)
     private UUID id;
 
-    @Column(
-            name = "created_at",
-            nullable = false,
-            columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT now()"
-    )
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_diary_entry_user"))
+    @Schema(description = "Owner user of this diary entry")
+    private User user;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "Creation timestamp (UTC)", example = "2025-11-23T11:56:26.958Z", type = "string", format = "date-time", accessMode = Schema.AccessMode.READ_ONLY)
     private OffsetDateTime createdAt;
