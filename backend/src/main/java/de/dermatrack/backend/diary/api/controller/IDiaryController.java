@@ -34,7 +34,6 @@ public interface IDiaryController {
         /**
          * GET - Get all diary entries
          * 
-         * 
          * @return list of all diary entries
          */
         @Operation(summary = "Get all diary entries")
@@ -47,7 +46,6 @@ public interface IDiaryController {
 
         /**
          * GET - Get diary entry by ID
-         * 
          * 
          * @param id the UUID of the diary entry
          * @return the diary entry if found
@@ -65,7 +63,6 @@ public interface IDiaryController {
         /**
          * POST - Create new diary entry
          * 
-         * 
          * @param diaryEntry the diary entry to create
          * @return the created diary entry
          */
@@ -80,8 +77,6 @@ public interface IDiaryController {
 
         /**
          * PUT - Update existing diary entry
-         * 
-         * @param id         the UUID of the diary entry to update
          * 
          * @param id         the UUID of the diary entry to update
          * @param diaryEntry the updated diary entry data
@@ -101,7 +96,6 @@ public interface IDiaryController {
 
         /**
          * DELETE - Delete diary entry by ID
-         * 
          * 
          * @param id the UUID of the diary entry to delete
          * @return no content response
