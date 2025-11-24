@@ -151,10 +151,6 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
- */
-export {}
-
-/**
  * @swagger
  * components:
  *   schemas:
@@ -206,4 +202,35 @@ export {}
  *           type: string
  *           maxLength: 5000
  *           example: "Miscellaneous notes"
+ *     ErrorResponse:
+ *       type: object
+ *       additionalProperties: false
+ *       properties:
+ *         timestamp:
+ *           type: string
+ *           format: date-time
+ *           example: "2025-11-23T11:56:26.958Z"
+ *         status:
+ *           type: integer
+ *           example: 400
+ *         error:
+ *           type: string
+ *           example: "Bad Request"
+ *         message:
+ *           type: string
+ *           example: "Validation failed for object='diaryEntry'. Error count: 1"
+ *         path:
+ *           type: string
+ *           example: "/api/diary"
+ *         traceId:
+ *           type: string
+ *           example: "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+ *         validationErrors:
+ *           type: object
+ *           additionalProperties:
+ *             type: string
+ *           description: "Field-specific validation errors (field -> message)"
+ *           example:
+ *             allergies: "must be between 0 and 10"
  */
+export {}
