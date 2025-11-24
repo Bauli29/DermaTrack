@@ -1,7 +1,6 @@
 package de.dermatrack.backend.diary.mock;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -19,17 +18,15 @@ public class DiaryEntryMock {
     private final IDiaryEntryRepository diaryEntryRepository;
     private final Faker faker = new Faker();
 
-    public List<DiaryEntry> createEntriesForAllUsers(List<AppUser> users) {
-        List<DiaryEntry> allEntries = new ArrayList<>();
+    public void createEntriesForAllUsers(List<AppUser> users) {
 
         // Create 30 random entries per user
         for (AppUser user : users) {
             for (int i = 0; i < 30; i++) {
-                allEntries.add(createRandomEntry(user, i));
+                createRandomEntry(user, i);
             }
         }
 
-        return allEntries;
     }
 
     private DiaryEntry createRandomEntry(AppUser user, int daysAgo) {
