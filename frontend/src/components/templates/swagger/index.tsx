@@ -7,11 +7,11 @@ import { SwaggerUIBundle } from 'swagger-ui-dist'
 
 export default function ReactSwagger() {
   useEffect(() => {
-    const backendUrl = process.env.NEXT_PUBLIC_SWAGGER_BACKEND_URL
-    const urls = [{ url: '/api/docs', name: 'Frontend API' }]
-    if (backendUrl) {
-      urls.push({ url: backendUrl, name: 'Backend API' })
-    }
+    const urls = [
+      { url: '/api/docs', name: 'Frontend API' },
+      { url: '/api/docs/backend', name: 'Backend API' },
+    ]
+
     SwaggerUIBundle({
       dom_id: '#swagger-ui',
       urls,
