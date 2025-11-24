@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.dermatrack.backend.diary.api.model.DiaryEntry;
+import de.dermatrack.backend.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -97,11 +98,6 @@ public interface IDiaryController {
         ResponseEntity<DiaryEntry> updateDiaryEntry(
                         @PathVariable UUID id,
                         @RequestBody @Valid DiaryEntry diaryEntry);
-
-        @PathVariable UUID id,
-        @RequestBody
-        @Valid
-        DiaryEntry diaryEntry);
 
         /**
          * DELETE - Delete diary entry by ID
