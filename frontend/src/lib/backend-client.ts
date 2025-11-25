@@ -41,3 +41,14 @@ export const secureFetch = async (
       ...options?.headers,
     },
   })
+
+export const insecureFetch = async (
+  path: string,
+  options?: RequestInit
+): Promise<Response> =>
+  fetch(getBackendUrl(path), {
+    ...options,
+    headers: {
+      ...options?.headers,
+    },
+  })

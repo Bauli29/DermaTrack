@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import Button from '@/components/atoms/button'
 import Headline from '@/components/atoms/Headline'
@@ -11,6 +11,7 @@ import TextArea from '@/components/molecules/TextArea'
 
 import * as SC from './styles'
 import ThemeButton from './temp-theme-button'
+import { getHealth } from '@/services/actuator/health'
 
 const TestTemplate = () => {
   const [basicSliderValue, setBasicSliderValue] = useState(50)
@@ -19,6 +20,18 @@ const TestTemplate = () => {
   const [successNotes, setSuccessNotes] = useState('Everything looks great!')
   const [errorNotes, setErrorNotes] = useState('This input is invalid...')
 
+  const [healthStatus, setHealthStatus] = useState<string>('Loading...')
+
+  useEffect(() => {
+    getHealth().then(result => {
+      if (result.ok && result.body?.status) {
+        setHealthStatus(result.body.status)
+      } else {
+        setHealthStatus(`Error: ${result.error ?? 'Unknown'}`)
+      }
+    })
+  }, [])
+
   return (
     <SC.TestPageWrapper>
       <Headline variant='h1' color='text' align='center'>
@@ -26,6 +39,9 @@ const TestTemplate = () => {
       </Headline>
       <ThemeButton />
       <>
+        <Headline variant='h2' color='critical' align='center'>
+          Backend Health: {healthStatus}
+        </Headline>
         <Headline variant='h2' color='primary' align='left'>
           Primary Section
         </Headline>
