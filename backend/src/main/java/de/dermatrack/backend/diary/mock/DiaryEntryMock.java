@@ -29,7 +29,7 @@ public class DiaryEntryMock {
 
     }
 
-    private DiaryEntry createRandomEntry(AppUser user, int daysAgo) {
+    private void createRandomEntry(AppUser user, int daysAgo) {
         DiaryEntry entry = new DiaryEntry();
         entry.setUser(user);
         entry.setCreatedAt(OffsetDateTime.now().minusDays(daysAgo));
@@ -41,6 +41,6 @@ public class DiaryEntryMock {
         entry.setSymptoms(faker.number().numberBetween(0, 10));
         entry.setMiscellaneous(faker.lorem().sentence());
 
-        return diaryEntryRepository.save(entry);
+        diaryEntryRepository.save(entry);
     }
 }
