@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="DermaTrack logo">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4A90E2"/>
+      <stop offset="100%" stop-color="#A678DE"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="20" fill="url(#g)"/>
+  <!-- Simplified crosshair motif suggesting tracking/monitoring -->
+  <circle cx="64" cy="64" r="28" fill="none" stroke="#fff" stroke-width="6"/>
+  <path d="M64 30v16M64 82v16M30 64h16M82 64h16" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+  <!-- DT letters -->
+  <text x="64" y="70" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="24" fill="#ffffff">DT</text>
+  Sorry, your browser does not support inline SVG.
+</svg>

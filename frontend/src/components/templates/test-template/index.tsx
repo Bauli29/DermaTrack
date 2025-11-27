@@ -44,6 +44,7 @@ const TestTemplate = () => {
 
   return (
     <SC.TestPageWrapper>
+      {/* Header is now global (rendered from ClientLayout), so we don't add it here */}
       <Headline variant='h1' color='text' align='center'>
         Test Template
       </Headline>
