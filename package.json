@@ -11,21 +11,17 @@
   "author": "Bastian, Philip, Johanna, Sebastian, Sribriddhi",
   "type": "commonjs",
   "scripts": {
-    "dev": "concurrently -n FRONTEND,BACKEND -c green,magenta \"pnpm -C frontend dev\" \"backend\\mvnw.cmd -f backend/pom.xml spring-boot:run -Dspring-boot.run.profiles=local\"",
+    "dev": "concurrently -n FRONTEND,BACKEND -c green,magenta \"pnpm -C frontend dev\" \"cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=local-h2\"",
     "dev:frontend": "pnpm -C frontend dev",
-    "dev:backend": "backend\\mvnw.cmd -f backend/pom.xml spring-boot:run -Dspring-boot.run.profiles=local",
-
-    "build": "concurrently -n FRONTEND,BACKEND -c green,magenta \"pnpm -C frontend build\" \"backend\\mvnw.cmd -q -f backend/pom.xml clean package -DskipTests\"",
+    "dev:backend": "cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=local-h2",
+    "build": "concurrently -n FRONTEND,BACKEND -c green,magenta \"pnpm -C frontend build\" \"cd backend && ./mvnw -q clean package -DskipTests\"",
     "build:frontend": "pnpm -C frontend build",
-    "build:backend": "backend\\mvnw.cmd -q -f backend/pom.xml clean package -DskipTests",
-
-    "test": "concurrently -n FRONTEND,BACKEND -c green,magenta \"pnpm -C frontend run --if-present test\" \"backend\\mvnw.cmd -q -f backend/pom.xml test\"",
+    "build:backend": "cd backend && ./mvnw -q clean package -DskipTests",
+    "test": "concurrently -n FRONTEND,BACKEND -c green,magenta \"pnpm -C frontend run --if-present test\" \"cd backend && ./mvnw -q test\"",
     "test:frontend": "pnpm -C frontend run --if-present test",
-    "test:backend": "backend\\mvnw.cmd -q -f backend/pom.xml test",
-
+    "test:backend": "cd backend && ./mvnw -q test",
     "lint": "pnpm -C frontend run lint:check",
     "lint:fix": "pnpm -C frontend run lint:fix",
-
     "format": "pnpm -C frontend run format:check",
     "format:fix": "pnpm -C frontend run format"
   },
