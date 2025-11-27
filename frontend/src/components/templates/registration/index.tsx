@@ -1,18 +1,19 @@
 'use client'
 import { useRouter } from 'next/navigation'
+import { useMemo, useState } from 'react'
 
 import Button from '@/components/atoms/button'
 import Headline from '@/components/atoms/Headline'
-import Icon from '@/components/atoms/Icon'
-import TextArea from '@/components/molecules/TextArea'
-import type { TValidationState } from '@/components/molecules/TextArea/types'
-import { useMemo, useState } from 'react'
+
+import Input from '@/components/molecules/Input'
+
 import * as SC from './styles'
+
+import type { TValidationState } from '@/components/molecules/Input/types'
 
 const RegistrationTemplate = () => {
   const router = useRouter()
 
-  // Form state
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -20,11 +21,6 @@ const RegistrationTemplate = () => {
   const [lastName, setLastName] = useState('')
   const [acceptTerms, setAcceptTerms] = useState(false)
 
-  // Password visibility state
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
-  // Validation states
   const [emailValidation, setEmailValidation] =
     useState<TValidationState>('none')
   const [passwordValidation, setPasswordValidation] =
@@ -32,16 +28,14 @@ const RegistrationTemplate = () => {
   const [confirmPasswordValidation, setConfirmPasswordValidation] =
     useState<TValidationState>('none')
 
-  // Validation functions
   const validateEmail = (value: string): TValidationState => {
-    const re = /\S+@\S+\.\S+/
     if (value.length === 0) return 'none'
+    const re = /\S+@\S+\.\S+/
     return re.test(value) ? 'success' : 'error'
   }
 
   const validatePassword = (value: string): TValidationState => {
     if (value.length === 0) return 'none'
-    // Password muss mindestens 8 Zeichen haben und verschiedene Kriterien erfüllen
     const hasLength = value.length >= 8
     const hasUpper = /[A-Z]/.test(value)
     const hasLower = /[a-z]/.test(value)
@@ -61,17 +55,9 @@ const RegistrationTemplate = () => {
     return value === original ? 'success' : 'error'
   }
 
-  const getPasswordHelperText = (validation: TValidationState): string => {
-    if (validation === 'error') {
-      return 'Min. 8 characters, upper/lowercase, number & special character'
-    }
-    return ''
-  }
-
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validate all fields
     const ev = validateEmail(email)
     const pv = validatePassword(password)
     const cpv = validateConfirmPassword(confirmPassword, password)
@@ -87,7 +73,6 @@ const RegistrationTemplate = () => {
       acceptTerms
     ) {
       // TODO: implement registration API call
-      // Registration successful, redirect to login
       router.push('/login')
     }
   }
@@ -108,39 +93,34 @@ const RegistrationTemplate = () => {
           Registration
         </Headline>
 
-        {/* Optional name fields */}
         <SC.NameRow>
-          <TextArea
+          <Input
             label='First Name (optional)'
+            type='text'
             placeholder='John'
             value={firstName}
-            singleLine
-            onChange={e =>
-              setFirstName((e.target as HTMLTextAreaElement).value)
-            }
-            helperText=''
+            onChange={e => setFirstName(e.target.value)}
             validation={firstName.length > 0 ? 'success' : 'none'}
-            margin='0'
+            margin='1rem 0 0 0'
           />
-          <TextArea
+          <Input
             label='Last Name (optional)'
+            type='text'
             placeholder='Doe'
             value={lastName}
-            singleLine
-            onChange={e => setLastName((e.target as HTMLTextAreaElement).value)}
-            helperText=''
+            onChange={e => setLastName(e.target.value)}
             validation={lastName.length > 0 ? 'success' : 'none'}
-            margin='0'
+            margin='1rem 0 0 0'
           />
         </SC.NameRow>
 
-        <TextArea
+        <Input
           label='Email'
+          type='email'
           placeholder='name@example.com'
           value={email}
-          singleLine
           onChange={e => {
-            const v = (e.target as HTMLTextAreaElement).value
+            const v = e.target.value
             setEmail(v)
             setEmailValidation(validateEmail(v))
           }}
@@ -150,121 +130,55 @@ const RegistrationTemplate = () => {
           margin='0 0 1rem 0'
         />
 
-        <SC.PasswordContainer>
-          <SC.PasswordLabel>
-            <Headline variant='h4' noSpacing>
-              Password
-            </Headline>
-          </SC.PasswordLabel>
-          <SC.PasswordFieldWrapper>
-            <SC.PasswordInput
-              type={showPassword ? 'text' : 'password'}
-              placeholder='Your secure password'
-              value={password}
-              onChange={e => {
-                const v = e.target.value
-                setPassword(v)
-                setPasswordValidation(validatePassword(v))
-                // Re-validate confirm password if it exists
-                if (confirmPassword) {
-                  setConfirmPasswordValidation(
-                    validateConfirmPassword(confirmPassword, v)
-                  )
-                }
-              }}
-              onBlur={() => setPasswordValidation(validatePassword(password))}
-              $validation={passwordValidation}
-            />
-            <SC.PasswordToggleIcon
-              type='button'
-              $visible={password.length > 0}
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              <Icon
-                name={showPassword ? 'visibility_off' : 'visibility'}
-                color='secondary'
-                size='sm'
-              />
-            </SC.PasswordToggleIcon>
-            <SC.PasswordStatusIcon
-              $visible={passwordValidation === 'success'}
-              $type='success'
-            >
-              <Icon name='check_circle' color='success' size='md' />
-            </SC.PasswordStatusIcon>
-            <SC.PasswordStatusIcon
-              $visible={passwordValidation === 'error'}
-              $type='error'
-            >
-              <Icon name='cancel' color='error' size='md' />
-            </SC.PasswordStatusIcon>
-          </SC.PasswordFieldWrapper>
-          <SC.PasswordHelperText $error={passwordValidation === 'error'}>
-            {getPasswordHelperText(passwordValidation)}
-          </SC.PasswordHelperText>
-        </SC.PasswordContainer>
+        <Input
+          label='Password'
+          type='password'
+          placeholder='Your secure password'
+          value={password}
+          onChange={e => {
+            const v = e.target.value
+            setPassword(v)
+            setPasswordValidation(validatePassword(v))
+            if (confirmPassword) {
+              setConfirmPasswordValidation(
+                validateConfirmPassword(confirmPassword, v)
+              )
+            }
+          }}
+          onBlur={() => setPasswordValidation(validatePassword(password))}
+          helperText={
+            passwordValidation === 'error'
+              ? 'Min. 8 characters, upper/lowercase, number & special character'
+              : ''
+          }
+          validation={passwordValidation}
+          margin='0 0 1rem 0'
+        />
 
-        <SC.PasswordContainer>
-          <SC.PasswordLabel>
-            <Headline variant='h4' noSpacing>
-              Confirm Password
-            </Headline>
-          </SC.PasswordLabel>
-          <SC.PasswordFieldWrapper>
-            <SC.PasswordInput
-              type={showConfirmPassword ? 'text' : 'password'}
-              placeholder='Repeat your password'
-              value={confirmPassword}
-              onChange={e => {
-                const v = e.target.value
-                setConfirmPassword(v)
-                setConfirmPasswordValidation(
-                  validateConfirmPassword(v, password)
-                )
-              }}
-              onBlur={() =>
-                setConfirmPasswordValidation(
-                  validateConfirmPassword(confirmPassword, password)
-                )
-              }
-              $validation={confirmPasswordValidation}
-            />
-            <SC.PasswordToggleIcon
-              type='button'
-              $visible={confirmPassword.length > 0}
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              aria-label={
-                showConfirmPassword ? 'Hide password' : 'Show password'
-              }
-            >
-              <Icon
-                name={showConfirmPassword ? 'visibility_off' : 'visibility'}
-                color='secondary'
-                size='sm'
-              />
-            </SC.PasswordToggleIcon>
-            <SC.PasswordStatusIcon
-              $visible={confirmPasswordValidation === 'success'}
-              $type='success'
-            >
-              <Icon name='check_circle' color='success' size='md' />
-            </SC.PasswordStatusIcon>
-            <SC.PasswordStatusIcon
-              $visible={confirmPasswordValidation === 'error'}
-              $type='error'
-            >
-              <Icon name='cancel' color='error' size='md' />
-            </SC.PasswordStatusIcon>
-          </SC.PasswordFieldWrapper>
-          <SC.PasswordHelperText $error={confirmPasswordValidation === 'error'}>
-            {confirmPasswordValidation === 'error'
+        <Input
+          label='Confirm Password'
+          type='password'
+          placeholder='Repeat your password'
+          value={confirmPassword}
+          onChange={e => {
+            const v = e.target.value
+            setConfirmPassword(v)
+            setConfirmPasswordValidation(validateConfirmPassword(v, password))
+          }}
+          onBlur={() =>
+            setConfirmPasswordValidation(
+              validateConfirmPassword(confirmPassword, password)
+            )
+          }
+          helperText={
+            confirmPasswordValidation === 'error'
               ? 'Passwords do not match'
-              : ''}
-          </SC.PasswordHelperText>
-        </SC.PasswordContainer>
+              : ''
+          }
+          validation={confirmPasswordValidation}
+          margin='0 0 1rem 0'
+        />
 
-        {/* GDPR Compliance Checkbox */}
         <SC.CheckboxContainer>
           <SC.Checkbox
             type='checkbox'

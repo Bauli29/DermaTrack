@@ -7,12 +7,12 @@ import Text from '@/components/atoms/Text'
 
 import * as SC from './styles'
 
-import type { ITextAreaProps } from './types'
+import type { IInputProps } from './types'
 
 /**
- * Multi-line text input with label, validation states, and status icons.
+ * Input field with label, validation states, and status icons.
  */
-const TextArea = ({
+const Input = ({
   label,
   validation = 'none',
   helperText,
@@ -22,11 +22,11 @@ const TextArea = ({
   disabled,
   id,
   placeholder,
-  rows = 4,
+  type = 'text',
   ...rest
-}: ITextAreaProps) => {
+}: IInputProps) => {
   const reactId = useId()
-  const fieldId = id ?? `textarea-${reactId}`
+  const fieldId = id ?? `input-${reactId}`
   const helperId = helperText ? `${fieldId}-helper` : undefined
   const showSuccess = validation === 'success'
   const showError = validation === 'error'
@@ -40,13 +40,13 @@ const TextArea = ({
       )}
 
       <SC.FieldWrapper>
-        <SC.TextArea
+        <SC.Input
           id={fieldId}
+          type={type}
           $validation={validation}
           $disabled={disabled}
           disabled={disabled}
           placeholder={placeholder}
-          rows={rows}
           aria-invalid={showError}
           aria-describedby={helperId}
           {...rest}
@@ -74,4 +74,4 @@ const TextArea = ({
   )
 }
 
-export default TextArea
+export default Input

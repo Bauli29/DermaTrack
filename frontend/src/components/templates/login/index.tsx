@@ -4,37 +4,32 @@ import { useMemo, useState } from 'react'
 
 import Button from '@/components/atoms/button'
 import Headline from '@/components/atoms/Headline'
-import Icon from '@/components/atoms/Icon'
 
-import TextArea from '@/components/molecules/TextArea'
+import Input from '@/components/molecules/Input'
 
 import * as SC from './styles'
 
-import type { TValidationState } from '@/components/molecules/TextArea/types'
-const DailyTrackingTemplate = () => {
+import type { TValidationState } from '@/components/molecules/Input/types'
+
+const LoginTemplate = () => {
   const router = useRouter()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  // Password visibility state
-  const [showPassword, setShowPassword] = useState(false)
-
-  // simple validation state used by the TextArea component
   const [emailValidation, setEmailValidation] =
     useState<TValidationState>('none')
   const [passwordValidation, setPasswordValidation] =
     useState<TValidationState>('none')
 
   const validateEmail = (value: string): TValidationState => {
-    const re = /\S+@\S+\.\S+/
     if (value.length === 0) return 'none'
+    const re = /\S+@\S+\.\S+/
     return re.test(value) ? 'success' : 'error'
   }
 
   const validatePassword = (value: string): TValidationState => {
     if (value.length === 0) return 'none'
-    // password validation
     const hasLength = value.length >= 8
     const hasUpper = /[A-Z]/.test(value)
     const hasLower = /[a-z]/.test(value)
@@ -73,72 +68,42 @@ const DailyTrackingTemplate = () => {
           Login
         </Headline>
 
-        <TextArea
+        <Input
           label='Email'
+          type='email'
           placeholder='name@example.com'
           value={email}
-          singleLine
           onChange={e => {
-            const v = (e.target as HTMLTextAreaElement).value
+            const v = e.target.value
             setEmail(v)
             setEmailValidation(validateEmail(v))
           }}
           onBlur={() => setEmailValidation(validateEmail(email))}
           helperText={emailValidation === 'error' ? 'Invalid email' : ''}
           validation={emailValidation}
+          margin='1rem 0 1rem 0'
+        />
+
+        <Input
+          label='Password'
+          type='password'
+          placeholder='passWot@452'
+          value={password}
+          onChange={e => {
+            const v = e.target.value
+            setPassword(v)
+            setPasswordValidation(validatePassword(v))
+          }}
+          onBlur={() => setPasswordValidation(validatePassword(password))}
+          helperText={
+            passwordValidation === 'error'
+              ? 'Min. 8 characters, upper/lowercase, number & special character'
+              : ''
+          }
+          validation={passwordValidation}
           margin='0 0 1rem 0'
         />
 
-        <SC.PasswordContainer>
-          <SC.PasswordLabel>
-            <Headline variant='h4' noSpacing>
-              Password
-            </Headline>
-          </SC.PasswordLabel>
-          <SC.PasswordFieldWrapper>
-            <SC.PasswordInput
-              type={showPassword ? 'text' : 'password'}
-              placeholder='passWot@452'
-              value={password}
-              onChange={e => {
-                const v = e.target.value
-                setPassword(v)
-                setPasswordValidation(validatePassword(v))
-              }}
-              onBlur={() => setPasswordValidation(validatePassword(password))}
-              $validation={passwordValidation}
-            />
-            <SC.PasswordToggleIcon
-              type='button'
-              $visible={password.length > 0}
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              <Icon
-                name={showPassword ? 'visibility_off' : 'visibility'}
-                color='secondary'
-                size='sm'
-              />
-            </SC.PasswordToggleIcon>
-            <SC.PasswordStatusIcon
-              $visible={passwordValidation === 'success'}
-              $type='success'
-            >
-              <Icon name='check_circle' color='success' size='md' />
-            </SC.PasswordStatusIcon>
-            <SC.PasswordStatusIcon
-              $visible={passwordValidation === 'error'}
-              $type='error'
-            >
-              <Icon name='cancel' color='error' size='md' />
-            </SC.PasswordStatusIcon>
-          </SC.PasswordFieldWrapper>
-          <SC.PasswordHelperText $error={passwordValidation === 'error'}>
-            {passwordValidation === 'error'
-              ? 'Min. 8 characters, upper/lowercase, number & special character'
-              : ''}
-          </SC.PasswordHelperText>
-        </SC.PasswordContainer>
         <Button
           variant='primary'
           size='md'
@@ -147,9 +112,11 @@ const DailyTrackingTemplate = () => {
         >
           Login
         </Button>
-        <Button variant='ghost' size='md'>
+
+        <Button variant='ghost' size='md' type='button'>
           Forgot Password?
         </Button>
+
         <SC.SignInPrompt>
           <SC.Label>Don&apos;t have an account?</SC.Label>
           <Button
@@ -166,4 +133,4 @@ const DailyTrackingTemplate = () => {
   )
 }
 
-export default DailyTrackingTemplate
+export default LoginTemplate

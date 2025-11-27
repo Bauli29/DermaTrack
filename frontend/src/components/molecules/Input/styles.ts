@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components'
 import type {
   IStatusIconProps,
   IStyledContainerProps,
-  IStyledTextAreaProps,
+  IStyledInputProps,
   TValidationState,
 } from './types'
 import type { ITheme } from '@/lib/themes'
@@ -29,10 +29,10 @@ export const FieldWrapper = styled.div`
   width: 100%;
 `
 
-export const TextArea = styled.textarea<IStyledTextAreaProps>`
+export const Input = styled.input<IStyledInputProps>`
   width: 100%;
-  min-height: 6rem;
-  padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+  height: 2.5rem;
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
   border-radius: 0.5rem;
   border: 1px solid
     ${({ theme, $validation }) => getValidationColor($validation, theme)};
@@ -40,9 +40,7 @@ export const TextArea = styled.textarea<IStyledTextAreaProps>`
   color: ${({ theme }) => theme.colors.text};
   font: inherit;
   font-size: 1rem;
-  line-height: 1.6;
-  resize: none;
-  overflow-y: auto;
+  line-height: 1.5;
   box-sizing: border-box;
   transition:
     border-color 0.15s ease,
