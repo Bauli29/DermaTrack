@@ -5,6 +5,7 @@ import { ThemeProvider } from 'styled-components'
 import { ThemeContextProvider } from '@/context/theme-context'
 
 import { useTheme } from '@/hooks/use-theme'
+import Header from '@/components/organisms/Header'
 
 const ThemedWrapper = ({ children }: { children: ReactNode }) => {
   const { theme } = useTheme()
@@ -13,7 +14,11 @@ const ThemedWrapper = ({ children }: { children: ReactNode }) => {
 
 const ClientLayout = ({ children }: { children: ReactNode }) => (
   <ThemeContextProvider>
-    <ThemedWrapper>{children}</ThemedWrapper>
+    <ThemedWrapper>
+      {/* Global app header shown on all pages (mobile-first) */}
+      <Header />
+      {children}
+    </ThemedWrapper>
   </ThemeContextProvider>
 )
 
