@@ -11,6 +11,25 @@
   "author": "Bastian, Philip, Johanna, Sebastian, Sribriddhi",
   "type": "commonjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently -n FRONTEND,BACKEND -c green,magenta \"pnpm -C frontend dev\" \"backend\\mvnw.cmd -f backend/pom.xml spring-boot:run -Dspring-boot.run.profiles=local\"",
+    "dev:frontend": "pnpm -C frontend dev",
+    "dev:backend": "backend\\mvnw.cmd -f backend/pom.xml spring-boot:run -Dspring-boot.run.profiles=local",
+
+    "build": "concurrently -n FRONTEND,BACKEND -c green,magenta \"pnpm -C frontend build\" \"backend\\mvnw.cmd -q -f backend/pom.xml clean package -DskipTests\"",
+    "build:frontend": "pnpm -C frontend build",
+    "build:backend": "backend\\mvnw.cmd -q -f backend/pom.xml clean package -DskipTests",
+
+    "test": "concurrently -n FRONTEND,BACKEND -c green,magenta \"pnpm -C frontend run --if-present test\" \"backend\\mvnw.cmd -q -f backend/pom.xml test\"",
+    "test:frontend": "pnpm -C frontend run --if-present test",
+    "test:backend": "backend\\mvnw.cmd -q -f backend/pom.xml test",
+
+    "lint": "pnpm -C frontend run lint:check",
+    "lint:fix": "pnpm -C frontend run lint:fix",
+
+    "format": "pnpm -C frontend run format:check",
+    "format:fix": "pnpm -C frontend run format"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
   }
 }
