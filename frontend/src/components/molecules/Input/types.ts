@@ -1,9 +1,9 @@
-import { TextareaHTMLAttributes } from 'react'
+import { InputHTMLAttributes } from 'react'
 
 export type TValidationState = 'none' | 'success' | 'error'
 
-export interface ITextAreaProps
-  extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'color'> {
+export interface IInputProps
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'color'> {
   label?: string
   validation?: TValidationState
   helperText?: string
@@ -18,7 +18,7 @@ export interface IStyledContainerProps {
   $maxWidth?: string
 }
 
-export interface IStyledTextAreaProps {
+export interface IStyledInputProps {
   $validation: TValidationState
   $disabled?: boolean
 }

@@ -1,41 +1,7 @@
 'use client'
 import styled from 'styled-components'
-import type { TValidationState } from '@/components/molecules/TextArea/types'
-import type { ITheme } from '@/lib/themes'
 
-// Helper functions for validation colors
-const getValidationBorderColor = (
-  validation: TValidationState,
-  theme: ITheme
-) => {
-  if (validation === 'success') return theme.colors.success
-  if (validation === 'error') return theme.colors.error
-  return theme.colors.border
-}
-
-const getValidationFocusBorderColor = (
-  validation: TValidationState,
-  theme: ITheme
-) => {
-  if (validation === 'success') return theme.colors.success
-  if (validation === 'error') return theme.colors.error
-  return theme.colors.primary
-}
-
-const getValidationBoxShadow = (
-  validation: TValidationState,
-  theme: ITheme
-) => {
-  if (validation === 'success') return `0 0 0 3px ${theme.colors.success}20`
-  if (validation === 'error') return `0 0 0 3px ${theme.colors.error}20`
-  return `0 0 0 3px ${theme.colors.primary}20`
-}
-
-const getHoverBorderColor = (validation: TValidationState, theme: ITheme) => {
-  if (validation === 'success') return theme.colors.success
-  if (validation === 'error') return theme.colors.error
-  return theme.colors.borderLight
-}
+// Removed unused imports and helper functions for validation colors
 
 export const LoginPageWrapper = styled.div`
   padding: 20px;
@@ -45,6 +11,7 @@ export const LoginPageWrapper = styled.div`
   align-items: center;
   gap: 10px;
 `
+
 // Card-like surface for the form
 export const Card = styled.div`
   background: ${({ theme }) => theme.colors.surface};
@@ -75,111 +42,4 @@ export const SignInPrompt = styled.div`
   gap: 4px;
   justify-content: center;
   align-items: center;
-`
-
-// Password field components
-export const PasswordContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-`
-
-export const PasswordLabel = styled.div`
-  margin-bottom: 0.5rem;
-`
-
-export const PasswordFieldWrapper = styled.div`
-  position: relative;
-  width: 100%;
-`
-
-export const PasswordInput = styled.input<{ $validation: TValidationState }>`
-  width: 100%;
-  padding: 0.875rem 5.5rem 0.875rem 1rem;
-  border-radius: 0.5rem;
-  border: 2px solid
-    ${({ theme, $validation }) => getValidationBorderColor($validation, theme)};
-  background: ${({ theme }) => theme.colors.surface};
-  color: ${({ theme }) => theme.colors.text};
-  font: inherit;
-  font-size: 1rem;
-  line-height: 1.5;
-
-  &::placeholder {
-    color: ${({ theme }) => theme.colors.textMuted};
-    opacity: 1;
-  }
-
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    background 0.15s ease;
-
-  &:hover:not(:disabled) {
-    background: ${({ theme }) => theme.colors.card};
-    border-color: ${({ theme, $validation }) =>
-      getHoverBorderColor($validation, theme)};
-  }
-
-  &:focus {
-    outline: none;
-    border-color: ${({ theme, $validation }) =>
-      getValidationFocusBorderColor($validation, theme)};
-    box-shadow: ${({ theme, $validation }) =>
-      getValidationBoxShadow($validation, theme)};
-  }
-
-  &:disabled {
-    background: ${({ theme }) => theme.colors.border};
-    color: ${({ theme }) => theme.colors.textMuted};
-    cursor: not-allowed;
-    border-color: ${({ theme }) => theme.colors.border};
-  }
-`
-
-export const PasswordToggleIcon = styled.button<{ $visible: boolean }>`
-  position: absolute;
-  top: 50%;
-  right: 3.5rem;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: ${({ $visible }) => ($visible ? '0.7' : '0.4')};
-
-  &:hover {
-    opacity: 1;
-  }
-
-  &:focus {
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-`
-
-export const PasswordStatusIcon = styled.div<{
-  $visible: boolean
-  $type: 'success' | 'error'
-}>`
-  position: absolute;
-  top: 50%;
-  right: 1rem;
-  transform: translateY(-50%);
-  display: ${({ $visible }) => ($visible ? 'flex' : 'none')};
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-`
-
-export const PasswordHelperText = styled.div<{ $error?: boolean }>`
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: ${({ theme, $error }) =>
-    $error ? theme.colors.error : theme.colors.textMuted};
 `

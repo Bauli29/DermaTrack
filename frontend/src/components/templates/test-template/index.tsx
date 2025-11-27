@@ -7,18 +7,28 @@ import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
 import Slider from '@/components/atoms/Slider'
 import Text from '@/components/atoms/Text'
+
+import Input from '@/components/molecules/Input'
 import TextArea from '@/components/molecules/TextArea'
+
+import { getHealth } from '@/services/actuator/health'
 
 import * as SC from './styles'
 import ThemeButton from './temp-theme-button'
-import { getHealth } from '@/services/actuator/health'
 
 const TestTemplate = () => {
   const [basicSliderValue, setBasicSliderValue] = useState(50)
   const [temperatureValue, setTemperatureValue] = useState(20)
-  const [notes, setNotes] = useState('')
-  const [successNotes, setSuccessNotes] = useState('Everything looks great!')
-  const [errorNotes, setErrorNotes] = useState('This input is invalid...')
+
+  // Single-line inputs (Input component)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('user@example.com')
+  const [password, setPassword] = useState('')
+
+  // Multi-line inputs (TextArea component)
+  const [description, setDescription] = useState('')
+  const [feedback, setFeedback] = useState('This component works great!')
+  const [errorText, setErrorText] = useState('This field has an error')
 
   const [healthStatus, setHealthStatus] = useState<string>('Loading...')
 
@@ -155,43 +165,105 @@ const TestTemplate = () => {
         </Text>
 
         <Headline variant='h3' color='secondary' align='left' noSpacing>
-          Text Areas
+          Input Fields (Single-Line)
         </Headline>
-        {/* Default */}
-        <TextArea
-          label='Daily notes'
-          placeholder='Type your notes here (multi-line)...'
-          value={notes}
-          onChange={e => setNotes(e.target.value)}
-          helperText={`Characters: ${notes.length}`}
+        <Text size='small' color='textMuted' margin='0 0 1rem 0'>
+          For single-line data: names, emails, passwords, URLs, etc.
+        </Text>
+
+        {/* Input: Name */}
+        <Input
+          label='Full Name'
+          type='text'
+          placeholder='Enter your name'
+          value={name}
+          onChange={e => setName(e.target.value)}
+          helperText='First and last name'
           margin='0 0 1rem 0'
         />
 
-        {/* Success state */}
-        <TextArea
-          label='Validation: success'
-          value={successNotes}
-          onChange={e => setSuccessNotes(e.target.value)}
+        {/* Input: Email with success */}
+        <Input
+          label='Email Address'
+          type='email'
+          placeholder='you@example.com'
+          value={email}
+          onChange={e => setEmail(e.target.value)}
           validation='success'
-          helperText='Looks good!'
+          helperText='Valid email format'
           margin='0 0 1rem 0'
         />
 
-        {/* Error state */}
-        <TextArea
-          label='Validation: error'
-          value={errorNotes}
-          onChange={e => setErrorNotes(e.target.value)}
+        {/* Input: Password with error */}
+        <Input
+          label='Password'
+          type='password'
+          placeholder='Enter password'
+          value={password}
+          onChange={e => setPassword(e.target.value)}
           validation='error'
-          helperText='Please correct the highlighted issues.'
+          helperText='Password must be at least 8 characters'
           margin='0 0 1rem 0'
         />
 
-        {/* Disabled */}
-        <TextArea
-          label='Disabled field'
-          placeholder='Cannot type here'
+        {/* Input: Disabled */}
+        <Input
+          label='Username'
+          type='text'
+          value='john_doe'
           disabled
+          helperText='Cannot be changed'
+          margin='0 0 1rem 0'
+        />
+
+        <Headline variant='h3' color='secondary' align='left' noSpacing>
+          Text Areas (Multi-Line)
+        </Headline>
+        <Text size='small' color='textMuted' margin='0 0 1rem 0'>
+          For longer content: descriptions, notes, comments, feedback
+        </Text>
+
+        {/* TextArea: Default with character count */}
+        <TextArea
+          label='Description'
+          placeholder='Describe your symptoms in detail...'
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+          helperText={`${description.length} characters`}
+          margin='0 0 1rem 0'
+          rows={4}
+        />
+
+        {/* TextArea: Success state */}
+        <TextArea
+          label='Feedback'
+          placeholder='Share your thoughts...'
+          value={feedback}
+          onChange={e => setFeedback(e.target.value)}
+          validation='success'
+          helperText='Thank you for your feedback!'
+          margin='0 0 1rem 0'
+          rows={3}
+        />
+
+        {/* TextArea: Error state with character limit */}
+        <TextArea
+          label='Additional Notes'
+          placeholder='Add any additional information...'
+          value={errorText}
+          onChange={e => setErrorText(e.target.value)}
+          validation='error'
+          helperText='This field is required (min 20 characters)'
+          margin='0 0 1rem 0'
+          rows={5}
+        />
+
+        {/* TextArea: Disabled */}
+        <TextArea
+          label='Read-only Information'
+          value='This field is disabled and cannot be edited. It contains important information that should not be modified.'
+          disabled
+          rows={3}
         />
       </>
     </SC.TestPageWrapper>
