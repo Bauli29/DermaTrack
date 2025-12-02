@@ -43,10 +43,6 @@ export const NavLink = styled(Link)<{ $isActive: boolean }>`
   text-decoration: none;
   border-radius: 8px;
 
-  /* Active state styling */
-  background-color: ${({ $isActive, theme }) =>
-    $isActive ? theme.colors.hover : 'transparent'};
-
   /* Hover effect (for devices with pointer) */
   @media (hover: hover) {
     &:hover {
@@ -59,27 +55,4 @@ export const NavLink = styled(Link)<{ $isActive: boolean }>`
     outline: 2px solid ${({ theme }) => theme.colors.focus};
     outline-offset: 2px;
   }
-`
-
-export const NavIcon = styled.span<{ $isActive: boolean }>`
-  font-family: 'Material Symbols Outlined';
-  font-size: 24px;
-  line-height: 1;
-  user-select: none;
-  color: ${({ $isActive, theme }) =>
-    $isActive ? theme.colors.primary : theme.colors.textSecondary};
-
-  /* Use filled variant for active state */
-  font-variation-settings: ${({ $isActive }) =>
-    $isActive ? "'FILL' 1, 'wght' 400" : "'FILL' 0, 'wght' 300"};
-`
-
-export const NavLabel = styled.span<{ $isActive: boolean }>`
-  font-size: 12px;
-  font-weight: ${({ $isActive }) => ($isActive ? '600' : '400')};
-  color: ${({ $isActive, theme }) =>
-    $isActive ? theme.colors.primary : theme.colors.textSecondary};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 `

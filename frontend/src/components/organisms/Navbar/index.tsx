@@ -3,6 +3,9 @@
 import { usePathname } from 'next/navigation'
 import React from 'react'
 
+import Icon from '@/components/atoms/Icon'
+import Text from '@/components/atoms/Text'
+
 import * as SC from './styles'
 
 import type { IBottomNavProps, INavItem } from './types'
@@ -61,10 +64,22 @@ const NavBar = ({ items = NavItems }: IBottomNavProps) => {
               $isActive={active}
               aria-current={active ? 'page' : undefined}
             >
-              <SC.NavIcon $isActive={active} aria-hidden='true'>
-                {item.icon}
-              </SC.NavIcon>
-              <SC.NavLabel $isActive={active}>{item.label}</SC.NavLabel>
+              <Icon
+                name={item.icon}
+                color={active ? 'primary' : 'textSecondary'}
+                size='lg'
+                aria-hidden='true'
+              />
+              <Text
+                as='span'
+                size='small'
+                color={active ? 'primary' : 'textSecondary'}
+                weight={active ? 600 : 400}
+                noSpacing
+                truncate
+              >
+                {item.label}
+              </Text>
             </SC.NavLink>
           )
         })}
