@@ -37,3 +37,4 @@ build/
 .env.local
 .env.*.local
 application-local.yml
+application-local-neon.yml
