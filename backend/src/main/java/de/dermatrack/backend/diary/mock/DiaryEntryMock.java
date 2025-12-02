@@ -3,6 +3,7 @@ package de.dermatrack.backend.diary.mock;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import de.dermatrack.backend.auth.api.model.AppUser;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 
 @Component
+@Profile("local-h2")
 @RequiredArgsConstructor
 public class DiaryEntryMock {
 

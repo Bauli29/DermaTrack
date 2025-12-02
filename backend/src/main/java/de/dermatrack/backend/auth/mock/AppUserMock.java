@@ -3,6 +3,7 @@ package de.dermatrack.backend.auth.mock;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 
 @Component
+@Profile("local-h2")
 @RequiredArgsConstructor
 public class AppUserMock {
 
