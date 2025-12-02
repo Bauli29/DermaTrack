@@ -1,6 +1,6 @@
 const BACKEND_API_URL = process.env.BACKEND_API_URL ?? 'http://localhost:8080'
-const AUTH_USERNAME = process.env.AUTH_USERNAME ?? 'username'
-const AUTH_PASSWORD = process.env.AUTH_PASSWORD ?? 'password'
+const AUTH_USERNAME = process.env.AUTH_USERNAME ?? '_'
+const AUTH_PASSWORD = process.env.AUTH_PASSWORD ?? '_'
 
 const basicAuth = Buffer.from(`${AUTH_USERNAME}:${AUTH_PASSWORD}`).toString(
   'base64'
