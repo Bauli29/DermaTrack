@@ -42,6 +42,9 @@ const colorStyles = (theme: ITheme) => ({
   success: css`
     color: ${theme.colors.success};
   `,
+  textSecondary: css`
+    color: ${theme.colors.textSecondary};
+  `,
 })
 
 export const Icon = styled.span<IStyledIconProps>`

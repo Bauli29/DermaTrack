@@ -7,6 +7,7 @@ export type TIconColor =
   | 'warning'
   | 'info'
   | 'success'
+  | 'textSecondary'
 
 export type TIconSize = 'sm' | 'md' | 'lg'
 
