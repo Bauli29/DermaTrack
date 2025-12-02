@@ -38,3 +38,5 @@ build/
 .env.*.local
 application-local.yml
 application-local-neon.yml
+application-local.yml
+application-local-neon.yml
