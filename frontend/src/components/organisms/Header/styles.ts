@@ -3,9 +3,10 @@ import styled from 'styled-components'
 
 // Sticky top bar that respects iOS safe areas
 export const HeaderBar = styled.header`
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 100; /* keep above page content */
+  z-index: 99;
+  width: 100%;
   background: ${({ theme }) => theme.colors.surface};
   color: ${({ theme }) => theme.colors.text};
   border-bottom: 1px solid ${({ theme }) => theme.colors.borderLight};

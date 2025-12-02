@@ -1,5 +1,3 @@
-import GlobalStyle from '@/app/global-style'
-
 import ClientLayout from '@/lib/client-layout'
 import StyledComponentsRegistry from '@/lib/registry'
 
@@ -13,10 +11,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
     </head>
     <body>
       <StyledComponentsRegistry>
-        <ClientLayout>
-          <GlobalStyle />
-          {children}
-        </ClientLayout>
+        <ClientLayout>{children}</ClientLayout>
       </StyledComponentsRegistry>
     </body>
   </html>
