@@ -19,7 +19,7 @@
     "prepare": "cd .. && husky frontend/.husky"
   },
   "dependencies": {
-    "next": "16.0.1",
+    "next": "16.0.7",
     "next-swagger-doc": "^0.4.1",
     "pnpm": "^10.23.0",
     "react": "19.2.0",
