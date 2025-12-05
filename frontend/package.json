@@ -21,7 +21,7 @@
   "dependencies": {
     "next": "16.0.7",
     "next-swagger-doc": "^0.4.1",
-    "pnpm": "^10.23.0",
+    "pnpm": "^10.24.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "styled-components": "^6.1.19",

@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -17,16 +18,17 @@ import org.springframework.context.annotation.Profile;
 import de.dermatrack.backend.auth.api.model.AppUser;
 import de.dermatrack.backend.auth.mock.AppUserMock;
 import de.dermatrack.backend.diary.mock.DiaryEntryMock;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
-@RequiredArgsConstructor
 @Slf4j
 public class DatabaseConfig {
 
-    private final AppUserMock appUserMock;
-    private final DiaryEntryMock diaryEntryMock;
+    @Autowired(required = false)
+    private AppUserMock appUserMock;
+    
+    @Autowired(required = false)
+    private DiaryEntryMock diaryEntryMock;
 
     @Value("${app.mockdata.enabled:true}")
     private boolean mockDataEnabled;
@@ -100,6 +102,11 @@ public class DatabaseConfig {
         return args -> {
             if (!mockDataEnabled) {
                 log.info("Mock data generation disabled");
+                return;
+            }
+
+            if (appUserMock == null || diaryEntryMock == null) {
+                log.warn("Mock beans not available, skipping mock data generation");
                 return;
             }
 
