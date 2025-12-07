@@ -2,8 +2,10 @@ import { TextareaHTMLAttributes } from 'react'
 
 export type TValidationState = 'none' | 'success' | 'error'
 
-export interface ITextAreaProps
-  extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'color'> {
+export interface ITextAreaProps extends Omit<
+  TextareaHTMLAttributes<HTMLTextAreaElement>,
+  'color'
+> {
   label?: string
   validation?: TValidationState
   helperText?: string

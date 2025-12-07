@@ -2,8 +2,10 @@ import { HTMLAttributes } from 'react'
 
 export type TSliderVariant = 'primary' | 'secondary'
 
-export interface ISliderProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface ISliderProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'onChange'
+> {
   value: number
   color?: TSliderVariant
   disabled?: boolean

@@ -2,8 +2,10 @@ import { InputHTMLAttributes } from 'react'
 
 export type TValidationState = 'none' | 'success' | 'error'
 
-export interface IInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'color'> {
+export interface IInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'color'
+> {
   label?: string
   validation?: TValidationState
   helperText?: string
