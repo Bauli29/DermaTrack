@@ -1,5 +1,6 @@
 'use client'
 import { useEffect } from 'react'
+
 import { usePageTitle } from '@/hooks/use-page-title'
 
 const Home = () => {
@@ -9,7 +10,7 @@ const Home = () => {
     setTitle('Dashboard')
     setBackLink(null)
     setParentTitle(null)
-  }, [setTitle, setBackLink])
+  }, [setTitle, setBackLink, setParentTitle])
 
   return <h1>Hello World</h1>
 }

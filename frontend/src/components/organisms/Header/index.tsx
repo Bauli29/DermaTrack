@@ -1,17 +1,19 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
-import Brand from '@/components/molecules/Brand'
 import Button from '@/components/atoms/button'
+import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
 import Text from '@/components/atoms/Text'
-import Headline from '@/components/atoms/Headline'
 
-import * as SC from './styles'
-import type { IHeaderProps } from './types'
+import Brand from '@/components/molecules/Brand'
+
 import { usePageTitle } from '@/hooks/use-page-title'
 
+import * as SC from './styles'
+
+import type { IHeaderProps } from './types'
 const Header = ({
   showBrand = true,
   brandLogoSrc = '/newLogo.png',

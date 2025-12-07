@@ -1,7 +1,9 @@
 'use client'
 import { useEffect } from 'react'
-import { usePageTitle } from '@/hooks/use-page-title'
+
 import TestTemplate from '@/components/templates/test-template'
+
+import { usePageTitle } from '@/hooks/use-page-title'
 
 const Test = () => {
   const { setTitle, setBackLink, setParentTitle } = usePageTitle()
@@ -10,7 +12,7 @@ const Test = () => {
     setTitle('Test Page')
     setBackLink('/')
     setParentTitle('Dashboard')
-  }, [setTitle, setBackLink])
+  }, [setTitle, setBackLink, setParentTitle])
 
   return <TestTemplate />
 }
