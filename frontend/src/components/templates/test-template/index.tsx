@@ -15,8 +15,14 @@ import { getHealth } from '@/services/actuator/health'
 
 import * as SC from './styles'
 import ThemeButton from './temp-theme-button'
+import { usePageTitle } from '@/hooks/use-page-title'
 
 const TestTemplate = () => {
+  const { setTitle } = usePageTitle()
+  useEffect(() => {
+    setTitle('Daily Tracking')
+  }, [setTitle])
+
   const [basicSliderValue, setBasicSliderValue] = useState(50)
   const [temperatureValue, setTemperatureValue] = useState(20)
 
@@ -45,9 +51,6 @@ const TestTemplate = () => {
   return (
     <SC.TestPageWrapper>
       {/* Header is now global (rendered from ClientLayout), so we don't add it here */}
-      <Headline variant='h1' color='text' align='center'>
-        Test Template
-      </Headline>
       <ThemeButton />
       <>
         <Headline variant='h2' color='critical' align='center'>

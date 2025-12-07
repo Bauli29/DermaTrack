@@ -7,7 +7,8 @@ import NavBar from '@/components/organisms/Navbar'
 
 import GlobalStyle from '@/app/global-style'
 
-import { ThemeContextProvider } from '@/context/theme-context'
+import { ThemeContextProvider } from '@/context/theme'
+import { PageTitleProvider } from '@/context/page-title'
 
 import { useTheme } from '@/hooks/use-theme'
 
@@ -18,12 +19,14 @@ const ThemedWrapper = ({ children }: { children: ReactNode }) => {
 
 const ClientLayout = ({ children }: { children: ReactNode }) => (
   <ThemeContextProvider>
-    <ThemedWrapper>
-      <GlobalStyle />
-      <Header />
-      {children}
-      <NavBar />
-    </ThemedWrapper>
+    <PageTitleProvider>
+      <ThemedWrapper>
+        <GlobalStyle />
+        <Header />
+        {children}
+        <NavBar />
+      </ThemedWrapper>
+    </PageTitleProvider>
   </ThemeContextProvider>
 )
 

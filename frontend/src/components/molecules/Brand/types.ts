@@ -7,8 +7,6 @@ export interface IBrandProps {
   logoSrc?: string
   /** Visual size of the logo + text bundle */
   size?: TBrandSize
-  /** Whether to render the textual brand name next to the icon (defaults to true) */
-  showName?: boolean
   /** Optional click handler (usually to navigate home) */
   onClick?: () => void
   /** Accessible label if clickable */

@@ -2,7 +2,7 @@
 import styled from 'styled-components'
 
 // Sticky top bar that respects iOS safe areas
-export const HeaderBar = styled.header`
+export const Header = styled.header`
   position: fixed;
   top: 0;
   z-index: 99;
@@ -11,26 +11,22 @@ export const HeaderBar = styled.header`
   color: ${({ theme }) => theme.colors.text};
   border-bottom: 1px solid ${({ theme }) => theme.colors.borderLight};
   padding-top: env(safe-area-inset-top, 0px);
-`
-
-// Main row with three areas: back (left), title (center), brand (right)
-export const BarContent = styled.div`
   display: grid;
-  grid-template-columns: auto 1fr auto; /* left/right size to content; title flexes */
+  grid-template-columns: 1fr auto 1fr; /* left/right size to content; title flexes */
   column-gap: 8px;
   align-items: center;
   height: 64px; /* larger, thumb-friendly mobile touch target */
   padding: 0 12px;
 `
 
-export const LeftGroup = styled.div`
+export const Left = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-start;
   min-width: 0; /* allow overflow handling */
 `
 
-export const CenterGroup = styled.div`
+export const Center = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,13 +41,26 @@ export const CenterGroup = styled.div`
   }
 `
 
-export const RightGroup = styled.div`
+export const Right = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
   min-width: 0;
+  padding-right: 8px;
 `
 
-export const BreadcrumbRow = styled.div`
-  padding: 0 12px 8px 12px;
+export const BackButton = styled.div`
+  display: flex;
+  align-items: center;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 8px;
+  }
+
+  span {
+    line-height: 1;
+  }
 `

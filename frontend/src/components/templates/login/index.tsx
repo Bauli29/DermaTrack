@@ -1,18 +1,22 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import Button from '@/components/atoms/button'
-import Headline from '@/components/atoms/Headline'
-
 import Input from '@/components/molecules/Input'
 
 import * as SC from './styles'
 
 import type { TValidationState } from '@/components/molecules/Input/types'
+import { usePageTitle } from '@/hooks/use-page-title'
 
 const LoginTemplate = () => {
   const router = useRouter()
+
+  const { setTitle } = usePageTitle()
+  useEffect(() => {
+    setTitle('Login')
+  }, [setTitle])
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -64,16 +68,12 @@ const LoginTemplate = () => {
   return (
     <SC.LoginPageWrapper>
       <SC.Card as='form' onSubmit={onSubmit}>
-        <Headline variant='h3' color='primary' align='center' noSpacing>
-          Login
-        </Headline>
-
         <Input
           label='Email'
           type='email'
           placeholder='name@example.com'
           value={email}
-          onChange={e => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             const v = e.target.value
             setEmail(v)
             setEmailValidation(validateEmail(v))
@@ -89,7 +89,7 @@ const LoginTemplate = () => {
           type='password'
           placeholder='passWot@452'
           value={password}
-          onChange={e => {
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             const v = e.target.value
             setPassword(v)
             setPasswordValidation(validatePassword(v))

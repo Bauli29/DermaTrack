@@ -1,18 +1,22 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import Button from '@/components/atoms/button'
-import Headline from '@/components/atoms/Headline'
-
 import Input from '@/components/molecules/Input'
 
 import * as SC from './styles'
 
 import type { TValidationState } from '@/components/molecules/Input/types'
+import { usePageTitle } from '@/hooks/use-page-title'
 
 const RegistrationTemplate = () => {
   const router = useRouter()
+
+  const { setTitle } = usePageTitle()
+  useEffect(() => {
+    setTitle('Registration')
+  }, [setTitle])
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -89,10 +93,6 @@ const RegistrationTemplate = () => {
   return (
     <SC.RegistrationPageWrapper>
       <SC.Card as='form' onSubmit={onSubmit}>
-        <Headline variant='h3' color='primary' align='center' noSpacing>
-          Registration
-        </Headline>
-
         <SC.NameRow>
           <Input
             label='First Name (optional)'

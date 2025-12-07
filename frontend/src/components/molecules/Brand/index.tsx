@@ -3,7 +3,6 @@
 import Image from 'next/image'
 import * as SC from './styles'
 import type { IBrandProps } from './types'
-import Headline from '@/components/atoms/Headline'
 
 /**
  * Brand molecule
@@ -21,7 +20,6 @@ const Brand = ({
   name = 'DermaTrack',
   logoSrc,
   size = 'md',
-  showName = true,
   onClick,
   ariaLabel = 'Go to Home',
 }: IBrandProps) => (
@@ -38,11 +36,6 @@ const Brand = ({
         <SC.FallbackAvatar aria-hidden>DT</SC.FallbackAvatar>
       )}
     </SC.LogoBox>
-    {showName && (
-      <Headline variant={size === 'lg' ? 'h3' : 'h4'} color='text' noSpacing>
-        {name}
-      </Headline>
-    )}
   </SC.BrandContainer>
 )
 

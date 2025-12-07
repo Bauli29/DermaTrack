@@ -5,7 +5,6 @@ export const BrandContainer = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem; /* 8px spacing between logo and name */
-  cursor: ${({ onClick }) => (onClick ? 'pointer' : 'default')};
   user-select: none;
 `
 
@@ -19,8 +18,8 @@ const logoSizes = {
     height: 1.75rem;
   `,
   lg: css`
-    width: 2rem; /* 32px */
-    height: 2rem;
+    width: 3rem; /* 32px */
+    height: 3rem;
   `,
 }
 
@@ -29,8 +28,6 @@ export const LogoBox = styled.span<{ $size: 'sm' | 'md' | 'lg' }>`
   display: inline-flex;
   border-radius: 0.5rem; /* soft rounded square to hold the image */
   overflow: hidden;
-  background: ${({ theme }) => theme.colors.card};
-  box-shadow: 0 1px 2px ${({ theme }) => theme.colors.shadow};
   ${p => logoSizes[p.$size]}
 
   /* Next.js Image with fill requires a positioned parent */

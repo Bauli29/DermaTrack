@@ -1,122 +1,65 @@
 'use client'
 
-import React from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 
 import Brand from '@/components/molecules/Brand'
-import BackButton from '@/components/molecules/BackButton'
-import Headline from '@/components/atoms/Headline'
+import Button from '@/components/atoms/button'
+import Icon from '@/components/atoms/Icon'
 import Text from '@/components/atoms/Text'
+import Headline from '@/components/atoms/Headline'
 
 import * as SC from './styles'
 import type { IHeaderProps } from './types'
+import { usePageTitle } from '@/hooks/use-page-title'
 
-/**
- * Header organism (mobile-first)
- * --------------------------------
- * Responsibilities:
- * - Always show a recognizable brand (logo + app name) so users know they are
- *   on the official DermaTrack site/app.
- * - Show a context title for the current view (e.g., "Settings", "Profile").
- * - Provide a back button that points to the logical parent route. For example,
- *   when the current URL is `/settings/notification-preferances` the back target
- *   becomes `/settings`.
- *
- * Atomic Design Reasoning:
- * - This component is an organism because it composes multiple molecules/atoms
- *   (Brand + BackButton + Headline/Text) with layout and navigation logic.
- *
- * Usage guidance:
- * - Drop the Header at the top of pages or templates. It is sticky by default
- *   and respects iOS safe-area insets.
- * - You can override the inferred title and the computed back link using props.
- */
-const Header: React.FC<IHeaderProps> = ({
-  title,
+const Header = ({
   showBrand = true,
-  brandLogoSrc = '/logo-dermatrack-mark.svg',
+  brandLogoSrc = '/newLogo.png',
   brandName = 'DermaTrack',
-  showBack = true,
-  backHref,
-  showPath = false,
-  className,
-}) => {
-  const pathname = usePathname() ?? '/'
+}: IHeaderProps) => {
   const router = useRouter()
 
-  // Split current path into segments, ignoring empty parts
-  const segments = React.useMemo(
-    () => pathname.split('/').filter(Boolean),
-    [pathname]
-  )
-
-  // Compute the parent path (what the BackButton should navigate to)
-  const computedParentPath = React.useMemo(() => {
-    if (segments.length <= 1) return '/'
-    const parentSegments = segments.slice(0, -1)
-    return `/${parentSegments.join('/')}`
-  }, [segments])
-
-  // Pretty-print the current segment as a human-readable title if not provided
-  const inferredTitle = React.useMemo(() => {
-    const last = segments[segments.length - 1]
-    if (!last) return 'Dashboard'
-    return last.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-  }, [segments])
-
-  // Label for the back button based on the parent segment (e.g., "Settings")
-  const backLabel = React.useMemo(() => {
-    if (segments.length <= 1) return 'Home'
-    const parent = segments[segments.length - 2]
-    return parent.replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-  }, [segments])
+  const { title, backLink, parentTitle } = usePageTitle()
 
   const onBrandClick = () => router.push('/')
 
-  const isRoot = segments.length === 0
-  const showBackButton = showBack && !isRoot
+  const handleBackClick = () => {
+    if (backLink) router.push(backLink)
+  }
 
   return (
-    <SC.HeaderBar className={className}>
-      <SC.BarContent>
-        <SC.LeftGroup>
-          {showBackButton && (
-            <BackButton
-              href={backHref ?? computedParentPath}
-              label={backLabel}
-            />
-          )}
-        </SC.LeftGroup>
+    <SC.Header>
+      <SC.Left>
+        {backLink && (
+          <SC.BackButton>
+            <Button variant='ghost' onClick={handleBackClick}>
+              <Icon name='chevron_left' size='lg' />
+              <Text as='span' size='small' color='textSecondary' noSpacing>
+                {parentTitle ?? 'Back'}
+              </Text>
+            </Button>
+          </SC.BackButton>
+        )}
+      </SC.Left>
 
-        <SC.CenterGroup>
-          {/* Main page title (current location) */}
-          <Headline as='h1' variant='h3' align='center' color='text' noSpacing>
-            {title ?? inferredTitle}
-          </Headline>
-        </SC.CenterGroup>
+      <SC.Center>
+        {/* Main page title (current location) */}
+        <Headline as='h1' variant='h3' align='center' color='text' noSpacing>
+          {title}
+        </Headline>
+      </SC.Center>
 
-        <SC.RightGroup>
-          {showBrand && (
-            <Brand
-              name={brandName}
-              logoSrc={brandLogoSrc}
-              size={isRoot ? 'md' : 'sm'}
-              showName={isRoot}
-              onClick={onBrandClick}
-            />
-          )}
-        </SC.RightGroup>
-      </SC.BarContent>
-
-      {/* Optional subtext showing full path for clarity on test/demo pages */}
-      {showPath && (
-        <SC.BreadcrumbRow aria-hidden>
-          <Text as='span' size='small' color='textMuted' noSpacing>
-            {pathname}
-          </Text>
-        </SC.BreadcrumbRow>
-      )}
-    </SC.HeaderBar>
+      <SC.Right>
+        {showBrand && (
+          <Brand
+            name={brandName}
+            logoSrc={brandLogoSrc}
+            size='lg'
+            onClick={onBrandClick}
+          />
+        )}
+      </SC.Right>
+    </SC.Header>
   )
 }
 

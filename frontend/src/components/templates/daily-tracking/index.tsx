@@ -1,10 +1,9 @@
 'use client'
 
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import Button from '@/components/atoms/button'
-import Headline from '@/components/atoms/Headline'
 import Slider from '@/components/atoms/Slider'
 import Text from '@/components/atoms/Text'
 
@@ -17,9 +16,14 @@ import {
   MAX_IMAGES,
 } from '@/constants/uploads'
 import { formatDateInput } from '@/lib/date'
+import { usePageTitle } from '@/hooks/use-page-title'
 
 const DailyTrackingTemplate = () => {
   const router = useRouter()
+  const { setTitle } = usePageTitle()
+  useEffect(() => {
+    setTitle('Daily Tracking')
+  }, [setTitle])
 
   // UI-only date field: Backend currently sets createdAt on server
   const [date, setDate] = useState<string>(formatDateInput(new Date()))
@@ -177,10 +181,6 @@ const DailyTrackingTemplate = () => {
 
   return (
     <SC.PageWrapper>
-      <Headline variant='h2' align='left'>
-        Daily Tracking
-      </Headline>
-
       <SC.Card>
         {/* Date section: UI-only validation to prevent future dates */}
         <SC.Section>
