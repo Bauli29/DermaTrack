@@ -16,7 +16,7 @@ import * as SC from './styles'
 import type { IHeaderProps } from './types'
 const Header = ({
   showBrand = true,
-  brandLogoSrc = '/newLogo.png',
+  brandLogoSrc = '/logo.png',
   brandName = 'DermaTrack',
 }: IHeaderProps) => {
   const router = useRouter()
