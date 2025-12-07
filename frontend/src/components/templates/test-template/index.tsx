@@ -5,17 +5,19 @@ import { useEffect, useState } from 'react'
 import Button from '@/components/atoms/button'
 import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
+import Link from '@/components/atoms/Link'
 import Slider from '@/components/atoms/Slider'
 import Text from '@/components/atoms/Text'
 
 import Input from '@/components/molecules/Input'
 import TextArea from '@/components/molecules/TextArea'
 
+import { usePageTitle } from '@/hooks/use-page-title'
+
 import { getHealth } from '@/services/actuator/health'
 
 import * as SC from './styles'
 import ThemeButton from './temp-theme-button'
-import { usePageTitle } from '@/hooks/use-page-title'
 
 const TestTemplate = () => {
   const { setTitle } = usePageTitle()
@@ -98,6 +100,112 @@ const TestTemplate = () => {
         <Icon name='settings' size='md' color='secondary' />
         <Icon name='delete' size='sm' color='error' />
         <Icon name='check_circle' size='sm' color='error' />
+
+        <Headline variant='h3' color='secondary' align='left' noSpacing>
+          Links
+        </Headline>
+        <Text size='small' color='textMuted' margin='0 0 1rem 0'>
+          Navigation links with automatic internal/external detection
+        </Text>
+
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem',
+            alignItems: 'center',
+            width: '100%',
+          }}
+        >
+          {/* Internal Links */}
+          <div style={{ width: '100%', maxWidth: '400px' }}>
+            <Text size='small' color='textSecondary' weight={600}>
+              Internal Links:
+            </Text>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+                marginTop: '0.5rem',
+              }}
+            >
+              <Link href='/test'>Default Link (Test Page)</Link>
+              <Link href='/login' variant='primary'>
+                Primary Link (Login)
+              </Link>
+              <Link href='/register' variant='secondary'>
+                Secondary Link (Register)
+              </Link>
+              <Link href='/about' variant='muted'>
+                Muted Link (About)
+              </Link>
+              <Link href='/contact' underline>
+                Underlined Link (Contact)
+              </Link>
+              <Link href='/disabled' disabled>
+                Disabled Link
+              </Link>
+            </div>
+          </div>
+
+          {/* External Links */}
+          <div style={{ width: '100%', maxWidth: '400px' }}>
+            <Text size='small' color='textSecondary' weight={600}>
+              External Links:
+            </Text>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+                marginTop: '0.5rem',
+              }}
+            >
+              <Link href='https://github.com' showExternalIcon>
+                GitHub (with icon)
+              </Link>
+              <Link
+                href='https://www.dhbw-mannheim.de'
+                variant='primary'
+                showExternalIcon
+              >
+                DHBW Mannheim (Primary)
+              </Link>
+              <Link
+                href='https://nextjs.org'
+                variant='secondary'
+                showExternalIcon
+                underline
+              >
+                Next.js Documentation (Secondary)
+              </Link>
+              <Link href='https://reactjs.org'>React Docs (no icon)</Link>
+              <Link href='https://example.com' disabled showExternalIcon>
+                Disabled External Link
+              </Link>
+            </div>
+          </div>
+
+          {/* Links in Text Context */}
+          <div style={{ width: '100%', maxWidth: '600px' }}>
+            <Text size='medium' color='text'>
+              You can also use links inline within text, like this{' '}
+              <Link href='/test' variant='primary'>
+                internal link
+              </Link>{' '}
+              or this{' '}
+              <Link
+                href='https://example.com'
+                variant='primary'
+                showExternalIcon
+              >
+                external link
+              </Link>
+              . They inherit the font size and blend naturally.
+            </Text>
+          </div>
+        </div>
 
         <Headline variant='h3' color='secondary' align='left' noSpacing>
           Sliders
