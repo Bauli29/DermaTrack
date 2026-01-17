@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 set -e
 
-# Change to frontend directory since we're running from git root
+# Frontend checks
+echo "🔍 Running Frontend checks..."
 cd frontend
 
 echo "▶️  Checking code formatting..."
@@ -13,4 +14,20 @@ pnpm run lint:check
 echo "▶️  Building project..."
 pnpm run build
 
+# Backend checks
+echo ""
+echo "🔍 Running Backend checks..."
+cd ../backend
+
+echo "▶️  Running tests..."
+if [ -f "./mvnw" ]; then
+  ./mvnw test
+elif [ -f "./mvnw.cmd" ]; then
+  ./mvnw.cmd test
+else
+  mvn test
+fi
+
+cd ..
+echo ""
 echo "✅ All pre-commit checks passed!"

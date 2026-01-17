@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+  h2:
+    console:
+      enabled: false
+  security:
+    user:
+      name: testuser
+      password: testpass
+
+app:
+  auth:
+    username: testuser
+    password: testpassword
+  mockdata:
+    enabled: false
+
+logging:
+  level:
+    de.dermatrack: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
