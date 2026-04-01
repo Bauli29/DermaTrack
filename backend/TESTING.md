@@ -134,13 +134,6 @@ mockMvc.perform(post("/api/diary")
 5. **Tests isoliert halten**: Keine Abhängigkeiten zwischen Tests
 6. **Mock nur externe Dependencies**: Service-Layer sollte gemockt werden, nicht Business-Logik
 
-## Test-Coverage
-
-Ein guter Test-Coverage liegt bei:
-- **Service Layer**: 80-90%
-- **Controller**: 70-80%
-- **Model/Entity**: 60-70%
-
 ## Weitere Tests erstellen
 
 Um weitere Tests zu erstellen, folge diesem Muster:
