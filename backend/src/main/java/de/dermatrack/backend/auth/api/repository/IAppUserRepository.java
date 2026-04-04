@@ -1,5 +1,6 @@
 package de.dermatrack.backend.auth.api.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +10,8 @@ import de.dermatrack.backend.auth.api.model.AppUser;
 
 @Repository
 public interface IAppUserRepository extends JpaRepository<AppUser, UUID> {
+
+    Optional<AppUser> findByUsername(String username);
 
     // All basic CRUD operations are inherited from JpaRepository:
 

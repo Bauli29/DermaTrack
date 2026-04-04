@@ -1,6 +1,7 @@
 package de.dermatrack.backend.diary.api.controller;
 
 import java.util.List;
+import java.security.Principal;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -73,7 +74,7 @@ public interface IDiaryController {
                         @ApiResponse(responseCode = "400", description = "Invalid diary entry supplied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))) })
         @PostMapping()
-        ResponseEntity<DiaryEntry> createDiaryEntry(@RequestBody @Valid DiaryEntry diaryEntry);
+        ResponseEntity<DiaryEntry> createDiaryEntry(Principal principal, @RequestBody @Valid DiaryEntry diaryEntry);
 
         /**
          * PUT - Update existing diary entry
@@ -91,6 +92,7 @@ public interface IDiaryController {
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))) })
         @PutMapping("/{id}")
         ResponseEntity<DiaryEntry> updateDiaryEntry(
+                        Principal principal,
                         @PathVariable UUID id,
                         @RequestBody @Valid DiaryEntry diaryEntry);
 

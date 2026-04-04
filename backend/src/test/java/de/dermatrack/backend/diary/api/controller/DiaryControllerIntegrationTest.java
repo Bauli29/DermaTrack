@@ -1,28 +1,28 @@
 package de.dermatrack.backend.diary.api.controller;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import de.dermatrack.backend.auth.api.model.AppUser;
 import de.dermatrack.backend.auth.api.repository.IAppUserRepository;
@@ -76,14 +76,14 @@ class DiaryControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
     @DisplayName("POST /api/diary should create new diary entry")
     void createDiaryEntry_ShouldReturnCreatedEntry() throws Exception {
         // Arrange
-        String requestBody = objectMapper.writeValueAsString(testEntry);
+        String requestBody = buildDiaryEntryRequestBody(5, 3, 7, 6, 8, 4, "Integration test entry");
 
         // Act & Assert
         mockMvc.perform(post("/api/diary")
+                .with(user("testuser"))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -100,14 +100,14 @@ class DiaryControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
     @DisplayName("GET /api/diary/{id} should return diary entry")
     void getDiaryEntry_WhenExists_ShouldReturnEntry() throws Exception {
         // Arrange
         DiaryEntry saved = diaryEntryRepository.save(testEntry);
 
         // Act & Assert
-        mockMvc.perform(get("/api/diary/{id}", saved.getId()))
+        mockMvc.perform(get("/api/diary/{id}", saved.getId())
+                .with(user("testuser")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(saved.getId().toString()))
                 .andExpect(jsonPath("$.allergies").value(5))
@@ -115,19 +115,18 @@ class DiaryControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
     @DisplayName("GET /api/diary/{id} should return 404 for non-existent entry")
     void getDiaryEntry_WhenNotExists_ShouldReturn404() throws Exception {
         // Arrange
         UUID nonExistentId = UUID.randomUUID();
 
         // Act & Assert
-        mockMvc.perform(get("/api/diary/{id}", nonExistentId))
+        mockMvc.perform(get("/api/diary/{id}", nonExistentId)
+                .with(user("testuser")))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @WithMockUser(username = "testuser")
     @DisplayName("GET /api/diary should return all diary entries")
     void getAllDiaryEntries_ShouldReturnList() throws Exception {
         // Arrange
@@ -139,14 +138,14 @@ class DiaryControllerIntegrationTest {
         diaryEntryRepository.save(entry2);
 
         // Act & Assert
-        mockMvc.perform(get("/api/diary"))
+        mockMvc.perform(get("/api/diary")
+                .with(user("testuser")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2));
     }
 
     @Test
-    @WithMockUser(username = "testuser")
     @DisplayName("PUT /api/diary/{id} should update diary entry")
     void updateDiaryEntry_ShouldReturnUpdatedEntry() throws Exception {
         // Arrange
@@ -154,10 +153,11 @@ class DiaryControllerIntegrationTest {
         saved.setAllergies(9);
         saved.setMiscellaneous("Updated notes");
 
-        String requestBody = objectMapper.writeValueAsString(saved);
+        String requestBody = buildDiaryEntryRequestBody(9, 3, 7, 6, 8, 4, "Updated notes");
 
         // Act & Assert
         mockMvc.perform(put("/api/diary/{id}", saved.getId())
+                .with(user("testuser"))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -168,7 +168,6 @@ class DiaryControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser")
     @DisplayName("DELETE /api/diary/{id} should delete diary entry")
     void deleteDiaryEntry_ShouldReturn204() throws Exception {
         // Arrange
@@ -176,25 +175,25 @@ class DiaryControllerIntegrationTest {
 
         // Act & Assert
         mockMvc.perform(delete("/api/diary/{id}", saved.getId())
+                .with(user("testuser"))
                 .with(csrf()))
                 .andExpect(status().isNoContent());
 
         // Verify deletion
-        mockMvc.perform(get("/api/diary/{id}", saved.getId()))
+        mockMvc.perform(get("/api/diary/{id}", saved.getId())
+                .with(user("testuser")))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @WithMockUser(username = "testuser")
     @DisplayName("POST /api/diary with invalid data should return 400")
     void createDiaryEntry_WithInvalidData_ShouldReturn400() throws Exception {
         // Arrange
-        testEntry.setAllergies(15); // Invalid: exceeds max value of 10
-
-        String requestBody = objectMapper.writeValueAsString(testEntry);
+        String requestBody = buildDiaryEntryRequestBody(15, 3, 7, 6, 8, 4, "Integration test entry");
 
         // Act & Assert
         mockMvc.perform(post("/api/diary")
+                .with(user("testuser"))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -207,5 +206,18 @@ class DiaryControllerIntegrationTest {
         // Act & Assert
         mockMvc.perform(get("/api/diary"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    private String buildDiaryEntryRequestBody(int allergies, int infections, int stressLevel, int sleep,
+            int nutrition, int symptoms, String miscellaneous) throws Exception {
+        ObjectNode requestBody = objectMapper.createObjectNode();
+        requestBody.put("allergies", allergies);
+        requestBody.put("infections", infections);
+        requestBody.put("stressLevel", stressLevel);
+        requestBody.put("sleep", sleep);
+        requestBody.put("nutrition", nutrition);
+        requestBody.put("symptoms", symptoms);
+        requestBody.put("miscellaneous", miscellaneous);
+        return objectMapper.writeValueAsString(requestBody);
     }
 }

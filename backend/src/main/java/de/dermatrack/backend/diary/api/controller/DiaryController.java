@@ -1,5 +1,6 @@
 package de.dermatrack.backend.diary.api.controller;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -7,8 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.dermatrack.backend.auth.api.model.AppUser;
+import de.dermatrack.backend.auth.api.repository.IAppUserRepository;
 import de.dermatrack.backend.diary.api.model.DiaryEntry;
 import de.dermatrack.backend.diary.service.DiaryService;
+import de.dermatrack.backend.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DiaryController implements IDiaryController {
 
     private final DiaryService diaryService;
+    private final IAppUserRepository appUserRepository;
     // Service handles all exceptions
 
     @Override
@@ -39,8 +44,10 @@ public class DiaryController implements IDiaryController {
     }
 
     @Override
-    public ResponseEntity<DiaryEntry> createDiaryEntry(DiaryEntry diaryEntry) {
+    public ResponseEntity<DiaryEntry> createDiaryEntry(Principal principal, DiaryEntry diaryEntry) {
         log.debug("Controller: Creating new diary entry");
+
+        diaryEntry.setUser(resolveCurrentUser(principal));
 
         DiaryEntry savedEntry = diaryService.save(diaryEntry);
 
@@ -48,7 +55,7 @@ public class DiaryController implements IDiaryController {
     }
 
     @Override
-    public ResponseEntity<DiaryEntry> updateDiaryEntry(UUID id, DiaryEntry diaryEntry) {
+    public ResponseEntity<DiaryEntry> updateDiaryEntry(Principal principal, UUID id, DiaryEntry diaryEntry) {
         log.debug("Controller: Updating diary entry with id: {}", id);
 
         // Get the existing entry to preserve createdAt
@@ -57,6 +64,7 @@ public class DiaryController implements IDiaryController {
         // Set the ID and preserve createdAt
         diaryEntry.setId(id);
         diaryEntry.setCreatedAt(existingEntry.getCreatedAt());
+        diaryEntry.setUser(resolveCurrentUser(principal));
 
         DiaryEntry updatedEntry = diaryService.save(diaryEntry);
 
@@ -70,5 +78,10 @@ public class DiaryController implements IDiaryController {
         diaryService.deleteById(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    private AppUser resolveCurrentUser(Principal principal) {
+        return appUserRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("AppUser", "username", principal.getName()));
     }
 }
