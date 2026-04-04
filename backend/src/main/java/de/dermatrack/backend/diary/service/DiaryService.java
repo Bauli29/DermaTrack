@@ -27,7 +27,7 @@ public class DiaryService {
      * @return the saved diary entry
      */
     public DiaryEntry save(DiaryEntry diaryEntry) {
-        log.debug("Service: Saving diary entry: {}", diaryEntry.getId());
+        log.trace("Service: Saving diary entry: {}", diaryEntry.getId());
         return IDiaryEntryRepository.save(diaryEntry);
     }
 
@@ -40,7 +40,7 @@ public class DiaryService {
      */
     @Transactional(readOnly = true)
     public DiaryEntry findById(UUID id) {
-        log.debug("Service: Finding diary entry by id: {}", id);
+        log.trace("Service: Finding diary entry by id: {}", id);
         return IDiaryEntryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("DiaryEntry", "id", id));
     }
@@ -52,7 +52,7 @@ public class DiaryService {
      */
     @Transactional(readOnly = true)
     public List<DiaryEntry> findAll() {
-        log.debug("Service: Finding all diary entries");
+        log.trace("Service: Finding all diary entries");
         return IDiaryEntryRepository.findAll();
     }
 
@@ -63,7 +63,7 @@ public class DiaryService {
      * @throws ResourceNotFoundException if entry not found
      */
     public void deleteById(UUID id) {
-        log.debug("Service: Deleting diary entry by id: {}", id);
+        log.trace("Service: Deleting diary entry by id: {}", id);
 
         if (!IDiaryEntryRepository.existsById(id)) {
             throw new ResourceNotFoundException("DiaryEntry", "id", id);

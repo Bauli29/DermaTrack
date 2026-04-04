@@ -39,7 +39,5 @@ management:
 
 logging:
   level:
-    "[de.dermatrack]": DEBUG
-    "[com.zaxxer.hikari]": DEBUG
-    "[org.springframework.boot.actuate.health]": DEBUG
+    "[de.dermatrack]": INFO
     "[org.hibernate.SQL]": WARN

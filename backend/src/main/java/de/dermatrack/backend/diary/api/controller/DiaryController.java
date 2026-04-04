@@ -27,7 +27,7 @@ public class DiaryController implements IDiaryController {
 
     @Override
     public ResponseEntity<List<DiaryEntry>> getAllDiaryEntries() {
-        log.debug("Controller: Getting all diary entries");
+        log.trace("Controller: Getting all diary entries");
 
         List<DiaryEntry> entries = diaryService.findAll();
 
@@ -36,7 +36,7 @@ public class DiaryController implements IDiaryController {
 
     @Override
     public ResponseEntity<DiaryEntry> getDiaryEntryById(UUID id) {
-        log.debug("Controller: Getting diary entry by id: {}", id);
+        log.trace("Controller: Getting diary entry by id: {}", id);
 
         DiaryEntry entry = diaryService.findById(id);
 
@@ -45,7 +45,7 @@ public class DiaryController implements IDiaryController {
 
     @Override
     public ResponseEntity<DiaryEntry> createDiaryEntry(Principal principal, DiaryEntry diaryEntry) {
-        log.debug("Controller: Creating new diary entry");
+        log.trace("Controller: Creating new diary entry");
 
         diaryEntry.setUser(resolveCurrentUser(principal));
 
@@ -56,7 +56,7 @@ public class DiaryController implements IDiaryController {
 
     @Override
     public ResponseEntity<DiaryEntry> updateDiaryEntry(Principal principal, UUID id, DiaryEntry diaryEntry) {
-        log.debug("Controller: Updating diary entry with id: {}", id);
+        log.trace("Controller: Updating diary entry with id: {}", id);
 
         // Get the existing entry to preserve createdAt
         DiaryEntry existingEntry = diaryService.findById(id);
@@ -73,7 +73,7 @@ public class DiaryController implements IDiaryController {
 
     @Override
     public ResponseEntity<Void> deleteDiaryEntry(UUID id) {
-        log.debug("Controller: Deleting diary entry with id: {}", id);
+        log.trace("Controller: Deleting diary entry with id: {}", id);
 
         diaryService.deleteById(id);
 

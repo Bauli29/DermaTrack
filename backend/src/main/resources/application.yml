@@ -38,5 +38,6 @@ management:
 logging:
   level:
     "[org.springframework.web]": INFO
-    "[de.dermatrack]": DEBUG
+    "[org.springframework.security]": WARN
+    "[de.dermatrack]": INFO
     "[org.hibernate.SQL]": WARN
