@@ -2,54 +2,120 @@ name: Frontend CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'frontend/**'
+      - "frontend/**"
+      - ".github/workflows/frontend.yml"
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'frontend/**'
+      - "frontend/**"
+      - ".github/workflows/frontend.yml"
   workflow_dispatch:
+    inputs:
+      run_optional_push:
+        description: "Run optional deploy stage manually"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  dependency-security:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency vulnerability review
+        uses: actions/dependency-review-action@v4
+
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm run build
+
+      - name: Upload frontend build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/.next
+
   test:
     runs-on: ubuntu-latest
-    
+    needs: [build]
+    defaults:
+      run:
+        working-directory: frontend
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v3
-      with:
-        version: 10
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'pnpm'
-        cache-dependency-path: frontend/pnpm-lock.yaml
-        
-    - name: Install dependencies
-      run: |
-        cd frontend
-        pnpm install
-        
-    - name: Lint code
-      run: |
-        cd frontend
-        pnpm run lint
-        
-    - name: Check code formatting
-      run: |
-        cd frontend
-        pnpm run format:check
-        
-    - name: Build application
-      run: |
-        cd frontend
-        pnpm run build
-        
-    # NOTE: Deployment handled automatically by Vercel via Dashboard integration
-    # No manual deployment step needed - Vercel deploys on git push to main branch
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint code
+        run: pnpm run lint:check
+
+      - name: Check code formatting
+        run: pnpm run format:check
+
+      - name: Type check
+        run: pnpm exec tsc --noEmit
+
+  optional-deploy:
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[push]')) || (github.event_name == 'workflow_dispatch' && inputs.run_optional_push == true)
+
+    steps:
+      - name: Optional deploy stage
+        run: |
+          echo "Optional deploy triggered by [push] token or manual dispatch."
+          echo "Build and test succeeded, optional frontend deploy stage executed."
+          echo "Primary deployment remains Vercel dashboard integration on main."
