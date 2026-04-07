@@ -5,14 +5,41 @@ on:
     branches: [main]
     paths:
       - "backend/**"
+      - ".github/workflows/backend.yml"
   pull_request:
     branches: [main]
     paths:
       - "backend/**"
+      - ".github/workflows/backend.yml"
   workflow_dispatch:
+    inputs:
+      run_optional_push:
+        description: "Run optional push/deploy stage manually"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  ci:
+  dependency-security:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency vulnerability review
+        uses: actions/dependency-review-action@v4
+
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,42 +54,64 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "25"
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-
-
-      # TODO: Enable code quality checks once configured
-      # - name: Run static analysis (Checkstyle)
-      #   run: ./mvnw checkstyle:check
-      #
-      # - name: Run security analysis (SpotBugs)
-      #   run: ./mvnw spotbugs:check
-      #
-      # - name: Run dependency analysis
-      #   run: ./mvnw dependency-check:check
-
-      # TODO: Enable tests once test structure and database config is ready
-      # - name: Run unit tests
-      #   run: ./mvnw test
-      #
-      # - name: Run integration tests
-      #   run: ./mvnw verify -P integration-tests
-      #   env:
-      #     SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/dermatrack_test
-      #     SPRING_DATASOURCE_USERNAME: postgres
-      #     SPRING_DATASOURCE_PASSWORD: postgres
-      #     SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+          cache: "maven"
 
       - name: Build application (Maven)
-        run: ./mvnw clean package -DskipTests
+        run: ./mvnw -B clean package -DskipTests
 
-      - name: Build Docker image (verification)
-        run: docker build -t dermatrack-backend:ci-test .
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: backend/target/*.jar
 
-    # NOTE: Deployment handled automatically by Render via Dashboard integration
-    # Render builds and deploys Docker image automatically on git push to main branch
+  test:
+    runs-on: ubuntu-latest
+    needs: [build]
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "25"
+          cache: "maven"
+
+      - name: Run tests
+        run: ./mvnw -B test
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports
+          path: backend/target/surefire-reports/*.xml
+
+  optional-push-deploy:
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[push]')) || (github.event_name == 'workflow_dispatch' && inputs.run_optional_push == true)
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image (push stage)
+        run: docker build -t dermatrack-backend:${{ github.sha }} .
+
+      - name: Optional push/deploy stage
+        run: |
+          echo "Optional push/deploy triggered by [push] token or manual dispatch."
+          echo "Build and test succeeded, optional push/deploy stage executed."
+          echo "If image push is needed, configure registry auth and push commands in this stage."
+
+    # NOTE: Primary deployment remains handled automatically by Render integration
