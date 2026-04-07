@@ -41,3 +41,22 @@ logging:
     "[org.springframework.security]": WARN
     "[de.dermatrack]": INFO
     "[org.hibernate.SQL]": WARN
+
+app:
+  security:
+    cors:
+      allowed-origins:
+        - http://localhost:3000
+        - https://derma-track.vercel.app
+      allowed-methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowed-headers:
+        - Authorization
+        - Content-Type
+        - Accept
+      allow-credentials: true
+      max-age-seconds: 3600

@@ -4,32 +4,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration
+@RequiredArgsConstructor
 public class CorsConfig implements WebMvcConfigurer {
+
+    private final SecurityProperties securityProperties;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(getAllowedOrigins())
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true)
-                .maxAge(3600);
-    }
-
-    private String[] getAllowedOrigins() {
-        return new String[] {
-                // ===========================================
-                // FRONTEND URLS - All allowed origins
-                // ===========================================
-
-                // LOCAL DEVELOPMENT
-                "http://localhost:3000", // React/Next.js default
-
-                // PRODUCTION DEPLOYMENT
-                "https://derma-track.vercel.app" // Production frontend
-
-                // ===========================================
-        };
+                .allowedOrigins(securityProperties.getCors().getAllowedOrigins().toArray(String[]::new))
+                .allowedMethods(securityProperties.getCors().getAllowedMethods().toArray(String[]::new))
+                .allowedHeaders(securityProperties.getCors().getAllowedHeaders().toArray(String[]::new))
+                .allowCredentials(securityProperties.getCors().isAllowCredentials())
+                .maxAge(securityProperties.getCors().getMaxAgeSeconds());
     }
 }
