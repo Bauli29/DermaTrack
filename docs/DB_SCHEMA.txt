@@ -1,0 +1,37 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+// Source of truth: backend JPA entities (pushed to Neon DB via Hibernate)
+
+Table app_user {
+  id uuid [primary key, not null, note: '@UuidGenerator, not updatable']
+  email varchar(100) [unique, not null]
+  username varchar(50) [unique, not null]
+  password varchar(255) [not null]
+  created_at timestamptz [not null, default: 'now()', note: 'set on @PrePersist, not updatable']
+  updated_at timestamptz [not null, default: 'now()', note: 'refreshed on @PreUpdate']
+
+  indexes {
+    email [unique, name: 'idx_user_email']
+    username [unique, name: 'idx_user_username']
+  }
+}
+
+Table diary_entry {
+  id uuid [primary key, not null, note: '@UuidGenerator, not updatable']
+  user_id uuid [not null, note: 'FK: fk_diary_entry_user']
+  created_at timestamptz [not null, note: 'set on @PrePersist, not updatable']
+  allergies integer
+  infections integer
+  stress_level integer
+  sleep integer
+  nutrition integer
+  symptoms integer
+  miscellaneous text
+
+  indexes {
+    created_at [name: 'idx_diary_entry_created_at']
+    user_id [name: 'idx_diary_entry_user_id']
+  }
+}
+
+Ref fk_diary_entry_user: diary_entry.user_id > app_user.id
