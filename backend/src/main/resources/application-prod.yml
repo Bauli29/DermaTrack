@@ -1,3 +1,5 @@
+# Profile: prod
+# Purpose: production runtime configuration for deployment.
 spring:
   datasource:
     url: ${DATABASE_URL}

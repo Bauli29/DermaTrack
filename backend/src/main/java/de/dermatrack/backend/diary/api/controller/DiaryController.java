@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.dermatrack.backend.auth.api.model.AppUser;
 import de.dermatrack.backend.auth.api.repository.IAppUserRepository;
+import de.dermatrack.backend.diary.api.dto.DiaryEntryCreateRequest;
+import de.dermatrack.backend.diary.api.dto.DiaryEntryResponse;
+import de.dermatrack.backend.diary.api.dto.DiaryEntryUpdateRequest;
+import de.dermatrack.backend.diary.api.mapper.DiaryEntryMapper;
 import de.dermatrack.backend.diary.api.model.DiaryEntry;
 import de.dermatrack.backend.diary.service.DiaryService;
 import de.dermatrack.backend.exception.ResourceNotFoundException;
@@ -23,40 +27,46 @@ public class DiaryController implements IDiaryController {
 
     private final DiaryService diaryService;
     private final IAppUserRepository appUserRepository;
+    private final DiaryEntryMapper diaryEntryMapper;
     // Service handles all exceptions
 
     @Override
-    public ResponseEntity<List<DiaryEntry>> getAllDiaryEntries() {
+    public ResponseEntity<List<DiaryEntryResponse>> getAllDiaryEntries() {
         log.trace("Controller: Getting all diary entries");
 
         List<DiaryEntry> entries = diaryService.findAll();
 
-        return ResponseEntity.ok(entries);
+        return ResponseEntity.ok(diaryEntryMapper.toResponseList(entries));
     }
 
     @Override
-    public ResponseEntity<DiaryEntry> getDiaryEntryById(UUID id) {
+    public ResponseEntity<DiaryEntryResponse> getDiaryEntryById(UUID id) {
         log.trace("Controller: Getting diary entry by id: {}", id);
 
         DiaryEntry entry = diaryService.findById(id);
 
-        return ResponseEntity.ok(entry);
+        return ResponseEntity.ok(diaryEntryMapper.toResponse(entry));
     }
 
     @Override
-    public ResponseEntity<DiaryEntry> createDiaryEntry(Principal principal, DiaryEntry diaryEntry) {
+    public ResponseEntity<DiaryEntryResponse> createDiaryEntry(Principal principal, DiaryEntryCreateRequest request) {
         log.trace("Controller: Creating new diary entry");
+
+        DiaryEntry diaryEntry = diaryEntryMapper.toEntity(request);
 
         diaryEntry.setUser(resolveCurrentUser(principal));
 
         DiaryEntry savedEntry = diaryService.save(diaryEntry);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedEntry);
+        return ResponseEntity.status(HttpStatus.CREATED).body(diaryEntryMapper.toResponse(savedEntry));
     }
 
     @Override
-    public ResponseEntity<DiaryEntry> updateDiaryEntry(Principal principal, UUID id, DiaryEntry diaryEntry) {
+    public ResponseEntity<DiaryEntryResponse> updateDiaryEntry(Principal principal, UUID id,
+            DiaryEntryUpdateRequest request) {
         log.trace("Controller: Updating diary entry with id: {}", id);
+
+        DiaryEntry diaryEntry = diaryEntryMapper.toEntity(request);
 
         // Get the existing entry to preserve createdAt
         DiaryEntry existingEntry = diaryService.findById(id);
@@ -68,7 +78,7 @@ public class DiaryController implements IDiaryController {
 
         DiaryEntry updatedEntry = diaryService.save(diaryEntry);
 
-        return ResponseEntity.ok(updatedEntry);
+        return ResponseEntity.ok(diaryEntryMapper.toResponse(updatedEntry));
     }
 
     @Override

@@ -1,3 +1,5 @@
+# Base configuration shared by all profiles.
+# Keep only common defaults here; profile-specific overrides belong in application-<profile>.yml.
 spring:
   application:
     name: backend
@@ -23,6 +25,10 @@ spring:
 
 server:
   port: ${PORT:8080}
+  tomcat:
+    threads:
+      max: 50
+      min-spare: 10
 
 management:
   endpoints:
@@ -41,6 +47,8 @@ logging:
     "[org.springframework.security]": WARN
     "[de.dermatrack]": INFO
     "[org.hibernate.SQL]": WARN
+    "[org.springdoc]": DEBUG
+    "[web]": DEBUG
 
 app:
   security:

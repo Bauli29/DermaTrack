@@ -1,3 +1,5 @@
+# Profile: local-h2
+# Purpose: daily local development with in-memory H2 and mock seed data.
 spring:
   datasource:
     url: jdbc:h2:mem:dev
