@@ -30,6 +30,19 @@
         <java.version>25</java.version>
     </properties>
     <dependencies>
+    
+        <!-- This one is for JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
 
         <!-- H2-Database And Mock Data -->
         <dependency>

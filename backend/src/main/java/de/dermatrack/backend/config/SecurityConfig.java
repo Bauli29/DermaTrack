@@ -12,6 +12,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import de.dermatrack.backend.auth.jwt.JwtFilter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+
+@EnableMethodSecurity
 
 @Configuration
 @EnableWebSecurity
@@ -36,7 +46,7 @@ public class SecurityConfig {
 
     @Bean
     @Profile("prod")
-    public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
@@ -50,6 +60,23 @@ public class SecurityConfig {
 
         return http.build();
     }
+    /*
+     * public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws
+     * Exception {
+     * http
+     * .csrf(AbstractHttpConfigurer::disable)
+     * .cors(Customizer.withDefaults())
+     * .authorizeHttpRequests(auth -> auth
+     * .requestMatchers("/actuator/health").permitAll() // Only health check public
+     * .requestMatchers("/api/**").authenticated() // API requires authentication
+     * .anyRequest().authenticated() // Everything else requires authentication
+     * )
+     * .httpBasic(Customizer.withDefaults())
+     * .headers(this::applyCommonSecurityHeaders);
+     * 
+     * return http.build();
+     * }
+     */
 
     private void applyCommonSecurityHeaders(HeadersConfigurer<HttpSecurity> headers) {
         headers.contentTypeOptions(Customizer.withDefaults());
