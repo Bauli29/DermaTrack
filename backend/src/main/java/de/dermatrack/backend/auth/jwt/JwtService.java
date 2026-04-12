@@ -5,8 +5,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Service;
 import java.util.Date;
-import io.jsonwebtoken.security.Keys;
-import java.security.Key;
 
 @Service
 // This service is handles cases of
@@ -24,7 +22,7 @@ public class JwtService {
         return Jwts.builder().setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION))
-                .signWith(SignatureAlgorithm.HS256, ACCESS_SECRET) // Is it safe that the ACCESS_SECRET is hardcoded?
+                .signWith(SignatureAlgorithm.HS256, ACCESS_SECRET)
                 .compact();
     }
 
@@ -34,7 +32,7 @@ public class JwtService {
         return Jwts.builder().setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
-                .signWith(SignatureAlgorithm.HS256, REFRESH_SECRET) // Is it safe that the ACCESS_SECRET is hardcoded?
+                .signWith(SignatureAlgorithm.HS256, REFRESH_SECRET)
                 .compact();
 
     }

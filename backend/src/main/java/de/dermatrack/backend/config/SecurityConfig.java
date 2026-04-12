@@ -86,6 +86,20 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Profile("prod")
+    public UserDetailsService userDetailsService() {
+        String username = "admin"; // TODO: Use environment variable
+        String password = "password"; // TODO: Use environment variable
+        UserDetails user = User.builder()
+                .username(username)
+                .password(passwordEncoder().encode(password))
+                .roles("USER")
+                .build();
+
+        return new InMemoryUserDetailsManager(user);
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
