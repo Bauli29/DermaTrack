@@ -110,12 +110,10 @@ const DailyTrackingTemplate = () => {
     )
     if (confirmed) {
       resetForm()
-      // Navigate back if possible, else to home
-      if (window.history.length > 1) {
-        router.back()
-      } else {
-        router.push('/')
-      }
+      // After state-reset scroll to top of the page
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+      })
     }
   }
 
