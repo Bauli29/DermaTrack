@@ -4,7 +4,7 @@ set -e
 repo_root=$(git rev-parse --show-toplevel)
 
 has_changes() {
-    git diff --cached --quiet --diff-filter=ACMR -- "$@"
+  ! git diff --cached --quiet --diff-filter=ACMR -- "$@"
 }
 
 frontend_changed=false
