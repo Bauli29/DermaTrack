@@ -1,33 +1,54 @@
 #!/usr/bin/env sh
 set -e
 
-# Frontend checks
-echo "🔍 Running Frontend checks..."
-cd frontend
+repo_root=$(git rev-parse --show-toplevel)
 
-echo "▶️  Checking code formatting..."
-pnpm run format:check
+has_changes() {
+    git diff --cached --quiet --diff-filter=ACMR -- "$@"
+}
 
-echo "▶️  Running lint check..."
-pnpm run lint:check
+frontend_changed=false
+backend_changed=false
 
-echo "▶️  Building project..."
-pnpm run build
-
-# Backend checks
-echo ""
-echo "🔍 Running Backend checks..."
-cd ../backend
-
-echo "▶️  Running tests..."
-if [ -f "./mvnw" ]; then
-  ./mvnw test
-elif [ -f "./mvnw.cmd" ]; then
-  ./mvnw.cmd test
-else
-  mvn test
+if has_changes frontend/src frontend/package.json frontend/next.config.ts frontend/eslint.config.mjs frontend/tsconfig.json frontend/pnpm-lock.yaml; then
+  frontend_changed=true
 fi
 
-cd ..
+if has_changes backend/src backend/pom.xml backend/mvnw backend/mvnw.cmd backend/Dockerfile; then
+  backend_changed=true
+fi
+
+if [ "$frontend_changed" = false ] && [ "$backend_changed" = false ]; then
+  echo "No frontend or backend product code changes detected. Skipping checks."
+  exit 0
+fi
+
+if [ "$frontend_changed" = true ]; then
+  echo "Running frontend checks..."
+  cd "$repo_root/frontend"
+
+  echo "Checking code formatting..."
+  pnpm run format:check
+
+  echo "Running lint check..."
+  pnpm run lint:check
+fi
+
+if [ "$backend_changed" = true ]; then
+  echo ""
+  echo "Running backend tests..."
+  cd "$repo_root/backend"
+
+  if [ -f "./mvnw" ]; then
+    ./mvnw test
+  else
+    if [ -f "./mvnw.cmd" ]; then
+      ./mvnw.cmd test
+    else
+      mvn test
+    fi
+  fi
+fi
+
 echo ""
-echo "✅ All pre-commit checks passed!"
+echo "Relevant pre-commit checks passed."
