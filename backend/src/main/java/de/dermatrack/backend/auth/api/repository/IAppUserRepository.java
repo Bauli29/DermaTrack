@@ -1,3 +1,15 @@
+/*package de.dermatrack.backend.auth.api.repository;
+
+import de.dermatrack.backend.auth.model.AppUser;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface IAppUserRepository extends JpaRepository<AppUser, Long> {
+    Optional<AppUser> findByUsername(String username);
+
+    boolean existsByUsername(String username);
+}*/
 package de.dermatrack.backend.auth.api.repository;
 
 import java.util.Optional;

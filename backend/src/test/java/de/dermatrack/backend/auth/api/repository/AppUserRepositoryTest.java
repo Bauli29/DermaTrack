@@ -39,10 +39,8 @@ class AppUserRepositoryTest {
     @Test
     @DisplayName("save() should persist user to database")
     void save_ShouldPersistUser() {
-        // Act
         AppUser saved = appUserRepository.save(testUser);
 
-        // Assert
         assertThat(saved).isNotNull();
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getUsername()).isEqualTo("testuser");
@@ -54,13 +52,10 @@ class AppUserRepositoryTest {
     @Test
     @DisplayName("findById() should return user when exists")
     void findById_WhenUserExists_ShouldReturnUser() {
-        // Arrange
         AppUser saved = appUserRepository.save(testUser);
 
-        // Act
         Optional<AppUser> found = appUserRepository.findById(saved.getId());
 
-        // Assert
         assertThat(found).isPresent();
         assertThat(found.get().getId()).isEqualTo(saved.getId());
         assertThat(found.get().getUsername()).isEqualTo("testuser");
@@ -69,20 +64,51 @@ class AppUserRepositoryTest {
     @Test
     @DisplayName("findById() should return empty when user does not exist")
     void findById_WhenUserDoesNotExist_ShouldReturnEmpty() {
-        // Arrange
         UUID nonExistentId = UUID.randomUUID();
 
-        // Act
         Optional<AppUser> found = appUserRepository.findById(nonExistentId);
 
-        // Assert
         assertThat(found).isEmpty();
+    }
+
+    @Test
+    void findByUsername_ShouldReturnCorrectUser() {
+        appUserRepository.save(testUser);
+
+        Optional<AppUser> found = appUserRepository.findByUsername("testuser");
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getEmail()).isEqualTo("test@example.com");
+    }
+
+    @Test
+    void findByUsername_WhenUserNotExists_ShouldReturnEmpty() {
+        Optional<AppUser> found = appUserRepository.findByUsername("doesNotExist");
+
+        assertThat(found).isEmpty();
+    }
+
+    @Test
+    void savingMultipleUsers_ShouldKeepDataIsolated() {
+        AppUser u1 = new AppUser();
+        u1.setUsername("u12");
+        u1.setEmail("u1@mail.com");
+        u1.setPassword("password456");
+
+        AppUser u2 = new AppUser();
+        u2.setUsername("u23");
+        u2.setEmail("u2@mail.com");
+        u2.setPassword("password789");
+
+        appUserRepository.save(u1);
+        appUserRepository.save(u2);
+
+        assertThat(appUserRepository.findAll()).hasSize(2);
     }
 
     @Test
     @DisplayName("findAll() should return all users")
     void findAll_ShouldReturnAllUsers() {
-        // Arrange
         appUserRepository.save(testUser);
 
         AppUser user2 = new AppUser();
@@ -91,103 +117,86 @@ class AppUserRepositoryTest {
         user2.setPassword("password456");
         appUserRepository.save(user2);
 
-        // Act
         List<AppUser> users = appUserRepository.findAll();
 
-        // Assert
         assertThat(users).hasSize(2);
-        assertThat(users).extracting(AppUser::getUsername)
+        assertThat(users)
+                .extracting(AppUser::getUsername)
                 .containsExactlyInAnyOrder("testuser", "anotheruser");
     }
 
     @Test
     @DisplayName("findAll() should return empty list when no users exist")
     void findAll_WhenNoUsers_ShouldReturnEmptyList() {
-        // Act
         List<AppUser> users = appUserRepository.findAll();
 
-        // Assert
         assertThat(users).isEmpty();
     }
 
     @Test
     @DisplayName("deleteById() should remove user from database")
     void deleteById_ShouldRemoveUser() {
-        // Arrange
         AppUser saved = appUserRepository.save(testUser);
 
-        // Act
         appUserRepository.deleteById(saved.getId());
 
-        // Assert
-        Optional<AppUser> found = appUserRepository.findById(saved.getId());
-        assertThat(found).isEmpty();
+        assertThat(appUserRepository.findById(saved.getId())).isEmpty();
     }
 
     @Test
     @DisplayName("existsById() should return true when user exists")
     void existsById_WhenUserExists_ShouldReturnTrue() {
-        // Arrange
         AppUser saved = appUserRepository.save(testUser);
 
-        // Act
         boolean exists = appUserRepository.existsById(saved.getId());
 
-        // Assert
         assertThat(exists).isTrue();
     }
 
     @Test
     @DisplayName("existsById() should return false when user does not exist")
     void existsById_WhenUserDoesNotExist_ShouldReturnFalse() {
-        // Arrange
         UUID nonExistentId = UUID.randomUUID();
 
-        // Act
         boolean exists = appUserRepository.existsById(nonExistentId);
 
-        // Assert
         assertThat(exists).isFalse();
     }
 
     @Test
     @DisplayName("save() should update existing user")
     void save_WhenUpdatingUser_ShouldUpdateFields() {
-        // Arrange
         AppUser saved = appUserRepository.save(testUser);
         UUID originalId = saved.getId();
 
-        // Act
         saved.setEmail("newemail@example.com");
         saved.setUsername("newusername");
+
         AppUser updated = appUserRepository.save(saved);
 
-        // Assert
         assertThat(updated.getId()).isEqualTo(originalId);
         assertThat(updated.getEmail()).isEqualTo("newemail@example.com");
         assertThat(updated.getUsername()).isEqualTo("newusername");
-        assertThat(updated.getUpdatedAt()).isAfterOrEqualTo(updated.getCreatedAt());
+        assertThat(updated.getUpdatedAt())
+                .isAfterOrEqualTo(updated.getCreatedAt());
     }
 
     @Test
     @DisplayName("Username should be unique")
     void username_ShouldBeUnique() {
-        // Arrange
         appUserRepository.save(testUser);
 
         AppUser duplicateUser = new AppUser();
-        duplicateUser.setUsername("testuser"); // Same username
+        duplicateUser.setUsername("testuser");
         duplicateUser.setEmail("different@example.com");
         duplicateUser.setPassword("password");
 
-        // Act & Assert
+        appUserRepository.save(duplicateUser);
+
         try {
-            appUserRepository.save(duplicateUser);
             appUserRepository.flush();
-            // If we reach here, test should fail
-            assertThat(false).as("Expected exception for duplicate username").isTrue();
+            assertThat(false).as("Expected constraint violation").isTrue();
         } catch (Exception e) {
-            // Expected: constraint violation
             assertThat(e).isNotNull();
         }
     }
@@ -195,24 +204,20 @@ class AppUserRepositoryTest {
     @Test
     @DisplayName("Email should be unique")
     void email_ShouldBeUnique() {
-        // Arrange
         appUserRepository.save(testUser);
 
         AppUser duplicateUser = new AppUser();
         duplicateUser.setUsername("differentuser");
-        duplicateUser.setEmail("test@example.com"); // Same email
+        duplicateUser.setEmail("test@example.com");
         duplicateUser.setPassword("password");
 
-        // Act & Assert
+        appUserRepository.save(duplicateUser);
+
         try {
-            appUserRepository.save(duplicateUser);
             appUserRepository.flush();
-            // If we reach here, test should fail
-            assertThat(false).as("Expected exception for duplicate email").isTrue();
+            assertThat(false).as("Expected constraint violation").isTrue();
         } catch (Exception e) {
-            // Expected: constraint violation
             assertThat(e).isNotNull();
         }
     }
-
 }

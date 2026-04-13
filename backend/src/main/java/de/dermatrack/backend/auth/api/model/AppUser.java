@@ -18,13 +18,10 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(
-    name = "app_user",
-    indexes = {
+@Table(name = "app_user", indexes = {
         @Index(name = "idx_user_email", columnList = "email", unique = true),
         @Index(name = "idx_user_username", columnList = "username", unique = true)
-    }
-)
+})
 
 @Getter
 @Setter
@@ -46,12 +43,11 @@ public class AppUser {
     @Size(min = 5, max = 100, message = "Email must be between 5 and 100 characters")
     @Schema(description = "AppUser email address", example = "name@example.com")
     private String email;
-    
+
     @Column(name = "username", unique = true, nullable = false, length = 50)
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9_-]+$", 
-             message = "Username can only contain letters, numbers, underscores and hyphens")
+    @Pattern(regexp = "^[a-zA-Z0-9_-]+$", message = "Username can only contain letters, numbers, underscores and hyphens")
     @Schema(description = "Unique username", example = "HenryTheGreat")
     private String username;
 
@@ -61,21 +57,12 @@ public class AppUser {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Column(
-            name = "created_at",
-            nullable = false,
-            updatable = false,
-            columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT now()"
-    )
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT now()")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "Creation timestamp (UTC)", type = "string", format = "date-time", accessMode = Schema.AccessMode.READ_ONLY)
     private OffsetDateTime createdAt;
 
-    @Column(
-        name = "updated_at",
-        nullable = false,
-        columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT now()"
-    )
+    @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT now()")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "Last update timestamp (UTC)", type = "string", format = "date-time", accessMode = Schema.AccessMode.READ_ONLY)
     private OffsetDateTime updatedAt;
@@ -92,3 +79,36 @@ public class AppUser {
         this.updatedAt = OffsetDateTime.now();
     }
 }
+/*
+ * package de.dermatrack.backend.auth.model;
+ * 
+ * import jakarta.persistence.*;
+ * import lombok.*;
+ * 
+ * @Entity
+ * 
+ * @Table(name = "app_users")
+ * 
+ * @Getter
+ * 
+ * @Setter
+ * 
+ * @NoArgsConstructor
+ * 
+ * @AllArgsConstructor
+ * 
+ * @Builder
+ * public class AppUser {
+ * 
+ * @Id
+ * 
+ * @GeneratedValue(strategy = GenerationType.IDENTITY)
+ * private Long id;
+ * 
+ * @Column(nullable = false, unique = true)
+ * private String username;
+ * 
+ * @Column(nullable = false)
+ * private String password;
+ * }
+ */
