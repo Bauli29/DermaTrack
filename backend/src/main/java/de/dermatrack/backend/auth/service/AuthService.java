@@ -17,7 +17,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    // ---------------- REGISTER ----------------
     public void register(RegisterRequest request) {
 
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -31,7 +30,6 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    // ---------------- LOGIN ----------------
     public AuthResponse login(LoginRequest request) {
 
         AppUser user = userRepository.findByUsername(request.getUsername())
@@ -47,7 +45,6 @@ public class AuthService {
         return new AuthResponse(accessToken, refreshToken);
     }
 
-    // ---------------- REFRESH ----------------
     public AuthResponse refresh(String refreshToken) {
 
         // validate using refresh-specific logic
@@ -63,7 +60,6 @@ public class AuthService {
         return new AuthResponse(newAccessToken, newRefreshToken);
     }
 
-    // ---------------- LOGOUT ----------------
     public void logout() {
         // Stateless JWT:
         // nothing happens on backend
