@@ -28,7 +28,6 @@ public class JwtService {
                 .compact();
     }
 
-    // ---------------- REFRESH TOKEN ----------------
     public String generateRefreshToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -38,7 +37,6 @@ public class JwtService {
                 .compact();
     }
 
-    // ---------------- EXTRACT ----------------
     public String extractUsernameFromAccessToken(String token) {
         return getAccessClaims(token).getSubject();
     }
@@ -47,7 +45,6 @@ public class JwtService {
         return getRefreshClaims(token).getSubject();
     }
 
-    // ---------------- VALIDATION ----------------
     public boolean isAccessTokenValid(String token) {
         try {
             return !isAccessTokenExpired(token);
@@ -64,7 +61,6 @@ public class JwtService {
         }
     }
 
-    // ---------------- EXPIRATION ----------------
     public boolean isAccessTokenExpired(String token) {
         return getAccessClaims(token).getExpiration().before(new Date());
     }
@@ -73,7 +69,6 @@ public class JwtService {
         return getRefreshClaims(token).getExpiration().before(new Date());
     }
 
-    // ---------------- CLAIMS ----------------
     private Claims getAccessClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getAccessKey())
@@ -90,7 +85,6 @@ public class JwtService {
                 .getBody();
     }
 
-    // ---------------- KEYS ----------------
     private Key getAccessKey() {
         return Keys.hmacShaKeyFor(ACCESS_SECRET.getBytes());
     }
