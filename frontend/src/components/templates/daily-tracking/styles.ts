@@ -109,6 +109,42 @@ export const ImagePreviewItem = styled.div`
   text-align: center;
 `
 
+export const FileInputLabel = styled.label`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.surface};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.hover};
+  }
+
+  &:focus-within {
+    outline: 2px solid ${({ theme }) => theme.colors.focus};
+    outline-offset: 2px;
+  }
+
+  input[type='file'] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+`
+
 export const Actions = styled.div`
   display: grid;
   grid-template-columns: 1fr;

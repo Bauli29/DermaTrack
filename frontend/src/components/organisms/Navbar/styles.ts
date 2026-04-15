@@ -22,7 +22,7 @@ export const NavContent = styled.div`
   justify-content: space-around;
   align-items: stretch;
   max-width: 100%;
-  height: 64px;
+  height: var(--navbar-height, 64px);
   padding: 0 8px;
 
   @media (min-width: 640px) {

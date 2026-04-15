@@ -7,8 +7,8 @@ import NavBar from '@/components/organisms/Navbar'
 
 import GlobalStyle from '@/app/global-style'
 
-import { ThemeContextProvider } from '@/context/theme'
 import { PageTitleProvider } from '@/context/page-title'
+import { ThemeContextProvider } from '@/context/theme'
 
 import { useTheme } from '@/hooks/use-theme'
 

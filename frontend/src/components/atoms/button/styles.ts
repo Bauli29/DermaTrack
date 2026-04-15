@@ -26,12 +26,12 @@ const sizeStyles = {
 const variantStyles = (theme: ITheme) => ({
   primary: css`
     background: ${theme.colors.primary};
-    color: ${theme.colors.text};
+    color: #ffffff;
     border-color: ${theme.colors.primary};
   `,
   secondary: css`
     background: ${theme.colors.secondary};
-    color: ${theme.colors.text};
+    color: #ffffff;
     border-color: ${theme.colors.secondary};
   `,
   ghost: css`
@@ -40,7 +40,7 @@ const variantStyles = (theme: ITheme) => ({
   `,
   danger: css`
     background: ${theme.colors.error};
-    color: ${theme.colors.text};
+    color: #ffffff;
     border-color: ${theme.colors.error};
   `,
   'primary-outline': css`
@@ -88,10 +88,14 @@ export const StyledButton = styled.button<IButtonStyleProps>`
   &:disabled {
     cursor: not-allowed;
     opacity: 0.6;
-    pointer-events: none;
   }
 
-  &:hover {
+  &:hover:not(:disabled) {
     filter: brightness(0.85);
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.focus};
+    outline-offset: 2px;
   }
 `

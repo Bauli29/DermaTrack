@@ -2,14 +2,21 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
-import Button from '@/components/atoms/button'
+import Button from '@/components/atoms/Button'
+
 import Input from '@/components/molecules/Input'
+
+import { usePageTitle } from '@/hooks/use-page-title'
+
+import {
+  validateConfirmPassword,
+  validateEmail,
+  validatePassword,
+} from '@/validation/auth'
 
 import * as SC from './styles'
 
 import type { TValidationState } from '@/components/molecules/Input/types'
-import { usePageTitle } from '@/hooks/use-page-title'
-
 const RegistrationTemplate = () => {
   const router = useRouter()
 
@@ -31,33 +38,6 @@ const RegistrationTemplate = () => {
     useState<TValidationState>('none')
   const [confirmPasswordValidation, setConfirmPasswordValidation] =
     useState<TValidationState>('none')
-
-  const validateEmail = (value: string): TValidationState => {
-    if (value.length === 0) return 'none'
-    const re = /\S+@\S+\.\S+/
-    return re.test(value) ? 'success' : 'error'
-  }
-
-  const validatePassword = (value: string): TValidationState => {
-    if (value.length === 0) return 'none'
-    const hasLength = value.length >= 8
-    const hasUpper = /[A-Z]/.test(value)
-    const hasLower = /[a-z]/.test(value)
-    const hasNumber = /[0-9]/.test(value)
-    const hasSpecial = /[^a-zA-Z0-9]/.test(value)
-
-    return hasLength && hasUpper && hasLower && hasNumber && hasSpecial
-      ? 'success'
-      : 'error'
-  }
-
-  const validateConfirmPassword = (
-    value: string,
-    original: string
-  ): TValidationState => {
-    if (value.length === 0) return 'none'
-    return value === original ? 'success' : 'error'
-  }
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -91,136 +71,127 @@ const RegistrationTemplate = () => {
   )
 
   return (
-    <SC.RegistrationPageWrapper>
-      <SC.Card as='form' onSubmit={onSubmit}>
-        <SC.NameRow>
-          <Input
-            label='First Name (optional)'
-            type='text'
-            placeholder='John'
-            value={firstName}
-            onChange={e => setFirstName(e.target.value)}
-            validation={firstName.length > 0 ? 'success' : 'none'}
-            margin='1rem 0 0 0'
-          />
-          <Input
-            label='Last Name (optional)'
-            type='text'
-            placeholder='Doe'
-            value={lastName}
-            onChange={e => setLastName(e.target.value)}
-            validation={lastName.length > 0 ? 'success' : 'none'}
-            margin='1rem 0 0 0'
-          />
-        </SC.NameRow>
-
+    <SC.RegistrationPageWrapper as='form' onSubmit={onSubmit}>
+      <SC.NameRow>
         <Input
-          label='Email'
-          type='email'
-          placeholder='name@example.com'
-          value={email}
-          onChange={e => {
-            const v = e.target.value
-            setEmail(v)
-            setEmailValidation(validateEmail(v))
-          }}
-          onBlur={() => setEmailValidation(validateEmail(email))}
-          helperText={emailValidation === 'error' ? 'Invalid email' : ''}
-          validation={emailValidation}
-          margin='0 0 1rem 0'
+          label='First Name (optional)'
+          type='text'
+          placeholder='John'
+          value={firstName}
+          onChange={e => setFirstName(e.target.value)}
+          validation={firstName.length > 0 ? 'success' : 'none'}
+          margin='1rem 0 0 0'
         />
-
         <Input
-          label='Password'
-          type='password'
-          placeholder='Your secure password'
-          value={password}
-          onChange={e => {
-            const v = e.target.value
-            setPassword(v)
-            setPasswordValidation(validatePassword(v))
-            if (confirmPassword) {
-              setConfirmPasswordValidation(
-                validateConfirmPassword(confirmPassword, v)
-              )
-            }
-          }}
-          onBlur={() => setPasswordValidation(validatePassword(password))}
-          helperText={
-            passwordValidation === 'error'
-              ? 'Min. 8 characters, upper/lowercase, number & special character'
-              : ''
-          }
-          validation={passwordValidation}
-          margin='0 0 1rem 0'
+          label='Last Name (optional)'
+          type='text'
+          placeholder='Doe'
+          value={lastName}
+          onChange={e => setLastName(e.target.value)}
+          validation={lastName.length > 0 ? 'success' : 'none'}
+          margin='1rem 0 0 0'
         />
+      </SC.NameRow>
 
-        <Input
-          label='Confirm Password'
-          type='password'
-          placeholder='Repeat your password'
-          value={confirmPassword}
-          onChange={e => {
-            const v = e.target.value
-            setConfirmPassword(v)
-            setConfirmPasswordValidation(validateConfirmPassword(v, password))
-          }}
-          onBlur={() =>
+      <Input
+        label='Email'
+        type='email'
+        placeholder='name@example.com'
+        value={email}
+        onChange={e => {
+          const v = e.target.value
+          setEmail(v)
+          setEmailValidation(validateEmail(v))
+        }}
+        onBlur={() => setEmailValidation(validateEmail(email))}
+        helperText={emailValidation === 'error' ? 'Invalid email' : ''}
+        validation={emailValidation}
+        margin='0 0 1rem 0'
+      />
+
+      <Input
+        label='Password'
+        type='password'
+        placeholder='Your secure password'
+        value={password}
+        onChange={e => {
+          const v = e.target.value
+          setPassword(v)
+          setPasswordValidation(validatePassword(v))
+          if (confirmPassword) {
             setConfirmPasswordValidation(
-              validateConfirmPassword(confirmPassword, password)
+              validateConfirmPassword(confirmPassword, v)
             )
           }
-          helperText={
-            confirmPasswordValidation === 'error'
-              ? 'Passwords do not match'
-              : ''
+        }}
+        onBlur={() => setPasswordValidation(validatePassword(password))}
+        helperText={
+          passwordValidation === 'error'
+            ? 'Min. 8 characters, upper/lowercase, number & special character'
+            : ''
+        }
+        validation={passwordValidation}
+        margin='0 0 1rem 0'
+      />
+
+      <Input
+        label='Confirm Password'
+        type='password'
+        placeholder='Repeat your password'
+        value={confirmPassword}
+        onChange={e => {
+          const v = e.target.value
+          setConfirmPassword(v)
+          setConfirmPasswordValidation(validateConfirmPassword(v, password))
+        }}
+        onBlur={() =>
+          setConfirmPasswordValidation(
+            validateConfirmPassword(confirmPassword, password)
+          )
+        }
+        helperText={
+          confirmPasswordValidation === 'error' ? 'Passwords do not match' : ''
+        }
+        validation={confirmPasswordValidation}
+        margin='0 0 1rem 0'
+      />
+
+      <SC.CheckboxContainer>
+        <SC.Checkbox
+          type='checkbox'
+          id='accept-terms'
+          checked={acceptTerms}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setAcceptTerms(e.target.checked)
           }
-          validation={confirmPasswordValidation}
-          margin='0 0 1rem 0'
         />
+        <SC.CheckboxLabel htmlFor='accept-terms'>
+          I agree to the{' '}
+          <SC.Link href='/terms' target='_blank'>
+            Terms of Service
+          </SC.Link>{' '}
+          and{' '}
+          <SC.Link href='/privacy' target='_blank'>
+            Privacy Policy
+          </SC.Link>
+        </SC.CheckboxLabel>
+      </SC.CheckboxContainer>
 
-        <SC.CheckboxContainer>
-          <SC.Checkbox
-            type='checkbox'
-            id='accept-terms'
-            checked={acceptTerms}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setAcceptTerms(e.target.checked)
-            }
-          />
-          <SC.CheckboxLabel htmlFor='accept-terms'>
-            I agree to the{' '}
-            <SC.Link href='/terms' target='_blank'>
-              Terms of Service
-            </SC.Link>{' '}
-            and{' '}
-            <SC.Link href='/privacy' target='_blank'>
-              Privacy Policy
-            </SC.Link>
-          </SC.CheckboxLabel>
-        </SC.CheckboxContainer>
+      <Button variant='primary' size='md' type='submit' disabled={!isFormValid}>
+        Register
+      </Button>
 
+      <SC.SignInPrompt>
+        <SC.Label>Already have an account?</SC.Label>
         <Button
-          variant='primary'
+          variant='ghost'
           size='md'
-          type='submit'
-          disabled={!isFormValid}
+          type='button'
+          onClick={() => router.push('/login')}
         >
-          Register
+          Sign In
         </Button>
-
-        <SC.SignInPrompt>
-          <SC.Label>Already have an account?</SC.Label>
-          <Button
-            variant='ghost'
-            size='md'
-            type='button'
-            onClick={() => router.push('/login')}
-          >
-            Sign In
-          </Button>
-        </SC.SignInPrompt>
-      </SC.Card>
+      </SC.SignInPrompt>
     </SC.RegistrationPageWrapper>
   )
 }

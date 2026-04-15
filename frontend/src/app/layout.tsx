@@ -1,5 +1,19 @@
+import type { Metadata, Viewport } from 'next'
+
 import ClientLayout from '@/lib/client-layout'
 import StyledComponentsRegistry from '@/lib/registry'
+
+export const metadata: Metadata = {
+  title: 'DermaTrack',
+  description: 'Track and manage your dermatological health daily.',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <html lang='en'>

@@ -1,22 +1,26 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import Button from '@/components/atoms/button'
+import Button from '@/components/atoms/Button'
 import Slider from '@/components/atoms/Slider'
 import Text from '@/components/atoms/Text'
 
-import * as SC from './styles'
-import { DiaryEntrySchema, TDiaryEntryInput } from '@/validation/diary'
+import { formatDateInput } from '@/lib/date'
 import { validateRequest } from '@/lib/validation-helper'
+
+import { usePageTitle } from '@/hooks/use-page-title'
+
+import { DiaryEntrySchema, TDiaryEntryInput } from '@/validation/diary'
+
 import {
   ACCEPTED_IMAGE_TYPES,
   MAX_IMAGE_MB,
   MAX_IMAGES,
 } from '@/constants/uploads'
-import { formatDateInput } from '@/lib/date'
-import { usePageTitle } from '@/hooks/use-page-title'
+
+import * as SC from './styles'
 
 const DailyTrackingTemplate = () => {
   const router = useRouter()
@@ -217,6 +221,7 @@ const DailyTrackingTemplate = () => {
               value={allergies ?? 0}
               onChange={setAllergies}
               width='100%'
+              aria-label='Allergies'
             />
             <SC.SliderValue>{allergies ?? 0}</SC.SliderValue>
           </SC.FieldRow>
@@ -230,6 +235,7 @@ const DailyTrackingTemplate = () => {
               value={infections ?? 0}
               onChange={setInfections}
               width='100%'
+              aria-label='Infections'
             />
             <SC.SliderValue>{infections ?? 0}</SC.SliderValue>
           </SC.FieldRow>
@@ -243,6 +249,7 @@ const DailyTrackingTemplate = () => {
               value={stressLevel ?? 0}
               onChange={setStressLevel}
               width='100%'
+              aria-label='Stress level'
             />
             <SC.SliderValue>{stressLevel ?? 0}</SC.SliderValue>
           </SC.FieldRow>
@@ -256,6 +263,7 @@ const DailyTrackingTemplate = () => {
               value={sleep ?? 0}
               onChange={setSleep}
               width='100%'
+              aria-label='Sleep'
             />
             <SC.SliderValue>{sleep ?? 0}</SC.SliderValue>
           </SC.FieldRow>
@@ -269,6 +277,7 @@ const DailyTrackingTemplate = () => {
               value={nutrition ?? 0}
               onChange={setNutrition}
               width='100%'
+              aria-label='Nutrition'
             />
             <SC.SliderValue>{nutrition ?? 0}</SC.SliderValue>
           </SC.FieldRow>
@@ -288,6 +297,7 @@ const DailyTrackingTemplate = () => {
               value={symptoms ?? 0}
               onChange={setSymptoms}
               width='100%'
+              aria-label='Symptoms'
             />
             <SC.SliderValue>{symptoms ?? 0}</SC.SliderValue>
           </SC.FieldRow>
@@ -311,12 +321,15 @@ const DailyTrackingTemplate = () => {
             Images
           </Text>
           <SC.ImagePicker>
-            <input
-              type='file'
-              accept={ACCEPTED_IMAGE_TYPES.join(',')}
-              multiple
-              onChange={onPickImages}
-            />
+            <SC.FileInputLabel>
+              Choose Images
+              <input
+                type='file'
+                accept={ACCEPTED_IMAGE_TYPES.join(',')}
+                multiple
+                onChange={onPickImages}
+              />
+            </SC.FileInputLabel>
             <SC.HelperText>
               JPEG/PNG only, up to {MAX_IMAGES} images, ≤ {MAX_IMAGE_MB}MB each.
               Images are not uploaded yet.
@@ -326,7 +339,7 @@ const DailyTrackingTemplate = () => {
                 <SC.ImagePreviewItem>No images selected</SC.ImagePreviewItem>
               )}
               {images.map((file, idx) => (
-                <SC.ImagePreviewItem key={idx}>
+                <SC.ImagePreviewItem key={`${file.name}-${file.size}-${idx}`}>
                   {/* We avoid object URL preview for now to keep memory small; we just show filename */}
                   <div style={{ padding: 6 }}>
                     <div style={{ marginBottom: 4 }}>{file.name}</div>
