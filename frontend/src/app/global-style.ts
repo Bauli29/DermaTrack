@@ -2,6 +2,11 @@
 import { createGlobalStyle } from 'styled-components'
 
 const GlobalStyle = createGlobalStyle`
+  :root {
+    --header-height: 64px;
+    --navbar-height: 64px;
+  }
+
   html {
     overflow-x: hidden;
     max-width: 100%;
@@ -29,8 +34,8 @@ const GlobalStyle = createGlobalStyle`
 
   /* Add padding for fixed header and navbar */
   body {
-    padding-top: 64px; /* Header height */
-    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+    padding-top: var(--header-height);
+    padding-bottom: calc(var(--navbar-height) + env(safe-area-inset-bottom));
   }
 `
 

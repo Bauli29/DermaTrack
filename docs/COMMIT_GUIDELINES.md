@@ -8,14 +8,14 @@ Keep commit history readable, reviewable, and automation-friendly.
 
 Use Conventional Commit style:
 
-`<type>(<scope>): <short summary>`
+`<issue id><type>(<scope>): <short summary>`
 
 Examples:
 
-- `feat(frontend): add symptom trend chart component`
-- `fix(backend): handle null nutrition values in statistics mapper`
-- `ci(workflows): split backend pipeline into build and test jobs`
-- `docs(visualization): add chart JSON examples`
+- `Derma-214 feat(frontend): add symptom trend chart component`
+- `Derma-324 fix(backend): handle null nutrition values in statistics mapper`
+- `Derma-254 ci(workflows): split backend pipeline into build and test jobs`
+- `Derma-832 docs(visualization): add chart JSON examples`
 
 ## Allowed Types
 

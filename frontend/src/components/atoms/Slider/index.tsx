@@ -169,6 +169,7 @@ const Slider = ({
         aria-valuemax={max}
         aria-valuenow={value}
         aria-disabled={disabled}
+        aria-label={props['aria-label'] ?? 'Slider'}
       />
     </SC.SliderWrapper>
   )

@@ -34,7 +34,13 @@ const Input = ({
   return (
     <SC.Container $fullWidth={fullWidth} $margin={margin} $maxWidth={maxWidth}>
       {label && (
-        <Text size='small' color='text' style={{ marginBottom: '0.375rem' }}>
+        <Text
+          as='label'
+          htmlFor={fieldId}
+          size='small'
+          color='text'
+          style={{ marginBottom: '0.375rem', cursor: 'pointer' }}
+        >
           {label}
         </Text>
       )}

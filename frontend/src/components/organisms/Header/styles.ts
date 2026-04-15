@@ -15,7 +15,10 @@ export const Header = styled.header`
   grid-template-columns: 1fr auto 1fr; /* left/right size to content; title flexes */
   column-gap: 8px;
   align-items: center;
-  height: 64px; /* larger, thumb-friendly mobile touch target */
+  height: var(
+    --header-height,
+    64px
+  ); /* larger, thumb-friendly mobile touch target */
   padding: 0 12px;
 `
 

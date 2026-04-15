@@ -1,4 +1,5 @@
 import { HTMLAttributes, JSX } from 'react'
+
 import type { ITheme } from '@/lib/themes'
 
 export type TTextSize = 'small' | 'medium' | 'large'
@@ -30,6 +31,8 @@ export interface ITextProps extends HTMLAttributes<HTMLParagraphElement> {
   responsive?: boolean
   // Semantic tag override (defaults to 'p')
   as?: keyof JSX.IntrinsicElements
+  // htmlFor attribute when rendered as a label
+  htmlFor?: string
 }
 
 export interface IStyledTextProps {

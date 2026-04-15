@@ -2,14 +2,17 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
-import Button from '@/components/atoms/button'
+import Button from '@/components/atoms/Button'
+
 import Input from '@/components/molecules/Input'
+
+import { usePageTitle } from '@/hooks/use-page-title'
+
+import { validateEmail, validatePassword } from '@/validation/auth'
 
 import * as SC from './styles'
 
 import type { TValidationState } from '@/components/molecules/Input/types'
-import { usePageTitle } from '@/hooks/use-page-title'
-
 const LoginTemplate = () => {
   const router = useRouter()
 
@@ -25,25 +28,6 @@ const LoginTemplate = () => {
     useState<TValidationState>('none')
   const [passwordValidation, setPasswordValidation] =
     useState<TValidationState>('none')
-
-  const validateEmail = (value: string): TValidationState => {
-    if (value.length === 0) return 'none'
-    const re = /\S+@\S+\.\S+/
-    return re.test(value) ? 'success' : 'error'
-  }
-
-  const validatePassword = (value: string): TValidationState => {
-    if (value.length === 0) return 'none'
-    const hasLength = value.length >= 8
-    const hasUpper = /[A-Z]/.test(value)
-    const hasLower = /[a-z]/.test(value)
-    const hasNumber = /[0-9]/.test(value)
-    const hasSpecial = /[^a-zA-Z0-9]/.test(value)
-
-    return hasLength && hasUpper && hasLower && hasNumber && hasSpecial
-      ? 'success'
-      : 'error'
-  }
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,69 +50,62 @@ const LoginTemplate = () => {
   )
 
   return (
-    <SC.LoginPageWrapper>
-      <SC.Card as='form' onSubmit={onSubmit}>
-        <Input
-          label='Email'
-          type='email'
-          placeholder='name@example.com'
-          value={email}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            const v = e.target.value
-            setEmail(v)
-            setEmailValidation(validateEmail(v))
-          }}
-          onBlur={() => setEmailValidation(validateEmail(email))}
-          helperText={emailValidation === 'error' ? 'Invalid email' : ''}
-          validation={emailValidation}
-          margin='1rem 0 1rem 0'
-        />
+    <SC.LoginPageWrapper as='form' onSubmit={onSubmit}>
+      <Input
+        label='Email'
+        type='email'
+        placeholder='name@example.com'
+        value={email}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          const v = e.target.value
+          setEmail(v)
+          setEmailValidation(validateEmail(v))
+        }}
+        onBlur={() => setEmailValidation(validateEmail(email))}
+        helperText={emailValidation === 'error' ? 'Invalid email' : ''}
+        validation={emailValidation}
+        margin='1rem 0 1rem 0'
+      />
 
-        <Input
-          label='Password'
-          type='password'
-          placeholder='passWot@452'
-          value={password}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            const v = e.target.value
-            setPassword(v)
-            setPasswordValidation(validatePassword(v))
-          }}
-          onBlur={() => setPasswordValidation(validatePassword(password))}
-          helperText={
-            passwordValidation === 'error'
-              ? 'Min. 8 characters, upper/lowercase, number & special character'
-              : ''
-          }
-          validation={passwordValidation}
-          margin='0 0 1rem 0'
-        />
+      <Input
+        label='Password'
+        type='password'
+        placeholder='Enter your password'
+        value={password}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          const v = e.target.value
+          setPassword(v)
+          setPasswordValidation(validatePassword(v))
+        }}
+        onBlur={() => setPasswordValidation(validatePassword(password))}
+        helperText={
+          passwordValidation === 'error'
+            ? 'Min. 8 characters, upper/lowercase, number & special character'
+            : ''
+        }
+        validation={passwordValidation}
+        margin='0 0 1rem 0'
+      />
 
+      <Button variant='primary' size='md' type='submit' disabled={!isFormValid}>
+        Login
+      </Button>
+
+      <Button variant='ghost' size='md' type='button'>
+        Forgot Password?
+      </Button>
+
+      <SC.SignInPrompt>
+        <SC.Label>Don&apos;t have an account?</SC.Label>
         <Button
-          variant='primary'
+          variant='ghost'
           size='md'
-          type='submit'
-          disabled={!isFormValid}
+          type='button'
+          onClick={() => router.push('/register')}
         >
-          Login
+          Register
         </Button>
-
-        <Button variant='ghost' size='md' type='button'>
-          Forgot Password?
-        </Button>
-
-        <SC.SignInPrompt>
-          <SC.Label>Don&apos;t have an account?</SC.Label>
-          <Button
-            variant='ghost'
-            size='md'
-            type='button'
-            onClick={() => router.push('/register')}
-          >
-            Register
-          </Button>
-        </SC.SignInPrompt>
-      </SC.Card>
+      </SC.SignInPrompt>
     </SC.LoginPageWrapper>
   )
 }
