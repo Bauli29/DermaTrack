@@ -25,6 +25,8 @@ public interface IAppUserRepository extends JpaRepository<AppUser, UUID> {
 
     Optional<AppUser> findByUsername(String username);
 
+    boolean existsByUsername(String username);
+
     // All basic CRUD operations are inherited from JpaRepository:
 
     // save(User) - Create/Update

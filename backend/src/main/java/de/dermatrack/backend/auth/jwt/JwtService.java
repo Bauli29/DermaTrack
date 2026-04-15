@@ -3,54 +3,54 @@ package de.dermatrack.backend.auth.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
+
+import java.security.Key;
 import java.util.Date;
 
 @Service
-// This service is handles cases of
-// token creation,
-// then validation and also
-// extracgting usernames
 public class JwtService {
-    private final String ACCESS_SECRET = "access-secret";
-    private final String REFRESH_SECRET = "refresh-secret";
-    private final long ACCESS_EXPIRATION = 1000 * 60 * 15; // i.e 15 mins
+
+    private final String ACCESS_SECRET = "access-secret-access-secret-access-secret-32bytes!";
+    private final String REFRESH_SECRET = "refresh-secret-refresh-secret-refresh-secret-32bytes!";
+
+    private final long ACCESS_EXPIRATION = 1000 * 60 * 15; // 15 min
     private final long REFRESH_EXPIRATION = 1000L * 60 * 60 * 24 * 7; // 7 days
 
-    // Now we gfirst generate the access tokens
+    // ---------------- ACCESS TOKEN ----------------
     public String generateAccessTokens(String username) {
-        return Jwts.builder().setSubject(username)
+        return Jwts.builder()
+                .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION))
-                .signWith(SignatureAlgorithm.HS256, ACCESS_SECRET)
+                .signWith(getAccessKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // Now that we have generated the Accesstokens we will now generate
-    // refreshtokens
+    // ---------------- REFRESH TOKEN ----------------
     public String generateRefreshToken(String username) {
-        return Jwts.builder().setSubject(username)
+        return Jwts.builder()
+                .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
-                .signWith(SignatureAlgorithm.HS256, REFRESH_SECRET)
+                .signWith(getRefreshKey(), SignatureAlgorithm.HS256)
                 .compact();
-
     }
 
+    // ---------------- EXTRACT ----------------
     public String extractUsernameFromAccessToken(String token) {
-        return getClaims(token, ACCESS_SECRET).getSubject();
+        return getAccessClaims(token).getSubject();
     }
 
     public String extractUsernameFromRefreshToken(String token) {
-        return getClaims(token, REFRESH_SECRET).getSubject();
+        return getRefreshClaims(token).getSubject();
     }
 
-    // Now we gotta Validate the token we got! BAÄÄM BÄÄM BÄÄM!!!
+    // ---------------- VALIDATION ----------------
     public boolean isAccessTokenValid(String token) {
         try {
-            return getClaims(token, ACCESS_SECRET)
-                    .getExpiration()
-                    .after(new Date());
+            return !isAccessTokenExpired(token);
         } catch (Exception e) {
             return false;
         }
@@ -58,19 +58,44 @@ public class JwtService {
 
     public boolean isRefreshTokenValid(String token) {
         try {
-            return getClaims(token, REFRESH_SECRET)
-                    .getExpiration()
-                    .after(new Date());
+            return !isRefreshTokenExpired(token);
         } catch (Exception e) {
             return false;
         }
     }
 
-    // now comes getClaims() part!!! DAYUMNNN DIGS!! WE DIG IT!
-    public Claims getClaims(String token, String secret) {
-        return Jwts.parser()
-                .setSigningKey(secret)
+    // ---------------- EXPIRATION ----------------
+    public boolean isAccessTokenExpired(String token) {
+        return getAccessClaims(token).getExpiration().before(new Date());
+    }
+
+    public boolean isRefreshTokenExpired(String token) {
+        return getRefreshClaims(token).getExpiration().before(new Date());
+    }
+
+    // ---------------- CLAIMS ----------------
+    private Claims getAccessClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getAccessKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    private Claims getRefreshClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getRefreshKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    // ---------------- KEYS ----------------
+    private Key getAccessKey() {
+        return Keys.hmacShaKeyFor(ACCESS_SECRET.getBytes());
+    }
+
+    private Key getRefreshKey() {
+        return Keys.hmacShaKeyFor(REFRESH_SECRET.getBytes());
     }
 }
