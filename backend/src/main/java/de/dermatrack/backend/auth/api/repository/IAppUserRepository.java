@@ -27,6 +27,8 @@ public interface IAppUserRepository extends JpaRepository<AppUser, UUID> {
 
     boolean existsByUsername(String username);
 
+    boolean existsByEmail(String email);
+
     // All basic CRUD operations are inherited from JpaRepository:
 
     // save(User) - Create/Update

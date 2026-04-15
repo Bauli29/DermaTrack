@@ -52,19 +52,21 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/actuator/health").permitAll(); // Only health check public
-                    auth.requestMatchers("/api/**").authenticated(); // API requires authentication
+                    auth.requestMatchers("/api/auth/**").permitAll(); // API requires authentication
                     auth.anyRequest().authenticated(); // Everything else requires authentication
                 })
-                .httpBasic(Customizer.withDefaults())
+                // .httpBasic(Customizer.withDefaults())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(this::applyCommonSecurityHeaders);
 
         return http.build();
     }
     /*
      * public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws
-     * Exception {
+     * Exception
      * http
      * .csrf(AbstractHttpConfigurer::disable)
      * .cors(Customizer.withDefaults())
