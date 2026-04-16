@@ -1,5 +1,5 @@
 // Use DBML to define your database structure
-// Docs: https://dbml.dbdiagram.io/docs
+// open: https://dbdiagram.io/d
 // Source of truth: backend JPA entities (pushed to Neon DB via Hibernate)
 
 Table app_user {
