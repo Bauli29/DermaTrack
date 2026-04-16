@@ -41,12 +41,13 @@ if [ "$backend_changed" = true ]; then
 
   if [ -f "./mvnw" ]; then
     ./mvnw test
+  elif [ -f "./mvnw.cmd" ]; then
+    ./mvnw.cmd test
+  elif command -v mvn > /dev/null 2>&1; then
+    mvn test
   else
-    if [ -f "./mvnw.cmd" ]; then
-      ./mvnw.cmd test
-    else
-      mvn test
-    fi
+    echo "ERROR: No Maven wrapper or mvn found. Cannot run backend tests." >&2
+    exit 1
   fi
 fi
 
