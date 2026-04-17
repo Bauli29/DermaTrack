@@ -80,8 +80,8 @@ class AuthIntegrationTest {
                 String responseBody = loginResult.getResponse().getContentAsString();
                 Map<String, Object> responseMap = objectMapper.readValue(responseBody, Map.class);
 
-                String token = (String) responseMap.get("token");
+                String accessToken = (String) responseMap.get("accessToken");
 
-                assertThat(token).isNotNull();
+                assertThat(accessToken).isNotNull();
         }
 }

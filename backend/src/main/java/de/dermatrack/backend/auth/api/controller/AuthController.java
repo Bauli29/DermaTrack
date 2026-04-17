@@ -1,11 +1,17 @@
 package de.dermatrack.backend.auth.api.controller;
 
-import de.dermatrack.backend.auth.api.dto.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import de.dermatrack.backend.auth.api.dto.AuthResponse;
+import de.dermatrack.backend.auth.api.dto.LoginRequest;
+import de.dermatrack.backend.auth.api.dto.Refresh;
+import de.dermatrack.backend.auth.api.dto.RegisterRequest;
 import de.dermatrack.backend.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
