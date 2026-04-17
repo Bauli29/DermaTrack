@@ -45,6 +45,10 @@ public class JwtService {
         return getRefreshClaims(token).getSubject();
     }
 
+    public Date extractRefreshTokenExpiration(String token) {
+        return getRefreshClaims(token).getExpiration();
+    }
+
     public boolean isAccessTokenValid(String token) {
         try {
             return !isAccessTokenExpired(token);
