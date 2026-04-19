@@ -1,8 +1,27 @@
 import {
+  validateConfirmPassword,
   validateEmail,
   validatePassword,
-  validateConfirmPassword,
+  validateUsername,
 } from '../index'
+
+describe('Username Validation', () => {
+  it('should return "none" for empty username', () => {
+    expect(validateUsername('')).toBe('none')
+  })
+
+  it('should return "success" for valid username', () => {
+    expect(validateUsername('john_doe-123')).toBe('success')
+  })
+
+  it('should return "error" for username with invalid characters', () => {
+    expect(validateUsername('john doe')).toBe('error')
+  })
+
+  it('should return "error" for username shorter than 3 chars', () => {
+    expect(validateUsername('ab')).toBe('error')
+  })
+})
 
 describe('Email Validation', () => {
   it('should return "none" for empty string', () => {

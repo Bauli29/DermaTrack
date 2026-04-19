@@ -7,6 +7,7 @@ import NavBar from '@/components/organisms/Navbar'
 
 import GlobalStyle from '@/app/global-style'
 
+import { AuthContextProvider } from '@/context/auth'
 import { PageTitleProvider } from '@/context/page-title'
 import { ThemeContextProvider } from '@/context/theme'
 
@@ -18,16 +19,18 @@ const ThemedWrapper = ({ children }: { children: ReactNode }) => {
 }
 
 const ClientLayout = ({ children }: { children: ReactNode }) => (
-  <ThemeContextProvider>
-    <PageTitleProvider>
-      <ThemedWrapper>
-        <GlobalStyle />
-        <Header />
-        {children}
-        <NavBar />
-      </ThemedWrapper>
-    </PageTitleProvider>
-  </ThemeContextProvider>
+  <AuthContextProvider>
+    <ThemeContextProvider>
+      <PageTitleProvider>
+        <ThemedWrapper>
+          <GlobalStyle />
+          <Header />
+          {children}
+          <NavBar />
+        </ThemedWrapper>
+      </PageTitleProvider>
+    </ThemeContextProvider>
+  </AuthContextProvider>
 )
 
 export default ClientLayout

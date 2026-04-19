@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-import Button from '@/components/atoms/Button'
+import Button from '@/components/atoms/button'
 import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
 import Link from '@/components/atoms/Link'

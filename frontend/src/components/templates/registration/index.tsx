@@ -2,16 +2,18 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
-import Button from '@/components/atoms/Button'
+import Button from '@/components/atoms/button'
 
 import Input from '@/components/molecules/Input'
 
+import { useAuth } from '@/hooks/use-auth'
 import { usePageTitle } from '@/hooks/use-page-title'
 
 import {
   validateConfirmPassword,
   validateEmail,
   validatePassword,
+  validateUsername,
 } from '@/validation/auth'
 
 import * as SC from './styles'
@@ -19,12 +21,14 @@ import * as SC from './styles'
 import type { TValidationState } from '@/components/molecules/Input/types'
 const RegistrationTemplate = () => {
   const router = useRouter()
+  const { register, isLoading, error, clearError } = useAuth()
 
   const { setTitle } = usePageTitle()
   useEffect(() => {
     setTitle('Registration')
   }, [setTitle])
 
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -32,6 +36,8 @@ const RegistrationTemplate = () => {
   const [lastName, setLastName] = useState('')
   const [acceptTerms, setAcceptTerms] = useState(false)
 
+  const [usernameValidation, setUsernameValidation] =
+    useState<TValidationState>('none')
   const [emailValidation, setEmailValidation] =
     useState<TValidationState>('none')
   const [passwordValidation, setPasswordValidation] =
@@ -39,39 +45,69 @@ const RegistrationTemplate = () => {
   const [confirmPasswordValidation, setConfirmPasswordValidation] =
     useState<TValidationState>('none')
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    clearError()
 
+    const uv = validateUsername(username)
     const ev = validateEmail(email)
     const pv = validatePassword(password)
     const cpv = validateConfirmPassword(confirmPassword, password)
 
+    setUsernameValidation(uv)
     setEmailValidation(ev)
     setPasswordValidation(pv)
     setConfirmPasswordValidation(cpv)
 
     if (
+      uv === 'success' &&
       ev === 'success' &&
       pv === 'success' &&
       cpv === 'success' &&
       acceptTerms
     ) {
-      // TODO: implement registration API call
-      router.push('/login')
+      try {
+        await register(username, email, password)
+        router.push('/login')
+      } catch {
+        return
+      }
     }
   }
 
   const isFormValid = useMemo(
     () =>
+      validateUsername(username) === 'success' &&
       validateEmail(email) === 'success' &&
       validatePassword(password) === 'success' &&
       validateConfirmPassword(confirmPassword, password) === 'success' &&
       acceptTerms,
-    [email, password, confirmPassword, acceptTerms]
+    [username, email, password, confirmPassword, acceptTerms]
   )
 
   return (
     <SC.RegistrationPageWrapper as='form' onSubmit={onSubmit}>
+      <Input
+        label='Username'
+        type='text'
+        placeholder='your_username'
+        value={username}
+        onChange={e => {
+          const { value } = e.target
+          setUsername(value)
+          setUsernameValidation(validateUsername(value))
+          clearError()
+        }}
+        onBlur={() => setUsernameValidation(validateUsername(username))}
+        helperText={
+          usernameValidation === 'error'
+            ? '3-50 chars; letters, numbers, _ and - only'
+            : ''
+        }
+        validation={usernameValidation}
+        margin='1rem 0 0 0'
+      />
+
       <SC.NameRow>
         <Input
           label='First Name (optional)'
@@ -102,6 +138,7 @@ const RegistrationTemplate = () => {
           const v = e.target.value
           setEmail(v)
           setEmailValidation(validateEmail(v))
+          clearError()
         }}
         onBlur={() => setEmailValidation(validateEmail(email))}
         helperText={emailValidation === 'error' ? 'Invalid email' : ''}
@@ -123,6 +160,7 @@ const RegistrationTemplate = () => {
               validateConfirmPassword(confirmPassword, v)
             )
           }
+          clearError()
         }}
         onBlur={() => setPasswordValidation(validatePassword(password))}
         helperText={
@@ -143,6 +181,7 @@ const RegistrationTemplate = () => {
           const v = e.target.value
           setConfirmPassword(v)
           setConfirmPasswordValidation(validateConfirmPassword(v, password))
+          clearError()
         }}
         onBlur={() =>
           setConfirmPasswordValidation(
@@ -155,6 +194,8 @@ const RegistrationTemplate = () => {
         validation={confirmPasswordValidation}
         margin='0 0 1rem 0'
       />
+
+      {error && <p role='alert'>{error}</p>}
 
       <SC.CheckboxContainer>
         <SC.Checkbox
@@ -177,8 +218,13 @@ const RegistrationTemplate = () => {
         </SC.CheckboxLabel>
       </SC.CheckboxContainer>
 
-      <Button variant='primary' size='md' type='submit' disabled={!isFormValid}>
-        Register
+      <Button
+        variant='primary'
+        size='md'
+        type='submit'
+        disabled={!isFormValid || isLoading}
+      >
+        {isLoading ? 'Creating account...' : 'Register'}
       </Button>
 
       <SC.SignInPrompt>
