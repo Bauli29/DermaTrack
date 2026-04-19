@@ -2,9 +2,8 @@ import type { TValidationState } from '@/components/molecules/Input/types'
 import { z } from 'zod'
 
 export const EmailSchema = z
-  .string()
-  .min(5, 'Email is required')
   .email('Invalid email format')
+  .min(5, 'Email is required')
 
 export const UsernameSchema = z
   .string()
