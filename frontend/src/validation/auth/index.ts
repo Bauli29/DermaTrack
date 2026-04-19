@@ -6,6 +6,15 @@ export const EmailSchema = z
   .min(5, 'Email is required')
   .email('Invalid email format')
 
+export const UsernameSchema = z
+  .string()
+  .min(3, 'Username must be at least 3 characters')
+  .max(50, 'Username must be at most 50 characters')
+  .regex(
+    /^[a-zA-Z0-9_-]+$/,
+    'Username can only contain letters, numbers, underscores and hyphens'
+  )
+
 export const PasswordSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters')
@@ -25,8 +34,15 @@ export const PasswordConfirmSchema = z
   })
 
 export type TEmailInput = z.infer<typeof EmailSchema>
+export type TUsernameInput = z.infer<typeof UsernameSchema>
 export type TPasswordInput = z.infer<typeof PasswordSchema>
 export type TPasswordConfirmInput = z.infer<typeof PasswordConfirmSchema>
+
+export const validateUsername = (value: string): TValidationState => {
+  if (value.length === 0) return 'none'
+  const result = UsernameSchema.safeParse(value)
+  return result.success ? 'success' : 'error'
+}
 
 export const validateEmail = (value: string): TValidationState => {
   if (value.length === 0) return 'none'
