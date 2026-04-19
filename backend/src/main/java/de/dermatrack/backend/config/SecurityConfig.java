@@ -30,7 +30,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 public class SecurityConfig {
 
     @Bean
-    @Profile({ "local-h2", "local" }) // Only for local development (H2 or local real DB)
+    @Profile({ "local-h2", "local", "default" }) // Only for local development (H2 or local real DB)
     public SecurityFilterChain localSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
