@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 
-import Button from '@/components/atoms/button'
+import Button from '@/components/atoms/Button'
 import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
 import Text from '@/components/atoms/Text'

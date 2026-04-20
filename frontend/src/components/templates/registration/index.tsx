@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
-import Button from '@/components/atoms/button'
+import Button from '@/components/atoms/Button'
 
 import Input from '@/components/molecules/Input'
 

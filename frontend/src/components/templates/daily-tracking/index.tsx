@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import Button from '@/components/atoms/button'
+import Button from '@/components/atoms/Button'
 import Slider from '@/components/atoms/Slider'
 import Text from '@/components/atoms/Text'
 
