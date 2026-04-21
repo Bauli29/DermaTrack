@@ -39,7 +39,9 @@ public class SecurityConfig {
                     auth.requestMatchers("/actuator/health").permitAll();
                     auth.requestMatchers("/swagger-ui/**").permitAll();
                     auth.requestMatchers("/api/v3/api-docs/**").permitAll();
-                    auth.requestMatchers("/api/auth/**").permitAll();
+                    auth.requestMatchers("/api/auth/login").permitAll();
+                    auth.requestMatchers("/api/auth/register").permitAll();
+                    auth.requestMatchers("/api/auth/refresh").permitAll();
                     if (isLocal) {
                         auth.requestMatchers("/h2-console/**").permitAll();
                     }
