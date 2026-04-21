@@ -211,6 +211,13 @@ class AuthIntegrationTest {
         }
 
         @Test
+        void logout_shouldReturn401_whenNotAuthenticated() throws Exception {
+                mockMvc.perform(post("/api/auth/logout"))
+                                .andExpect(status().isUnauthorized())
+                                .andExpect(jsonPath("$.error").value("Unauthorized"));
+        }
+
+        @Test
         void refresh_shouldReturn401_whenTokenAlreadyUsed() throws Exception {
                 mockMvc.perform(post("/api/auth/register")
                                 .contentType(MediaType.APPLICATION_JSON)
