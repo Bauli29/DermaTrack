@@ -50,6 +50,10 @@ describe('Password Validation', () => {
     expect(validatePassword('ValidPass123!')).toBe('success')
   })
 
+  it('should return "success" for exactly 12 characters', () => {
+    expect(validatePassword('Abcd1234!xyz')).toBe('success')
+  })
+
   it('should return "error" for password without uppercase', () => {
     expect(validatePassword('validpass123!')).toBe('error')
   })
@@ -66,8 +70,8 @@ describe('Password Validation', () => {
     expect(validatePassword('ValidPass123')).toBe('error')
   })
 
-  it('should return "error" for password shorter than 8 characters', () => {
-    expect(validatePassword('Val1!')).toBe('error')
+  it('should return "error" for password shorter than 12 characters', () => {
+    expect(validatePassword('ValidPa1!')).toBe('error')
   })
 })
 

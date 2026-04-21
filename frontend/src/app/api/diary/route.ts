@@ -14,11 +14,13 @@ import { DiaryEntrySchema } from '@/validation/diary'
  * GET /api/diary - Fetch all diary entries
  * @returns NextResponse with array of diary entries or error message
  */
-export const GET = async (): Promise<NextResponse> => {
+export const GET = async (request: NextRequest): Promise<NextResponse> => {
   try {
+    const accessToken = request.cookies.get('dermatrack_access_token')?.value
     const response = await secureFetch('/api/diary', {
       method: 'GET',
       cache: 'no-store',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     })
 
     if (!response.ok) {
@@ -47,6 +49,7 @@ export const GET = async (): Promise<NextResponse> => {
  */
 export const POST = async (request: NextRequest): Promise<NextResponse> => {
   try {
+    const accessToken = request.cookies.get('dermatrack_access_token')?.value
     const body = await request.json()
 
     // Validate and throw if invalid
@@ -55,6 +58,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
     const response = await secureFetch('/api/diary', {
       method: 'POST',
       body: JSON.stringify(validatedData),
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     })
 
     if (!response.ok) {

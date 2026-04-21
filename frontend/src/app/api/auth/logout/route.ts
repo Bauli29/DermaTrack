@@ -1,17 +1,32 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-import { proxyAuthRequest } from '../_utils'
+import {
+  AUTH_COOKIE_NAMES,
+  callBackendAuth,
+  clearAuthCookies,
+  forwardBackendResponse,
+} from '../_utils'
 
-export const POST = async (request: Request): Promise<NextResponse> => {
-  const authorization = request.headers.get('authorization')
+export const POST = async (request: NextRequest): Promise<NextResponse> => {
+  const accessToken = request.cookies.get(AUTH_COOKIE_NAMES.ACCESS_TOKEN)?.value
   const headers: HeadersInit = {}
 
-  if (authorization) {
-    headers.Authorization = authorization
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`
   }
 
-  return proxyAuthRequest('/logout', {
+  const backendResponse = await callBackendAuth('/logout', {
     method: 'POST',
     headers,
   })
+
+  if (!backendResponse.ok && backendResponse.status !== 401) {
+    const response = await forwardBackendResponse(backendResponse)
+    clearAuthCookies(response)
+    return response
+  }
+
+  const response = new NextResponse(null, { status: 204 })
+  clearAuthCookies(response)
+  return response
 }

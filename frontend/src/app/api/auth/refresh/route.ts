@@ -1,22 +1,69 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+
+import { EAuthErrorCode } from '@/types/errors'
 
 import {
-  proxyAuthRequest,
-  readJsonBody,
-  RefreshRequestSchema,
-  validationErrorResponse,
+  AUTH_COOKIE_NAMES,
+  callBackendAuth,
+  clearAuthCookies,
+  forwardBackendResponse,
+  setAuthCookies,
 } from '../_utils'
 
-export const POST = async (request: Request): Promise<NextResponse> => {
-  const body = await readJsonBody<unknown>(request)
-  const parsed = RefreshRequestSchema.safeParse(body)
+import type { IAuthResponse } from '@/types/auth'
+export const POST = async (request: NextRequest): Promise<NextResponse> => {
+  const refreshToken = request.cookies
+    .get(AUTH_COOKIE_NAMES.REFRESH_TOKEN)
+    ?.value?.trim()
 
-  if (!parsed.success) {
-    return validationErrorResponse(parsed.error.issues)
+  if (!refreshToken) {
+    const response = NextResponse.json(
+      {
+        error: 'Refresh token is required',
+        code: EAuthErrorCode.TOKEN_INVALID,
+        statusCode: 401,
+      },
+      { status: 401 }
+    )
+    clearAuthCookies(response)
+    return response
   }
 
-  return proxyAuthRequest('/refresh', {
+  const backendResponse = await callBackendAuth('/refresh', {
     method: 'POST',
-    body: JSON.stringify(parsed.data),
+    body: JSON.stringify({ refreshToken }),
   })
+
+  if (!backendResponse.ok) {
+    const response = await forwardBackendResponse(backendResponse)
+    if (backendResponse.status === 401) {
+      clearAuthCookies(response)
+    }
+    return response
+  }
+
+  const tokenResponse = (await backendResponse
+    .json()
+    .catch(() => null)) as IAuthResponse | null
+
+  if (!tokenResponse?.accessToken || !tokenResponse.refreshToken) {
+    const response = NextResponse.json(
+      {
+        error: 'Invalid auth response from backend',
+        code: EAuthErrorCode.UNKNOWN_ERROR,
+        statusCode: 502,
+      },
+      { status: 502 }
+    )
+    clearAuthCookies(response)
+    return response
+  }
+
+  const response = NextResponse.json({ refreshed: true }, { status: 200 })
+  setAuthCookies(
+    response,
+    tokenResponse.accessToken,
+    tokenResponse.refreshToken
+  )
+  return response
 }

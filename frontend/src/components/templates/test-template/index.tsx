@@ -314,7 +314,7 @@ const TestTemplate = () => {
           value={password}
           onChange={e => setPassword(e.target.value)}
           validation='error'
-          helperText='Password must be at least 8 characters'
+          helperText='Password must be at least 12 characters'
           margin='0 0 1rem 0'
         />
 

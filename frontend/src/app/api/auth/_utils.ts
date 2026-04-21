@@ -9,6 +9,12 @@ import { EmailSchema, PasswordSchema } from '@/validation/auth'
 
 const BACKEND_AUTH_BASE_PATH = '/api/auth'
 
+export const AUTH_COOKIE_NAMES = {
+  ACCESS_TOKEN: 'dermatrack_access_token',
+  REFRESH_TOKEN: 'dermatrack_refresh_token',
+  AUTH_STATE: 'dermatrack_auth',
+} as const
+
 export interface IAuthApiErrorResponse {
   error: string
   code: EAuthErrorCode
@@ -21,6 +27,102 @@ interface IBackendErrorBody {
   message?: string
   details?: unknown
   statusCode?: number
+}
+
+interface ITokenPayload {
+  sub?: string
+  exp?: number
+}
+
+const decodeTokenPayload = (token: string): ITokenPayload | null => {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) {
+      return null
+    }
+
+    const payload = JSON.parse(
+      Buffer.from(parts[1], 'base64url').toString('utf-8')
+    ) as ITokenPayload
+
+    return payload
+  } catch {
+    return null
+  }
+}
+
+const getTokenMaxAge = (token: string, fallbackSeconds: number): number => {
+  const payload = decodeTokenPayload(token)
+  if (typeof payload?.exp !== 'number') {
+    return fallbackSeconds
+  }
+
+  const nowSeconds = Math.floor(Date.now() / 1000)
+  return Math.max(0, payload.exp - nowSeconds)
+}
+
+export const extractUsernameFromAccessToken = (
+  token: string
+): string | null => {
+  const payload = decodeTokenPayload(token)
+  return typeof payload?.sub === 'string' ? payload.sub : null
+}
+
+export const isAccessTokenExpired = (token: string): boolean => {
+  const payload = decodeTokenPayload(token)
+  if (typeof payload?.exp !== 'number') {
+    return true
+  }
+
+  const nowSeconds = Math.floor(Date.now() / 1000)
+  return payload.exp <= nowSeconds
+}
+
+export const setAuthCookies = (
+  response: NextResponse,
+  accessToken: string,
+  refreshToken: string
+): void => {
+  const secure = process.env.NODE_ENV === 'production'
+
+  response.cookies.set(AUTH_COOKIE_NAMES.ACCESS_TOKEN, accessToken, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure,
+    path: '/',
+    maxAge: getTokenMaxAge(accessToken, 15 * 60),
+  })
+
+  response.cookies.set(AUTH_COOKIE_NAMES.REFRESH_TOKEN, refreshToken, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure,
+    path: '/',
+    maxAge: getTokenMaxAge(refreshToken, 7 * 24 * 60 * 60),
+  })
+
+  response.cookies.set(AUTH_COOKIE_NAMES.AUTH_STATE, '1', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure,
+    path: '/',
+    maxAge: getTokenMaxAge(refreshToken, 7 * 24 * 60 * 60),
+  })
+}
+
+export const clearAuthCookies = (response: NextResponse): void => {
+  const secure = process.env.NODE_ENV === 'production'
+  const clearCookie = {
+    httpOnly: true,
+    sameSite: 'lax' as const,
+    secure,
+    path: '/',
+    maxAge: 0,
+  }
+
+  response.cookies.set(AUTH_COOKIE_NAMES.ACCESS_TOKEN, '', clearCookie)
+  response.cookies.set(AUTH_COOKIE_NAMES.REFRESH_TOKEN, '', clearCookie)
+  response.cookies.set(AUTH_COOKIE_NAMES.AUTH_STATE, '0', clearCookie)
 }
 
 const getBackendErrorMessage = (

@@ -1,28 +1,10 @@
-import { getAccessToken, hasValidAccessToken } from '@/lib/token-storage'
-
 const BACKEND_API_URL = process.env.BACKEND_API_URL ?? 'http://localhost:8080'
-
-/**
- * Callback to notify when session is invalid (for listening contexts/components)
- */
-let onSessionInvalidCallback: (() => void) | null = null
-
-export const setSessionInvalidCallback = (
-  callback: (() => void) | null
-): void => {
-  onSessionInvalidCallback = callback
-}
 
 /**
  * Get headers for authenticated backend requests (with JWT)
  */
 export const getSecureHeaders = (includeContentType = true): HeadersInit => {
   const headers: HeadersInit = {}
-
-  const accessToken = getAccessToken()
-  if (accessToken) {
-    headers.Authorization = `Bearer ${accessToken}`
-  }
 
   if (includeContentType) {
     headers['Content-Type'] = 'application/json'
@@ -51,17 +33,14 @@ export const getBackendUrl = (path: string): string =>
   `${BACKEND_API_URL}${path}`
 
 /**
- * Internal fetch with optional retry logic for 401
- * Handles token refresh silently if possible
+ * Internal authenticated fetch.
+ * Authorization can be passed in options.headers by the caller.
  */
 const fetchWithAuth = async (
   path: string,
-  options?: RequestInit,
-  retryCount = 0
-): Promise<Response> => {
-  const maxRetries = 1 // Only retry once to avoid infinite loops
-
-  const response = await fetch(getBackendUrl(path), {
+  options?: RequestInit
+): Promise<Response> =>
+  fetch(getBackendUrl(path), {
     ...options,
     headers: {
       ...getSecureHeaders(),
@@ -69,26 +48,8 @@ const fetchWithAuth = async (
     },
   })
 
-  // If 401 and we have a refresh token, try to refresh silently
-  if (
-    response.status === 401 &&
-    retryCount < maxRetries &&
-    hasValidAccessToken()
-  ) {
-    // Notify listeners that session is invalid
-    onSessionInvalidCallback?.()
-
-    // After one retry with refresh, just return the 401 to let the component handle it
-    return response
-  }
-
-  return response
-}
-
 /**
- * Backend fetch wrapper with JWT authentication
- * Automatically includes access token in Authorization header
- * On 401, notifies that session is invalid
+ * Backend fetch wrapper for authenticated backend endpoints.
  */
 export const secureFetch = async (
   path: string,

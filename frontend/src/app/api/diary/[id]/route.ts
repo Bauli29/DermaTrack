@@ -21,9 +21,11 @@ export const GET = async function (
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const accessToken = request.cookies.get('dermatrack_access_token')?.value
     const { id } = await params
     const response = await secureFetch(`/api/diary/${id}`, {
       method: 'GET',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     })
 
     if (!response.ok) {
@@ -55,9 +57,11 @@ export const DELETE = async function (
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const accessToken = request.cookies.get('dermatrack_access_token')?.value
     const { id } = await params
     const response = await secureFetch(`/api/diary/${id}`, {
       method: 'DELETE',
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     })
 
     if (!response.ok) {
@@ -88,6 +92,7 @@ export const PUT = async function (
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const accessToken = request.cookies.get('dermatrack_access_token')?.value
     const { id } = await params
     const body = await request.json()
 
@@ -97,6 +102,7 @@ export const PUT = async function (
     const response = await secureFetch(`/api/diary/${id}`, {
       method: 'PUT',
       body: JSON.stringify(validatedData),
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     })
 
     if (!response.ok) {

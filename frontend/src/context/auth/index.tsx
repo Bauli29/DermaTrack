@@ -8,15 +8,6 @@ import {
   useState,
 } from 'react'
 
-import { setSessionInvalidCallback } from '@/lib/backend-client'
-import {
-  clearTokens,
-  getAccessToken,
-  getTokenUsername,
-  hasValidAccessToken,
-  setTokens,
-} from '@/lib/token-storage'
-
 import {
   createAuthError,
   EAuthErrorCode,
@@ -30,12 +21,16 @@ import { AUTH_CONTEXT_DEFAULT_VALUE, AUTH_CONTEXT_INITIAL_STATE } from './types'
 import type {
   IAuthContext,
   IAuthContextState,
-  IAuthResponse,
   ILoginRequest,
   IRegisterRequest,
 } from '@/types/auth'
 import type { IUser } from '@/types/auth'
 import type { IApiErrorResponse, IAuthError } from '@/types/errors'
+
+interface ISessionResponse {
+  isLoggedIn: boolean
+  user: IUser | null
+}
 
 /**
  * Auth context for global auth state management
@@ -89,6 +84,7 @@ export const AuthContextProvider = ({
     async <T,>(path: string, options: RequestInit): Promise<T> => {
       const response = await fetch(path, {
         ...options,
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
@@ -108,89 +104,62 @@ export const AuthContextProvider = ({
     [parseResponseError]
   )
 
-  /**
-   * Load session from localStorage on mount (SSR safe)
-   * Validates that tokens exist and haven't expired
-   */
-  const initializeSession = useCallback(() => {
-    const accessToken = getAccessToken()
+  const initializeSession = useCallback(async () => {
+    try {
+      let response = await fetch('/api/auth/session', {
+        method: 'GET',
+        cache: 'no-store',
+        credentials: 'include',
+      })
 
-    // No token = not logged in
-    if (!accessToken || !hasValidAccessToken()) {
-      clearTokens()
-      setState(AUTH_CONTEXT_INITIAL_STATE)
-      return
-    }
+      if (response.status === 401) {
+        const refreshResponse = await fetch('/api/auth/refresh', {
+          method: 'POST',
+          credentials: 'include',
+        })
 
-    // Token exists and is valid
-    const username = getTokenUsername(accessToken)
-    if (username) {
-      // Reconstruct user from token (minimal info)
-      const user: IUser = {
-        id: '', // We don't have full user data from token
-        username,
-        email: '', // We don't have email from token
-        createdAt: '',
+        if (refreshResponse.ok) {
+          response = await fetch('/api/auth/session', {
+            method: 'GET',
+            cache: 'no-store',
+            credentials: 'include',
+          })
+        }
       }
 
+      if (!response.ok) {
+        setState(AUTH_CONTEXT_INITIAL_STATE)
+        return
+      }
+
+      const data = (await response.json()) as ISessionResponse
       setState({
-        user,
-        isLoggedIn: true,
+        user: data.user,
+        isLoggedIn: data.isLoggedIn,
         isLoading: false,
         error: null,
       })
-    } else {
-      // Token is invalid
-      clearTokens()
+    } catch {
       setState(AUTH_CONTEXT_INITIAL_STATE)
     }
   }, [])
 
-  /**
-   * On mount: Initialize session from localStorage
-   * Also set up callback for when backend returns 401
-   */
   useEffect(() => {
-    initializeSession()
-
-    // When backend returns 401, mark session as invalid
-    const handleSessionInvalid = () => {
-      clearTokens()
-      setState(AUTH_CONTEXT_INITIAL_STATE)
-    }
-
-    setSessionInvalidCallback(handleSessionInvalid)
-
-    return () => {
-      setSessionInvalidCallback(null)
-    }
+    void initializeSession()
   }, [initializeSession])
 
-  /**
-   * Login implementation (called by login API route)
-   * This is passed to Phase 4 API endpoints
-   */
   const login = useCallback(
     async (username: string, password: string) => {
       setLoadingState(true)
 
       try {
         const payload: ILoginRequest = { username, password }
-        const data = await requestAuth<IAuthResponse>('/api/auth/login', {
+        await requestAuth('/api/auth/login', {
           method: 'POST',
           body: JSON.stringify(payload),
         })
 
-        if (!data.accessToken || !data.refreshToken) {
-          throw createAuthError(
-            EAuthErrorCode.UNKNOWN_ERROR,
-            'Invalid auth response from server',
-            500
-          )
-        }
-
-        setTokens(data.accessToken, data.refreshToken)
-        initializeSession()
+        await initializeSession()
         setState(prev => ({
           ...prev,
           isLoading: false,
@@ -255,19 +224,12 @@ export const AuthContextProvider = ({
     setLoadingState(true)
 
     try {
-      const accessToken = getAccessToken()
-      const headers: HeadersInit = accessToken
-        ? { Authorization: `Bearer ${accessToken}` }
-        : {}
-
       await requestAuth('/api/auth/logout', {
         method: 'POST',
-        headers,
       })
     } catch {
       // Always clear local session state even if backend logout fails.
     } finally {
-      clearTokens()
       setState({
         ...AUTH_CONTEXT_INITIAL_STATE,
         isLoading: false,
@@ -279,7 +241,7 @@ export const AuthContextProvider = ({
    * Refetch current session (validate tokens are still valid)
    */
   const refetch = useCallback(async () => {
-    initializeSession()
+    await initializeSession()
   }, [initializeSession])
 
   /**

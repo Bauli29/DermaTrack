@@ -178,7 +178,7 @@ export const formatErrorMessage = (error: IAuthError): string => {
       'Could not refresh session. Please log in again.',
     [EAuthErrorCode.VALIDATION_ERROR]: 'Please check your input and try again',
     [EAuthErrorCode.WEAK_PASSWORD]:
-      'Password must be at least 8 characters with uppercase, lowercase, number, and special character',
+      'Password must be at least 12 characters with uppercase, lowercase, number, and special character',
     [EAuthErrorCode.INVALID_EMAIL]: 'Please enter a valid email address',
     [EAuthErrorCode.INVALID_USERNAME]:
       'Username can only contain letters, numbers, underscores, and hyphens',

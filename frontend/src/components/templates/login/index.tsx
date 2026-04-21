@@ -95,7 +95,7 @@ const LoginTemplate = () => {
         onBlur={() => setPasswordValidation(validatePassword(password))}
         helperText={
           passwordValidation === 'error'
-            ? 'Min. 8 characters, upper/lowercase, number & special character'
+            ? 'Min. 12 characters, upper/lowercase, number & special character'
             : ''
         }
         validation={passwordValidation}
