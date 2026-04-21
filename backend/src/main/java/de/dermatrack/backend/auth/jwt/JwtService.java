@@ -1,6 +1,7 @@
 package de.dermatrack.backend.auth.jwt;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -52,6 +53,7 @@ public class JwtService {
         return Jwts.builder()
                 .issuer(ISSUER)
                 .subject(username)
+                .id(UUID.randomUUID().toString())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(refreshKey)

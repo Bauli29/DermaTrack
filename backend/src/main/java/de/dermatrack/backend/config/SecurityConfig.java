@@ -37,6 +37,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/actuator/health").permitAll();
+                    auth.requestMatchers("/swagger-ui/**").permitAll();
+                    auth.requestMatchers("/api/v3/api-docs/**").permitAll();
                     auth.requestMatchers("/api/auth/**").permitAll();
                     if (isLocal) {
                         auth.requestMatchers("/h2-console/**").permitAll();

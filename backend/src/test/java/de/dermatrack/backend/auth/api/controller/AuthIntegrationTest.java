@@ -236,13 +236,11 @@ class AuthIntegrationTest {
                                 .content(objectMapper.writeValueAsString(Map.of(
                                                 "refreshToken", refreshToken))))
                                 .andExpect(status().isOk());
-
                 // Replay should fail — token was revoked
                 mockMvc.perform(post("/api/auth/refresh")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(Map.of(
                                                 "refreshToken", refreshToken))))
-                                    .andReturn();
-//                                .andExpect(status().isUnauthorized()); HELP WHY DOES THIS FAIL
+                                .andExpect(status().isUnauthorized());
         }
 }
