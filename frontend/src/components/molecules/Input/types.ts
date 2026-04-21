@@ -1,6 +1,12 @@
 import { InputHTMLAttributes } from 'react'
 
-export type TValidationState = 'none' | 'success' | 'error'
+import type { TValidationState } from '../shared/form-field'
+
+export type {
+  IStatusIconProps,
+  IStyledContainerProps,
+  TValidationState,
+} from '../shared/form-field'
 
 export interface IInputProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -14,17 +20,7 @@ export interface IInputProps extends Omit<
   maxWidth?: string
 }
 
-export interface IStyledContainerProps {
-  $fullWidth: boolean
-  $margin?: string
-  $maxWidth?: string
-}
-
 export interface IStyledInputProps {
   $validation: TValidationState
   $disabled?: boolean
-}
-
-export interface IStatusIconProps {
-  $visible: boolean
 }

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { AUTH_COOKIE_NAMES } from '@/constants/auth'
+
 import {
-  AUTH_COOKIE_NAMES,
   callBackendAuth,
   clearAuthCookies,
   forwardBackendResponse,

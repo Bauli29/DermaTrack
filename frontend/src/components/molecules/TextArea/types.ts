@@ -1,6 +1,12 @@
 import { TextareaHTMLAttributes } from 'react'
 
-export type TValidationState = 'none' | 'success' | 'error'
+import type { TValidationState } from '../shared/form-field'
+
+export type {
+  IStatusIconProps,
+  IStyledContainerProps,
+  TValidationState,
+} from '../shared/form-field'
 
 export interface ITextAreaProps extends Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
@@ -14,17 +20,7 @@ export interface ITextAreaProps extends Omit<
   maxWidth?: string
 }
 
-export interface IStyledContainerProps {
-  $fullWidth: boolean
-  $margin?: string
-  $maxWidth?: string
-}
-
 export interface IStyledTextAreaProps {
   $validation: TValidationState
   $disabled?: boolean
-}
-
-export interface IStatusIconProps {
-  $visible: boolean
 }

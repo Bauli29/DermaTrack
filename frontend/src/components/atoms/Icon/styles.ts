@@ -45,10 +45,13 @@ const colorStyles = (theme: ITheme) => ({
   textSecondary: css`
     color: ${theme.colors.textSecondary};
   `,
+  inherit: css`
+    color: inherit;
+  `,
 })
 
 export const Icon = styled.span<IStyledIconProps>`
-  font-family: 'Material Symbols Outlined';
+  font-family: 'Material Symbols Outlined', sans-serif;
   display: inline-flex;
   align-items: center;
   justify-content: center;

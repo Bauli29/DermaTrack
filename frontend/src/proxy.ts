@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { AUTH_COOKIE_NAMES } from '@/constants/auth'
 import { getAuthRedirectPath } from '@/lib/auth-route-guard'
-
-const AUTH_STATE_COOKIE = 'dermatrack_auth'
 
 export const proxy = (request: NextRequest): NextResponse => {
   const { pathname } = request.nextUrl
-  const isLoggedIn = request.cookies.get(AUTH_STATE_COOKIE)?.value === '1'
+  const isLoggedIn =
+    request.cookies.get(AUTH_COOKIE_NAMES.AUTH_STATE)?.value === '1'
   const redirectPath = getAuthRedirectPath(pathname, isLoggedIn)
 
   if (redirectPath) {

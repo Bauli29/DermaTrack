@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { AUTH_COOKIE_NAMES } from '@/constants/auth'
+
 import { EAuthErrorCode } from '@/types/errors'
 
 import {
-  AUTH_COOKIE_NAMES,
   callBackendAuth,
   clearAuthCookies,
   forwardBackendResponse,
+  invalidBackendAuthResponse,
+  readAuthTokens,
   setAuthCookies,
 } from '../_utils'
 
-import type { IAuthResponse } from '@/types/auth'
 export const POST = async (request: NextRequest): Promise<NextResponse> => {
   const refreshToken = request.cookies
     .get(AUTH_COOKIE_NAMES.REFRESH_TOKEN)
@@ -42,21 +44,10 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
     return response
   }
 
-  const tokenResponse = (await backendResponse
-    .json()
-    .catch(() => null)) as IAuthResponse | null
+  const tokenResponse = await readAuthTokens(backendResponse)
 
   if (!tokenResponse?.accessToken || !tokenResponse.refreshToken) {
-    const response = NextResponse.json(
-      {
-        error: 'Invalid auth response from backend',
-        code: EAuthErrorCode.UNKNOWN_ERROR,
-        statusCode: 502,
-      },
-      { status: 502 }
-    )
-    clearAuthCookies(response)
-    return response
+    return invalidBackendAuthResponse(true)
   }
 
   const response = NextResponse.json({ refreshed: true }, { status: 200 })

@@ -19,12 +19,93 @@ import { getHealth } from '@/services/actuator/health'
 import * as SC from './styles'
 import ThemeButton from './temp-theme-button'
 
+import type { TButtonVariant } from '@/components/atoms/Button/types'
+import type { TIconColor, TIconSize } from '@/components/atoms/Icon/types'
+import type { TLinkVariant } from '@/components/atoms/Link/types'
+
+interface IButtonExample {
+  label: string
+  variant: TButtonVariant
+  clickable?: boolean
+}
+
+interface IIconExample {
+  name: string
+  size: TIconSize
+  color: TIconColor
+  ariaLabel?: string
+}
+
+interface ILinkExample {
+  href: string
+  label: string
+  variant?: TLinkVariant
+  showExternalIcon?: boolean
+  underline?: boolean
+  disabled?: boolean
+}
+
+const BUTTON_EXAMPLES: IButtonExample[] = [
+  { label: 'Primary', variant: 'primary', clickable: true },
+  { label: 'Primary Outline', variant: 'primary-outline' },
+  { label: 'Secondary', variant: 'secondary' },
+  { label: 'Secondary Outline', variant: 'secondary-outline' },
+  { label: 'Ghost', variant: 'ghost' },
+  { label: 'Ghost Outline', variant: 'ghost-outline' },
+  { label: 'Danger', variant: 'danger' },
+  { label: 'Danger Outline', variant: 'danger-outline' },
+]
+
+const ICON_EXAMPLES: IIconExample[] = [
+  { name: 'home', size: 'lg', color: 'primary', ariaLabel: 'home button' },
+  { name: 'settings', size: 'md', color: 'secondary' },
+  { name: 'delete', size: 'sm', color: 'error' },
+  { name: 'check_circle', size: 'sm', color: 'error' },
+]
+
+const INTERNAL_LINK_EXAMPLES: ILinkExample[] = [
+  { href: '/test', label: 'Default Link (Test Page)' },
+  { href: '/login', label: 'Primary Link (Login)', variant: 'primary' },
+  {
+    href: '/register',
+    label: 'Secondary Link (Register)',
+    variant: 'secondary',
+  },
+  { href: '/about', label: 'Muted Link (About)', variant: 'muted' },
+  { href: '/contact', label: 'Underlined Link (Contact)', underline: true },
+  { href: '/disabled', label: 'Disabled Link', disabled: true },
+]
+
+const EXTERNAL_LINK_EXAMPLES: ILinkExample[] = [
+  {
+    href: 'https://github.com',
+    label: 'GitHub (with icon)',
+    showExternalIcon: true,
+  },
+  {
+    href: 'https://www.dhbw-mannheim.de',
+    label: 'DHBW Mannheim (Primary)',
+    variant: 'primary',
+    showExternalIcon: true,
+  },
+  {
+    href: 'https://nextjs.org',
+    label: 'Next.js Documentation (Secondary)',
+    variant: 'secondary',
+    showExternalIcon: true,
+    underline: true,
+  },
+  { href: 'https://reactjs.org', label: 'React Docs (no icon)' },
+  {
+    href: 'https://example.com',
+    label: 'Disabled External Link',
+    disabled: true,
+    showExternalIcon: true,
+  },
+]
+
 const TestTemplate = () => {
   const { setTitle } = usePageTitle()
-  useEffect(() => {
-    setTitle('Daily Tracking')
-  }, [setTitle])
-
   const [basicSliderValue, setBasicSliderValue] = useState(50)
   const [temperatureValue, setTemperatureValue] = useState(20)
 
@@ -41,6 +122,10 @@ const TestTemplate = () => {
   const [healthStatus, setHealthStatus] = useState<string>('Loading...')
 
   useEffect(() => {
+    setTitle('Test Page')
+  }, [setTitle])
+
+  useEffect(() => {
     getHealth().then(result => {
       if (result.ok && result.body?.status) {
         setHealthStatus(result.body.status)
@@ -50,334 +135,262 @@ const TestTemplate = () => {
     })
   }, [])
 
+  const handlePrimaryButtonClick = () => {
+    window.alert('Primary button clicked!')
+  }
+
+  const renderLinkExample = (example: ILinkExample) => (
+    <Link
+      key={`${example.href}-${example.label}`}
+      href={example.href}
+      variant={example.variant}
+      showExternalIcon={example.showExternalIcon}
+      underline={example.underline}
+      disabled={example.disabled}
+    >
+      {example.label}
+    </Link>
+  )
+
   return (
     <SC.TestPageWrapper>
       {/* Header is now global (rendered from ClientLayout), so we don't add it here */}
       <ThemeButton />
-      <>
-        <Headline variant='h2' color='critical' align='center'>
-          Backend Health: {healthStatus}
-        </Headline>
-        <Headline variant='h2' color='primary' align='left'>
-          Primary Section
-        </Headline>
-        <Headline variant='h3' color='secondary' align='left' noSpacing>
-          Buttons
-        </Headline>
-        <Button
-          variant='primary'
-          size='md'
-          onClick={() => alert('Primary button clicked!')}
-        >
-          Primary
-        </Button>
-        <Button variant='primary-outline' size='md'>
-          Primary Outline
-        </Button>
-        <Button variant='secondary' size='md'>
-          Secondary
-        </Button>
-        <Button variant='secondary-outline' size='md'>
-          Secondary Outline
-        </Button>
-        <Button variant='ghost' size='md'>
-          Ghost
-        </Button>
-        <Button variant='ghost-outline' size='md'>
-          Ghost Outline
-        </Button>
-        <Button variant='danger' size='md'>
-          Danger
-        </Button>
-        <Button variant='danger-outline' size='md'>
-          Danger Outline
-        </Button>
 
-        <Headline variant='h3' color='secondary' align='left' noSpacing>
-          Icons
-        </Headline>
-        <Icon name='home' size='lg' color='primary' aria-label='home button' />
-        <Icon name='settings' size='md' color='secondary' />
-        <Icon name='delete' size='sm' color='error' />
-        <Icon name='check_circle' size='sm' color='error' />
+      <Headline variant='h2' color='critical' align='center'>
+        Backend Health: {healthStatus}
+      </Headline>
+      <Headline variant='h2' color='primary' align='left'>
+        Primary Section
+      </Headline>
 
-        <Headline variant='h3' color='secondary' align='left' noSpacing>
-          Links
-        </Headline>
-        <Text size='small' color='textMuted' margin='0 0 1rem 0'>
-          Navigation links with automatic internal/external detection
-        </Text>
+      <Headline variant='h3' color='secondary' align='left' noSpacing>
+        Buttons
+      </Headline>
+      <SC.ButtonGrid>
+        {BUTTON_EXAMPLES.map(({ label, variant, clickable }) => (
+          <Button
+            key={variant}
+            variant={variant}
+            size='md'
+            onClick={clickable ? handlePrimaryButtonClick : undefined}
+          >
+            {label}
+          </Button>
+        ))}
+      </SC.ButtonGrid>
 
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.5rem',
-            alignItems: 'center',
-            width: '100%',
-          }}
-        >
-          {/* Internal Links */}
-          <div style={{ width: '100%', maxWidth: '400px' }}>
-            <Text size='small' color='textSecondary' weight={600}>
-              Internal Links:
-            </Text>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem',
-                marginTop: '0.5rem',
-              }}
-            >
-              <Link href='/test'>Default Link (Test Page)</Link>
-              <Link href='/login' variant='primary'>
-                Primary Link (Login)
-              </Link>
-              <Link href='/register' variant='secondary'>
-                Secondary Link (Register)
-              </Link>
-              <Link href='/about' variant='muted'>
-                Muted Link (About)
-              </Link>
-              <Link href='/contact' underline>
-                Underlined Link (Contact)
-              </Link>
-              <Link href='/disabled' disabled>
-                Disabled Link
-              </Link>
-            </div>
-          </div>
+      <Headline variant='h3' color='secondary' align='left' noSpacing>
+        Icons
+      </Headline>
+      <SC.IconRow>
+        {ICON_EXAMPLES.map(({ name, size, color, ariaLabel }) => (
+          <Icon
+            key={`${name}-${size}-${color}`}
+            name={name}
+            size={size}
+            color={color}
+            aria-label={ariaLabel}
+          />
+        ))}
+      </SC.IconRow>
 
-          {/* External Links */}
-          <div style={{ width: '100%', maxWidth: '400px' }}>
-            <Text size='small' color='textSecondary' weight={600}>
-              External Links:
-            </Text>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem',
-                marginTop: '0.5rem',
-              }}
-            >
-              <Link href='https://github.com' showExternalIcon>
-                GitHub (with icon)
-              </Link>
-              <Link
-                href='https://www.dhbw-mannheim.de'
-                variant='primary'
-                showExternalIcon
-              >
-                DHBW Mannheim (Primary)
-              </Link>
-              <Link
-                href='https://nextjs.org'
-                variant='secondary'
-                showExternalIcon
-                underline
-              >
-                Next.js Documentation (Secondary)
-              </Link>
-              <Link href='https://reactjs.org'>React Docs (no icon)</Link>
-              <Link href='https://example.com' disabled showExternalIcon>
-                Disabled External Link
-              </Link>
-            </div>
-          </div>
+      <Headline variant='h3' color='secondary' align='left' noSpacing>
+        Links
+      </Headline>
+      <Text size='small' color='textMuted' margin='0 0 1rem 0'>
+        Navigation links with automatic internal/external detection
+      </Text>
 
-          {/* Links in Text Context */}
-          <div style={{ width: '100%', maxWidth: '600px' }}>
-            <Text size='medium' color='text'>
-              You can also use links inline within text, like this{' '}
-              <Link href='/test' variant='primary'>
-                internal link
-              </Link>{' '}
-              or this{' '}
-              <Link
-                href='https://example.com'
-                variant='primary'
-                showExternalIcon
-              >
-                external link
-              </Link>
-              . They inherit the font size and blend naturally.
-            </Text>
-          </div>
-        </div>
+      <SC.ShowcaseGroup>
+        <SC.ShowcaseColumn $maxWidth='400px'>
+          <Text size='small' color='textSecondary' weight={600}>
+            Internal Links:
+          </Text>
+          <SC.ShowcaseStack>
+            {INTERNAL_LINK_EXAMPLES.map(renderLinkExample)}
+          </SC.ShowcaseStack>
+        </SC.ShowcaseColumn>
 
-        <Headline variant='h3' color='secondary' align='left' noSpacing>
-          Sliders
-        </Headline>
-        <Text size='small' color='textSecondary' noSpacing>
-          Basic Slider (0-100): {basicSliderValue}
-        </Text>
-        <Slider
-          min={0}
-          max={100}
-          value={basicSliderValue}
-          step={1}
-          onChange={setBasicSliderValue}
-          maxWidth='300px'
-          margin='0 0 2rem 0'
-        />
+        <SC.ShowcaseColumn $maxWidth='400px'>
+          <Text size='small' color='textSecondary' weight={600}>
+            External Links:
+          </Text>
+          <SC.ShowcaseStack>
+            {EXTERNAL_LINK_EXAMPLES.map(renderLinkExample)}
+          </SC.ShowcaseStack>
+        </SC.ShowcaseColumn>
 
-        <Text size='small' color='textSecondary' noSpacing>
-          Temperature Slider (-10°C to 40°C): {temperatureValue}°C
-        </Text>
-        <Slider
-          min={-10}
-          max={40}
-          value={temperatureValue}
-          step={0.5}
-          color='secondary'
-          onChange={setTemperatureValue}
-          width='250px'
-          margin='0 0 1rem 0'
-        />
+        <SC.ShowcaseColumn $maxWidth='600px'>
+          <Text size='medium' color='text'>
+            You can also use links inline within text, like this{' '}
+            <Link href='/test' variant='primary'>
+              internal link
+            </Link>{' '}
+            or this{' '}
+            <Link href='https://example.com' variant='primary' showExternalIcon>
+              external link
+            </Link>
+            . They inherit the font size and blend naturally.
+          </Text>
+        </SC.ShowcaseColumn>
+      </SC.ShowcaseGroup>
 
-        <Headline variant='h3' color='secondary' align='left' noSpacing>
-          Text
-        </Headline>
-        <Text size='small' color='textMuted'>
-          Small muted text for helper captions or descriptions.
-        </Text>
-        <Text size='medium' color='text'>
-          Medium default body text. This should be the go-to size on mobile for
-          readability.
-        </Text>
-        <Text size='large' color='text' weight={500}>
-          Large text with semi-bold weight for emphasis while remaining
-          body-style.
-        </Text>
-        <Text size='medium' color='primary' align='center'>
-          Center-aligned primary colored text.
-        </Text>
-        <Text size='medium' color='secondary' align='right'>
-          Right-aligned secondary colored text.
-        </Text>
-        <Text size='small' color='text' truncate style={{ maxWidth: '200px' }}>
+      <Headline variant='h3' color='secondary' align='left' noSpacing>
+        Sliders
+      </Headline>
+      <Text size='small' color='textSecondary' noSpacing>
+        Basic Slider (0-100): {basicSliderValue}
+      </Text>
+      <Slider
+        min={0}
+        max={100}
+        value={basicSliderValue}
+        step={1}
+        onChange={setBasicSliderValue}
+        maxWidth='300px'
+        margin='0 0 2rem 0'
+      />
+
+      <Text size='small' color='textSecondary' noSpacing>
+        Temperature Slider (-10 deg C to 40 deg C): {temperatureValue} deg C
+      </Text>
+      <Slider
+        min={-10}
+        max={40}
+        value={temperatureValue}
+        step={0.5}
+        color='secondary'
+        onChange={setTemperatureValue}
+        width='250px'
+        margin='0 0 1rem 0'
+      />
+
+      <Headline variant='h3' color='secondary' align='left' noSpacing>
+        Text
+      </Headline>
+      <Text size='small' color='textMuted'>
+        Small muted text for helper captions or descriptions.
+      </Text>
+      <Text size='medium' color='text'>
+        Medium default body text. This should be the go-to size on mobile for
+        readability.
+      </Text>
+      <Text size='large' color='text' weight={500}>
+        Large text with semi-bold weight for emphasis while remaining
+        body-style.
+      </Text>
+      <Text size='medium' color='primary' align='center'>
+        Center-aligned primary colored text.
+      </Text>
+      <Text size='medium' color='secondary' align='right'>
+        Right-aligned secondary colored text.
+      </Text>
+      <SC.ConstrainedTextBlock $maxWidth='200px'>
+        <Text size='small' color='text' truncate>
           This is a very long line that will be truncated with an ellipsis when
           it exceeds the container width.
         </Text>
-        <Text
-          size='small'
-          color='text'
-          maxLines={2}
-          style={{ maxWidth: '220px' }}
-        >
+      </SC.ConstrainedTextBlock>
+      <SC.ConstrainedTextBlock $maxWidth='220px'>
+        <Text size='small' color='text' maxLines={2}>
           This is a longer paragraph that will be clamped to two lines. If the
           text exceeds two lines, it will be gracefully truncated while
           maintaining readability across different screen sizes.
         </Text>
-        <Text size='medium' color='textMuted' noWrap>
-          No-wrap text: will not break into multiple lines even if the container
-          is narrow.
-        </Text>
+      </SC.ConstrainedTextBlock>
+      <Text size='medium' color='textMuted' noWrap>
+        No-wrap text: will not break into multiple lines even if the container
+        is narrow.
+      </Text>
 
-        <Headline variant='h3' color='secondary' align='left' noSpacing>
-          Input Fields (Single-Line)
-        </Headline>
-        <Text size='small' color='textMuted' margin='0 0 1rem 0'>
-          For single-line data: names, emails, passwords, URLs, etc.
-        </Text>
+      <Headline variant='h3' color='secondary' align='left' noSpacing>
+        Input Fields (Single-Line)
+      </Headline>
+      <Text size='small' color='textMuted' margin='0 0 1rem 0'>
+        For single-line data: names, emails, passwords, URLs, etc.
+      </Text>
 
-        {/* Input: Name */}
-        <Input
-          label='Full Name'
-          type='text'
-          placeholder='Enter your name'
-          value={name}
-          onChange={e => setName(e.target.value)}
-          helperText='First and last name'
-          margin='0 0 1rem 0'
-        />
+      <Input
+        label='Full Name'
+        type='text'
+        placeholder='Enter your name'
+        value={name}
+        onChange={e => setName(e.target.value)}
+        helperText='First and last name'
+        margin='0 0 1rem 0'
+      />
+      <Input
+        label='Email Address'
+        type='email'
+        placeholder='you@example.com'
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        validation='success'
+        helperText='Valid email format'
+        margin='0 0 1rem 0'
+      />
+      <Input
+        label='Password'
+        type='password'
+        placeholder='Enter password'
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        validation='error'
+        helperText='Password must be at least 12 characters'
+        margin='0 0 1rem 0'
+      />
+      <Input
+        label='Username'
+        type='text'
+        value='john_doe'
+        disabled
+        helperText='Cannot be changed'
+        margin='0 0 1rem 0'
+      />
 
-        {/* Input: Email with success */}
-        <Input
-          label='Email Address'
-          type='email'
-          placeholder='you@example.com'
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          validation='success'
-          helperText='Valid email format'
-          margin='0 0 1rem 0'
-        />
+      <Headline variant='h3' color='secondary' align='left' noSpacing>
+        Text Areas (Multi-Line)
+      </Headline>
+      <Text size='small' color='textMuted' margin='0 0 1rem 0'>
+        For longer content: descriptions, notes, comments, feedback
+      </Text>
 
-        {/* Input: Password with error */}
-        <Input
-          label='Password'
-          type='password'
-          placeholder='Enter password'
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          validation='error'
-          helperText='Password must be at least 12 characters'
-          margin='0 0 1rem 0'
-        />
-
-        {/* Input: Disabled */}
-        <Input
-          label='Username'
-          type='text'
-          value='john_doe'
-          disabled
-          helperText='Cannot be changed'
-          margin='0 0 1rem 0'
-        />
-
-        <Headline variant='h3' color='secondary' align='left' noSpacing>
-          Text Areas (Multi-Line)
-        </Headline>
-        <Text size='small' color='textMuted' margin='0 0 1rem 0'>
-          For longer content: descriptions, notes, comments, feedback
-        </Text>
-
-        {/* TextArea: Default with character count */}
-        <TextArea
-          label='Description'
-          placeholder='Describe your symptoms in detail...'
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          helperText={`${description.length} characters`}
-          margin='0 0 1rem 0'
-          rows={4}
-        />
-
-        {/* TextArea: Success state */}
-        <TextArea
-          label='Feedback'
-          placeholder='Share your thoughts...'
-          value={feedback}
-          onChange={e => setFeedback(e.target.value)}
-          validation='success'
-          helperText='Thank you for your feedback!'
-          margin='0 0 1rem 0'
-          rows={3}
-        />
-
-        {/* TextArea: Error state with character limit */}
-        <TextArea
-          label='Additional Notes'
-          placeholder='Add any additional information...'
-          value={errorText}
-          onChange={e => setErrorText(e.target.value)}
-          validation='error'
-          helperText='This field is required (min 20 characters)'
-          margin='0 0 1rem 0'
-          rows={5}
-        />
-
-        {/* TextArea: Disabled */}
-        <TextArea
-          label='Read-only Information'
-          value='This field is disabled and cannot be edited. It contains important information that should not be modified.'
-          disabled
-          rows={3}
-        />
-      </>
+      <TextArea
+        label='Description'
+        placeholder='Describe your symptoms in detail...'
+        value={description}
+        onChange={e => setDescription(e.target.value)}
+        helperText={`${description.length} characters`}
+        margin='0 0 1rem 0'
+        rows={4}
+      />
+      <TextArea
+        label='Feedback'
+        placeholder='Share your thoughts...'
+        value={feedback}
+        onChange={e => setFeedback(e.target.value)}
+        validation='success'
+        helperText='Thank you for your feedback!'
+        margin='0 0 1rem 0'
+        rows={3}
+      />
+      <TextArea
+        label='Additional Notes'
+        placeholder='Add any additional information...'
+        value={errorText}
+        onChange={e => setErrorText(e.target.value)}
+        validation='error'
+        helperText='This field is required (min 20 characters)'
+        margin='0 0 1rem 0'
+        rows={5}
+      />
+      <TextArea
+        label='Read-only Information'
+        value='This field is disabled and cannot be edited. It contains important information that should not be modified.'
+        disabled
+        rows={3}
+      />
     </SC.TestPageWrapper>
   )
 }

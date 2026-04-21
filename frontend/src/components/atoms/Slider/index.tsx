@@ -1,9 +1,15 @@
 'use client'
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import * as SC from './styles'
 import { ISliderProps } from './types'
+import {
+  getNextSliderValueForKey,
+  getSliderPercentage,
+  getSliderValueFromClientX,
+  normalizeSliderValue,
+} from './utils'
 
 const Slider = ({
   value,
@@ -16,71 +22,72 @@ const Slider = ({
   width,
   maxWidth,
   margin,
+  onMouseDown,
+  onTouchStart,
+  onKeyDown,
+  'aria-label': ariaLabel,
   ...props
 }: ISliderProps) => {
   const [isDragging, setIsDragging] = useState(false)
   const sliderRef = useRef<HTMLDivElement>(null)
+  const sliderConfig = useMemo(() => ({ min, max, step }), [min, max, step])
 
-  // Calculate percentage for positioning
-  const percentage = ((value - min) / (max - min)) * 100
+  const percentage = getSliderPercentage(value, sliderConfig)
 
-  // Clamp value within bounds and round to step
-  const clampValue = useCallback(
+  const emitNormalizedValue = useCallback(
     (val: number) => {
-      const clamped = Math.min(Math.max(val, min), max)
-      return Math.round(clamped / step) * step
+      onChange(normalizeSliderValue(val, sliderConfig))
     },
-    [min, max, step]
+    [onChange, sliderConfig]
   )
 
-  // Calculate value from mouse position
   const calculateValueFromPosition = useCallback(
     (clientX: number) => {
-      if (!sliderRef.current) return value
+      if (!sliderRef.current) {
+        return value
+      }
 
-      const rect = sliderRef.current.getBoundingClientRect()
-      const percentage = Math.min(
-        Math.max((clientX - rect.left) / rect.width, 0),
-        1
+      return getSliderValueFromClientX(
+        clientX,
+        sliderRef.current.getBoundingClientRect(),
+        sliderConfig
       )
-      const newValue = min + percentage * (max - min)
-
-      return clampValue(newValue)
     },
-    [min, max, clampValue, value]
+    [sliderConfig, value]
   )
 
-  // Handle mouse/touch start
   const handleStart = useCallback(
     (clientX: number) => {
       if (disabled) return
 
       const newValue = calculateValueFromPosition(clientX)
       setIsDragging(true)
-      onChange(newValue)
+      emitNormalizedValue(newValue)
     },
-    [disabled, calculateValueFromPosition, onChange]
+    [disabled, calculateValueFromPosition, emitNormalizedValue]
   )
 
-  // Handle mouse/touch move
   const handleMove = useCallback(
     (clientX: number) => {
       if (!isDragging || disabled) return
 
       const newValue = calculateValueFromPosition(clientX)
-      onChange(newValue)
+      emitNormalizedValue(newValue)
     },
-    [isDragging, disabled, calculateValueFromPosition, onChange]
+    [isDragging, disabled, calculateValueFromPosition, emitNormalizedValue]
   )
 
-  // Handle mouse/touch end
   const handleEnd = useCallback(() => {
     if (!isDragging) return
     setIsDragging(false)
   }, [isDragging])
 
-  // Mouse event handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleSliderMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    onMouseDown?.(e)
+    if (e.defaultPrevented) {
+      return
+    }
+
     e.preventDefault()
     handleStart(e.clientX)
   }
@@ -96,8 +103,12 @@ const Slider = ({
     handleEnd()
   }, [handleEnd])
 
-  // Touch event handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleSliderTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    onTouchStart?.(e)
+    if (e.defaultPrevented) {
+      return
+    }
+
     if (e.touches.length === 1) {
       handleStart(e.touches[0].clientX)
     }
@@ -117,7 +128,24 @@ const Slider = ({
     handleEnd()
   }, [handleEnd])
 
-  // Setup global mouse/touch event listeners
+  const handleThumbKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      onKeyDown?.(e)
+      if (e.defaultPrevented || disabled) {
+        return
+      }
+
+      const nextValue = getNextSliderValueForKey(e.key, value, sliderConfig)
+      if (nextValue === null || nextValue === value) {
+        return
+      }
+
+      e.preventDefault()
+      onChange(nextValue)
+    },
+    [disabled, onChange, onKeyDown, sliderConfig, value]
+  )
+
   useEffect(() => {
     if (!isDragging) return
 
@@ -143,12 +171,12 @@ const Slider = ({
   return (
     <SC.SliderWrapper
       ref={sliderRef}
-      onMouseDown={handleMouseDown}
-      onTouchStart={handleTouchStart}
       $width={width}
       $maxWidth={maxWidth}
       $margin={margin}
       {...props}
+      onMouseDown={handleSliderMouseDown}
+      onTouchStart={handleSliderTouchStart}
     >
       <SC.SliderTrack $color={color} $disabled={disabled}>
         <SC.SliderFill
@@ -169,7 +197,9 @@ const Slider = ({
         aria-valuemax={max}
         aria-valuenow={value}
         aria-disabled={disabled}
-        aria-label={props['aria-label'] ?? 'Slider'}
+        aria-label={ariaLabel ?? 'Slider'}
+        aria-orientation='horizontal'
+        onKeyDown={handleThumbKeyDown}
       />
     </SC.SliderWrapper>
   )

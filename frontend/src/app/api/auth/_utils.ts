@@ -3,79 +3,44 @@ import { z } from 'zod'
 
 import { insecureFetch } from '@/lib/backend-client'
 
-import { createAuthError, EAuthErrorCode, parseApiError } from '@/types/errors'
+import { AUTH_COOKIE_NAMES } from '@/constants/auth'
 
-import { EmailSchema, PasswordSchema } from '@/validation/auth'
+import { createAuthError, EAuthErrorCode } from '@/types/errors'
+
+import {
+  normalizeBackendError,
+  readAuthTokens,
+  type IAuthApiErrorResponse,
+} from './backend-error-utils'
+import {
+  LoginRequestSchema,
+  RefreshRequestSchema,
+  RegisterRequestSchema,
+  UsernameSchema,
+} from './schema-utils'
+import {
+  createAuthenticatedSessionResponse,
+  createUnauthenticatedSessionResponse,
+} from './session-utils'
+import {
+  extractUsernameFromAccessToken,
+  getTokenMaxAge,
+  isAccessTokenExpired,
+} from './token-utils'
 
 const BACKEND_AUTH_BASE_PATH = '/api/auth'
 
-export const AUTH_COOKIE_NAMES = {
-  ACCESS_TOKEN: 'dermatrack_access_token',
-  REFRESH_TOKEN: 'dermatrack_refresh_token',
-  AUTH_STATE: 'dermatrack_auth',
-} as const
-
-export interface IAuthApiErrorResponse {
-  error: string
-  code: EAuthErrorCode
-  statusCode: number
-  details?: string[]
-}
-
-interface IBackendErrorBody {
-  error?: string
-  message?: string
-  details?: unknown
-  statusCode?: number
-}
-
-interface ITokenPayload {
-  sub?: string
-  exp?: number
-}
-
-const decodeTokenPayload = (token: string): ITokenPayload | null => {
-  try {
-    const parts = token.split('.')
-    if (parts.length !== 3) {
-      return null
-    }
-
-    const payload = JSON.parse(
-      Buffer.from(parts[1], 'base64url').toString('utf-8')
-    ) as ITokenPayload
-
-    return payload
-  } catch {
-    return null
-  }
-}
-
-const getTokenMaxAge = (token: string, fallbackSeconds: number): number => {
-  const payload = decodeTokenPayload(token)
-  if (typeof payload?.exp !== 'number') {
-    return fallbackSeconds
-  }
-
-  const nowSeconds = Math.floor(Date.now() / 1000)
-  return Math.max(0, payload.exp - nowSeconds)
-}
-
-export const extractUsernameFromAccessToken = (
-  token: string
-): string | null => {
-  const payload = decodeTokenPayload(token)
-  return typeof payload?.sub === 'string' ? payload.sub : null
-}
-
-export const isAccessTokenExpired = (token: string): boolean => {
-  const payload = decodeTokenPayload(token)
-  if (typeof payload?.exp !== 'number') {
-    return true
-  }
-
-  const nowSeconds = Math.floor(Date.now() / 1000)
-  return payload.exp <= nowSeconds
+export type { IAuthApiErrorResponse }
+export {
+  createAuthenticatedSessionResponse,
+  createUnauthenticatedSessionResponse,
+  extractUsernameFromAccessToken,
+  isAccessTokenExpired,
+  LoginRequestSchema,
+  readAuthTokens,
+  RefreshRequestSchema,
+  RegisterRequestSchema,
+  UsernameSchema,
 }
 
 export const setAuthCookies = (
@@ -125,103 +90,32 @@ export const clearAuthCookies = (response: NextResponse): void => {
   response.cookies.set(AUTH_COOKIE_NAMES.AUTH_STATE, '0', clearCookie)
 }
 
-const getBackendErrorMessage = (
-  body: IBackendErrorBody,
-  fallbackMessage: string
-): string => {
-  if (typeof body.error === 'string') {
-    return body.error
-  }
-
-  if (typeof body.message === 'string') {
-    return body.message
-  }
-
-  return fallbackMessage
-}
-
-const getStringDetails = (details: unknown): string[] | undefined => {
-  if (!Array.isArray(details)) {
-    return undefined
-  }
-
-  const stringDetails = details.filter(
-    (detail): detail is string => typeof detail === 'string'
-  )
-
-  return stringDetails.length > 0 ? stringDetails : undefined
-}
-
-const normalizeBackendError = async (
-  response: Response
-): Promise<IAuthApiErrorResponse> => {
-  const defaultError = createAuthError(
-    EAuthErrorCode.UNKNOWN_ERROR,
-    'An error occurred',
-    response.status
-  )
-
-  const contentType = response.headers.get('content-type') ?? ''
-
-  if (!contentType.includes('application/json')) {
-    const text = await response.text().catch(() => '')
-    const message = text.trim().length > 0 ? text : defaultError.message
-
-    return {
-      error: message,
-      code: EAuthErrorCode.UNKNOWN_ERROR,
-      statusCode: response.status,
-    }
-  }
-
-  const body = (await response
-    .json()
-    .catch(() => null)) as IBackendErrorBody | null
-  const safeBody = body ?? {}
-  const backendError = parseApiError(
+export const invalidBackendAuthResponse = (
+  clearCookies = false
+): NextResponse => {
+  const response = NextResponse.json(
     {
-      error: getBackendErrorMessage(safeBody, defaultError.message),
-      details: getStringDetails(safeBody.details),
-      message: getBackendErrorMessage(safeBody, defaultError.message),
-      statusCode:
-        typeof safeBody.statusCode === 'number'
-          ? safeBody.statusCode
-          : response.status,
+      error: 'Invalid auth response from backend',
+      code: EAuthErrorCode.UNKNOWN_ERROR,
+      statusCode: 502,
     },
-    response.status
+    { status: 502 }
   )
 
-  return {
-    error: backendError.message,
-    code: backendError.code,
-    statusCode: backendError.statusCode ?? response.status,
-    details: getStringDetails(safeBody.details),
+  if (clearCookies) {
+    clearAuthCookies(response)
   }
+
+  return response
 }
 
-export const UsernameSchema = z
-  .string()
-  .min(3, 'Username must be at least 3 characters')
-  .max(50, 'Username must be at most 50 characters')
-  .regex(
-    /^[a-zA-Z0-9_-]+$/,
-    'Username can only contain letters, numbers, underscores and hyphens'
-  )
-
-export const LoginRequestSchema = z.object({
-  username: UsernameSchema,
-  password: z.string().min(1, 'Password is required'),
-})
-
-export const RegisterRequestSchema = z.object({
-  username: UsernameSchema,
-  email: EmailSchema,
-  password: PasswordSchema,
-})
-
-export const RefreshRequestSchema = z.object({
-  refreshToken: z.string().min(1, 'Refresh token is required'),
-})
+export const unauthenticatedSessionResponse = (): NextResponse => {
+  const response = NextResponse.json(createUnauthenticatedSessionResponse(), {
+    status: 401,
+  })
+  clearAuthCookies(response)
+  return response
+}
 
 export const readJsonBody = async <T>(request: Request): Promise<T | null> => {
   try {

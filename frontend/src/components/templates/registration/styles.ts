@@ -53,18 +53,3 @@ export const CheckboxLabel = styled.label`
     opacity: 0.5;
   }
 `
-
-export const Link = styled.a`
-  color: ${({ theme }) => theme.colors.primary};
-  text-decoration: underline;
-
-  &:hover {
-    text-decoration: none;
-  }
-
-  &:focus {
-    outline: 2px solid ${({ theme }) => theme.colors.primary};
-    outline-offset: 2px;
-    border-radius: 2px;
-  }
-`

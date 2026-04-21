@@ -3,6 +3,8 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
 import Button from '@/components/atoms/Button'
+import Link from '@/components/atoms/Link'
+import Text from '@/components/atoms/Text'
 
 import Input from '@/components/molecules/Input'
 
@@ -15,6 +17,14 @@ import {
   validatePassword,
   validateUsername,
 } from '@/validation/auth'
+import {
+  CONFIRM_PASSWORD_HELPER_TEXT,
+  EMAIL_HELPER_TEXT,
+  getValidationHelperText,
+  PASSWORD_HELPER_TEXT,
+  USERNAME_HELPER_TEXT,
+  validateRegistrationForm,
+} from '@/validation/auth/form-utils'
 
 import * as SC from './styles'
 
@@ -49,23 +59,20 @@ const RegistrationTemplate = () => {
     e.preventDefault()
     clearError()
 
-    const uv = validateUsername(username)
-    const ev = validateEmail(email)
-    const pv = validatePassword(password)
-    const cpv = validateConfirmPassword(confirmPassword, password)
+    const validationResult = validateRegistrationForm({
+      username,
+      email,
+      password,
+      confirmPassword,
+      acceptTerms,
+    })
 
-    setUsernameValidation(uv)
-    setEmailValidation(ev)
-    setPasswordValidation(pv)
-    setConfirmPasswordValidation(cpv)
+    setUsernameValidation(validationResult.username)
+    setEmailValidation(validationResult.email)
+    setPasswordValidation(validationResult.password)
+    setConfirmPasswordValidation(validationResult.confirmPassword)
 
-    if (
-      uv === 'success' &&
-      ev === 'success' &&
-      pv === 'success' &&
-      cpv === 'success' &&
-      acceptTerms
-    ) {
+    if (validationResult.isValid) {
       try {
         await register(username, email, password)
         router.push('/login')
@@ -77,11 +84,13 @@ const RegistrationTemplate = () => {
 
   const isFormValid = useMemo(
     () =>
-      validateUsername(username) === 'success' &&
-      validateEmail(email) === 'success' &&
-      validatePassword(password) === 'success' &&
-      validateConfirmPassword(confirmPassword, password) === 'success' &&
-      acceptTerms,
+      validateRegistrationForm({
+        username,
+        email,
+        password,
+        confirmPassword,
+        acceptTerms,
+      }).isValid,
     [username, email, password, confirmPassword, acceptTerms]
   )
 
@@ -99,11 +108,10 @@ const RegistrationTemplate = () => {
           clearError()
         }}
         onBlur={() => setUsernameValidation(validateUsername(username))}
-        helperText={
-          usernameValidation === 'error'
-            ? '3-50 chars; letters, numbers, _ and - only'
-            : ''
-        }
+        helperText={getValidationHelperText(
+          usernameValidation,
+          USERNAME_HELPER_TEXT
+        )}
         validation={usernameValidation}
         margin='1rem 0 0 0'
       />
@@ -141,7 +149,7 @@ const RegistrationTemplate = () => {
           clearError()
         }}
         onBlur={() => setEmailValidation(validateEmail(email))}
-        helperText={emailValidation === 'error' ? 'Invalid email' : ''}
+        helperText={getValidationHelperText(emailValidation, EMAIL_HELPER_TEXT)}
         validation={emailValidation}
         margin='0 0 1rem 0'
       />
@@ -163,11 +171,10 @@ const RegistrationTemplate = () => {
           clearError()
         }}
         onBlur={() => setPasswordValidation(validatePassword(password))}
-        helperText={
-          passwordValidation === 'error'
-            ? 'Min. 12 characters, upper/lowercase, number & special character'
-            : ''
-        }
+        helperText={getValidationHelperText(
+          passwordValidation,
+          PASSWORD_HELPER_TEXT
+        )}
         validation={passwordValidation}
         margin='0 0 1rem 0'
       />
@@ -188,14 +195,19 @@ const RegistrationTemplate = () => {
             validateConfirmPassword(confirmPassword, password)
           )
         }
-        helperText={
-          confirmPasswordValidation === 'error' ? 'Passwords do not match' : ''
-        }
+        helperText={getValidationHelperText(
+          confirmPasswordValidation,
+          CONFIRM_PASSWORD_HELPER_TEXT
+        )}
         validation={confirmPasswordValidation}
         margin='0 0 1rem 0'
       />
 
-      {error && <p role='alert'>{error}</p>}
+      {error && (
+        <Text as='p' color='error' role='alert' margin='0 0 1rem 0'>
+          {error}
+        </Text>
+      )}
 
       <SC.CheckboxContainer>
         <SC.Checkbox
@@ -208,13 +220,13 @@ const RegistrationTemplate = () => {
         />
         <SC.CheckboxLabel htmlFor='accept-terms'>
           I agree to the{' '}
-          <SC.Link href='/terms' target='_blank'>
+          <Link href='/terms' variant='primary' underline target='_blank'>
             Terms of Service
-          </SC.Link>{' '}
+          </Link>{' '}
           and{' '}
-          <SC.Link href='/privacy' target='_blank'>
+          <Link href='/privacy' variant='primary' underline target='_blank'>
             Privacy Policy
-          </SC.Link>
+          </Link>
         </SC.CheckboxLabel>
       </SC.CheckboxContainer>
 

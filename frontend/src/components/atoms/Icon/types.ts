@@ -8,6 +8,7 @@ export type TIconColor =
   | 'info'
   | 'success'
   | 'textSecondary'
+  | 'inherit'
 
 export type TIconSize = 'sm' | 'md' | 'lg'
 

@@ -30,6 +30,21 @@ describe('auth error helpers', () => {
     expect(parsed.message).toBe('Incorrect email or password')
   })
 
+  it('falls back to message fields and preserves validation text when needed', () => {
+    const parsed = parseApiError(
+      { error: 'Validation failed', message: 'x' },
+      422
+    )
+    const fallback = parseApiError(
+      { error: '', message: 'Backend sent a message' },
+      500
+    )
+
+    expect(parsed.code).toBe(EAuthErrorCode.VALIDATION_ERROR)
+    expect(parsed.message).toBe('Validation failed')
+    expect(fallback.message).toBe('Backend sent a message')
+  })
+
   it('formats known error messages for UI', () => {
     const message = formatErrorMessage({
       code: EAuthErrorCode.SESSION_EXPIRED,
@@ -37,6 +52,15 @@ describe('auth error helpers', () => {
     })
 
     expect(message).toContain('session has expired')
+  })
+
+  it('keeps explicit unknown-error messages for UI output', () => {
+    const message = formatErrorMessage({
+      code: EAuthErrorCode.UNKNOWN_ERROR,
+      message: 'Custom fallback',
+    })
+
+    expect(message).toBe('Custom fallback')
   })
 
   it('recognizes auth and session errors with type guards', () => {

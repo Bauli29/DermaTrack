@@ -1,94 +1,43 @@
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-import { secureFetch } from '@/lib/backend-client'
 import {
-  isValidationError,
-  validateRequestOrThrow,
-} from '@/lib/validation-helper'
-
-import { IDiaryEntry } from '@/types/diary'
-
-import { DiaryEntrySchema } from '@/validation/diary'
+  createDiaryMutationErrorResponse,
+  createDiaryServerErrorResponse,
+  forwardDiaryResponse,
+  proxyDiaryRequest,
+  readValidatedDiaryBody,
+} from './_utils'
 
 /**
  * GET /api/diary - Fetch all diary entries
- * @returns NextResponse with array of diary entries or error message
+ * @returns Response with array of diary entries or error message
  */
-export const GET = async (request: NextRequest): Promise<NextResponse> => {
+export const GET = async (request: NextRequest): Promise<Response> => {
   try {
-    const accessToken = request.cookies.get('dermatrack_access_token')?.value
-    const response = await secureFetch('/api/diary', {
+    const response = await proxyDiaryRequest(request, {
       method: 'GET',
       cache: 'no-store',
-      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     })
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      return NextResponse.json(
-        errorData ?? { error: 'Failed to fetch diary entries' },
-        { status: response.status }
-      )
-    }
-
-    const data: IDiaryEntry[] = await response.json()
-
-    return NextResponse.json(data, { status: 200 })
+    return forwardDiaryResponse(response, 'Failed to fetch diary entries')
   } catch {
-    return NextResponse.json(
-      { error: 'Internal server error while fetching diary entries' },
-      { status: 500 }
-    )
+    return createDiaryServerErrorResponse('fetching')
   }
 }
 
 /**
  * POST /api/diary - Create a new diary entry
  * @param request - The incoming Next.js request object containing diary entry data
- * @returns NextResponse with the created diary entry or validation/error message
+ * @returns Response with the created diary entry or validation/error message
  */
-export const POST = async (request: NextRequest): Promise<NextResponse> => {
+export const POST = async (request: NextRequest): Promise<Response> => {
   try {
-    const accessToken = request.cookies.get('dermatrack_access_token')?.value
-    const body = await request.json()
-
-    // Validate and throw if invalid
-    const validatedData = validateRequestOrThrow(DiaryEntrySchema, body)
-
-    const response = await secureFetch('/api/diary', {
+    const validatedData = await readValidatedDiaryBody(request)
+    const response = await proxyDiaryRequest(request, {
       method: 'POST',
       body: JSON.stringify(validatedData),
-      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     })
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      return NextResponse.json(
-        errorData ?? { error: 'Failed to create diary entry' },
-        { status: response.status }
-      )
-    }
-
-    const createdEntry: IDiaryEntry = await response.json()
-
-    return NextResponse.json(createdEntry, { status: 201 })
+    return forwardDiaryResponse(response, 'Failed to create diary entry')
   } catch (error) {
-    // Handle validation errors
-    if (isValidationError(error)) {
-      return NextResponse.json(error.validationError, { status: 400 })
-    }
-
-    // Handle JSON parsing errors
-    if (error instanceof SyntaxError) {
-      return NextResponse.json(
-        { error: 'Invalid JSON in request body' },
-        { status: 400 }
-      )
-    }
-
-    return NextResponse.json(
-      { error: 'Internal server error while creating diary entry' },
-      { status: 500 }
-    )
+    return createDiaryMutationErrorResponse(error, 'creating')
   }
 }

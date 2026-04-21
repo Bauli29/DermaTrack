@@ -109,6 +109,16 @@ export const ImagePreviewItem = styled.div`
   text-align: center;
 `
 
+export const ImagePreviewContent = styled.div`
+  width: 100%;
+  padding: 6px;
+`
+
+export const ImagePreviewName = styled.div`
+  margin-bottom: 4px;
+  word-break: break-word;
+`
+
 export const FileInputLabel = styled.label`
   display: inline-flex;
   align-items: center;

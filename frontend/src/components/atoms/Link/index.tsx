@@ -36,7 +36,7 @@ const Link = ({
         {children}
         {showExternalIcon && (
           <SC.ExternalIcon aria-hidden='true'>
-            <Icon name='open_in_new' size='sm' style={{ color: 'inherit' }} />
+            <Icon name='open_in_new' size='sm' color='inherit' />
           </SC.ExternalIcon>
         )}
       </SC.ExternalLinkWrapper>

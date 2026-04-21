@@ -39,7 +39,7 @@ const Input = ({
           htmlFor={fieldId}
           size='small'
           color='text'
-          style={{ marginBottom: '0.375rem', cursor: 'pointer' }}
+          margin='0 0 0.375rem 0'
         >
           {label}
         </Text>
@@ -71,7 +71,7 @@ const Input = ({
           id={helperId}
           size='small'
           color={showError ? 'error' : 'textMuted'}
-          style={{ marginTop: '0.5rem' }}
+          margin='0.5rem 0 0 0'
         >
           {helperText}
         </Text>

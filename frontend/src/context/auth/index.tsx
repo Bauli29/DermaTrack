@@ -8,29 +8,25 @@ import {
   useState,
 } from 'react'
 
-import {
-  createAuthError,
-  EAuthErrorCode,
-  formatErrorMessage,
-  isAuthError,
-  parseApiError,
-} from '@/types/errors'
-
 import { AUTH_CONTEXT_DEFAULT_VALUE, AUTH_CONTEXT_INITIAL_STATE } from './types'
+import { AUTH_API_PATHS, loadSession, requestAuth } from './api'
+import {
+  createAuthErrorState,
+  createCompletedAuthState,
+  createLoadingAuthState,
+  createLoggedOutAuthState,
+  createSessionAuthState,
+  normalizeAuthActionError,
+} from './state-utils'
 
 import type {
   IAuthContext,
   IAuthContextState,
   ILoginRequest,
   IRegisterRequest,
+  ISessionResponse,
 } from '@/types/auth'
-import type { IUser } from '@/types/auth'
-import type { IApiErrorResponse, IAuthError } from '@/types/errors'
-
-interface ISessionResponse {
-  isLoggedIn: boolean
-  user: IUser | null
-}
+import type { IAuthError } from '@/types/errors'
 
 /**
  * Auth context for global auth state management
@@ -56,129 +52,78 @@ export const AuthContextProvider = ({
   )
 
   const setLoadingState = useCallback((isLoading: boolean) => {
-    setState(prev => ({
-      ...prev,
-      isLoading,
-      error: isLoading ? null : prev.error,
-    }))
+    setState(prev => createLoadingAuthState(prev, isLoading))
   }, [])
 
-  const parseResponseError = useCallback(async (response: Response) => {
-    const fallbackMessage = 'Authentication request failed'
-    const body = (await response
-      .json()
-      .catch(() => null)) as IApiErrorResponse | null
-
-    if (body) {
-      return parseApiError(body, response.status)
-    }
-
-    return createAuthError(
-      EAuthErrorCode.UNKNOWN_ERROR,
-      fallbackMessage,
-      response.status
-    )
+  const applySessionState = useCallback((session: ISessionResponse | null) => {
+    setState(createSessionAuthState(session))
   }, [])
 
-  const requestAuth = useCallback(
-    async <T,>(path: string, options: RequestInit): Promise<T> => {
-      const response = await fetch(path, {
-        ...options,
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-      })
+  const finalizeAuthAction = useCallback(() => {
+    setState(prev => createCompletedAuthState(prev))
+  }, [])
 
-      if (!response.ok) {
-        throw await parseResponseError(response)
-      }
+  const setAuthActionError = useCallback(
+    (error: unknown, fallbackMessage: string): IAuthError => {
+      const authError = normalizeAuthActionError(error, fallbackMessage)
 
-      if (response.status === 204) {
-        return {} as T
-      }
+      setState(prev => createAuthErrorState(prev, authError))
 
-      return (await response.json()) as T
+      return authError
     },
-    [parseResponseError]
+    []
   )
 
   const initializeSession = useCallback(async () => {
     try {
-      let response = await fetch('/api/auth/session', {
-        method: 'GET',
-        cache: 'no-store',
-        credentials: 'include',
-      })
-
-      if (response.status === 401) {
-        const refreshResponse = await fetch('/api/auth/refresh', {
-          method: 'POST',
-          credentials: 'include',
-        })
-
-        if (refreshResponse.ok) {
-          response = await fetch('/api/auth/session', {
-            method: 'GET',
-            cache: 'no-store',
-            credentials: 'include',
-          })
-        }
-      }
-
-      if (!response.ok) {
-        setState(AUTH_CONTEXT_INITIAL_STATE)
-        return
-      }
-
-      const data = (await response.json()) as ISessionResponse
-      setState({
-        user: data.user,
-        isLoggedIn: data.isLoggedIn,
-        isLoading: false,
-        error: null,
-      })
+      const session = await loadSession()
+      applySessionState(session)
     } catch {
       setState(AUTH_CONTEXT_INITIAL_STATE)
     }
-  }, [])
+  }, [applySessionState])
 
   useEffect(() => {
     void initializeSession()
   }, [initializeSession])
 
-  const login = useCallback(
-    async (username: string, password: string) => {
+  const executeAuthAction = useCallback(
+    async ({
+      request,
+      onSuccess,
+      fallbackMessage,
+    }: {
+      request: () => Promise<unknown>
+      onSuccess: () => Promise<void> | void
+      fallbackMessage: string
+    }) => {
       setLoadingState(true)
 
       try {
-        const payload: ILoginRequest = { username, password }
-        await requestAuth('/api/auth/login', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        })
-
-        await initializeSession()
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: null,
-        }))
+        await request()
+        await onSuccess()
       } catch (error) {
-        const authError: IAuthError = isAuthError(error)
-          ? error
-          : createAuthError(EAuthErrorCode.UNKNOWN_ERROR, 'Login failed')
-
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: formatErrorMessage(authError),
-        }))
-        throw authError
+        throw setAuthActionError(error, fallbackMessage)
       }
     },
-    [initializeSession, requestAuth, setLoadingState]
+    [setAuthActionError, setLoadingState]
+  )
+
+  const login = useCallback(
+    async (username: string, password: string) => {
+      const payload: ILoginRequest = { username, password }
+
+      await executeAuthAction({
+        request: () =>
+          requestAuth(AUTH_API_PATHS.LOGIN, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          }),
+        onSuccess: initializeSession,
+        fallbackMessage: 'Login failed',
+      })
+    },
+    [executeAuthAction, initializeSession]
   )
 
   /**
@@ -186,34 +131,19 @@ export const AuthContextProvider = ({
    */
   const register = useCallback(
     async (username: string, email: string, password: string) => {
-      setLoadingState(true)
+      const payload: IRegisterRequest = { username, email, password }
 
-      try {
-        const payload: IRegisterRequest = { username, email, password }
-        await requestAuth('/api/auth/register', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        })
-
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: null,
-        }))
-      } catch (error) {
-        const authError: IAuthError = isAuthError(error)
-          ? error
-          : createAuthError(EAuthErrorCode.UNKNOWN_ERROR, 'Registration failed')
-
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: formatErrorMessage(authError),
-        }))
-        throw authError
-      }
+      await executeAuthAction({
+        request: () =>
+          requestAuth(AUTH_API_PATHS.REGISTER, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          }),
+        onSuccess: finalizeAuthAction,
+        fallbackMessage: 'Registration failed',
+      })
     },
-    [requestAuth, setLoadingState]
+    [executeAuthAction, finalizeAuthAction]
   )
 
   /**
@@ -224,18 +154,15 @@ export const AuthContextProvider = ({
     setLoadingState(true)
 
     try {
-      await requestAuth('/api/auth/logout', {
+      await requestAuth(AUTH_API_PATHS.LOGOUT, {
         method: 'POST',
       })
     } catch {
       // Always clear local session state even if backend logout fails.
     } finally {
-      setState({
-        ...AUTH_CONTEXT_INITIAL_STATE,
-        isLoading: false,
-      })
+      setState(createLoggedOutAuthState())
     }
-  }, [requestAuth, setLoadingState])
+  }, [setLoadingState])
 
   /**
    * Refetch current session (validate tokens are still valid)

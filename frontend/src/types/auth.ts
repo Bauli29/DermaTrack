@@ -14,6 +14,14 @@ export interface IUser {
 }
 
 /**
+ * Session contract returned by the frontend auth session route
+ */
+export interface ISessionResponse {
+  isLoggedIn: boolean
+  user: IUser | null
+}
+
+/**
  * Token pair returned from backend on successful login/register
  * Both tokens are JWT signed by backend
  */

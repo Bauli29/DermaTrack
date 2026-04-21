@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 
 import Button from '@/components/atoms/Button'
+import Text from '@/components/atoms/Text'
 
 import Input from '@/components/molecules/Input'
 
@@ -10,6 +11,12 @@ import { useAuth } from '@/hooks/use-auth'
 import { usePageTitle } from '@/hooks/use-page-title'
 
 import { validatePassword, validateUsername } from '@/validation/auth'
+import {
+  getValidationHelperText,
+  PASSWORD_HELPER_TEXT,
+  USERNAME_HELPER_TEXT,
+  validateLoginForm,
+} from '@/validation/auth/form-utils'
 
 import * as SC from './styles'
 
@@ -35,12 +42,11 @@ const LoginTemplate = () => {
     e.preventDefault()
     clearError()
 
-    const uv = validateUsername(username)
-    const pv = validatePassword(password)
-    setUsernameValidation(uv)
-    setPasswordValidation(pv)
+    const validationResult = validateLoginForm(username, password)
+    setUsernameValidation(validationResult.username)
+    setPasswordValidation(validationResult.password)
 
-    if (uv === 'success' && pv === 'success') {
+    if (validationResult.isValid) {
       try {
         await login(username, password)
         const nextPath = new URLSearchParams(window.location.search).get('next')
@@ -52,9 +58,7 @@ const LoginTemplate = () => {
   }
 
   const isFormValid = useMemo(
-    () =>
-      validateUsername(username) === 'success' &&
-      validatePassword(password) === 'success',
+    () => validateLoginForm(username, password).isValid,
     [username, password]
   )
 
@@ -72,11 +76,10 @@ const LoginTemplate = () => {
           clearError()
         }}
         onBlur={() => setUsernameValidation(validateUsername(username))}
-        helperText={
-          usernameValidation === 'error'
-            ? '3-50 chars; letters, numbers, _ and - only'
-            : ''
-        }
+        helperText={getValidationHelperText(
+          usernameValidation,
+          USERNAME_HELPER_TEXT
+        )}
         validation={usernameValidation}
         margin='1rem 0 1rem 0'
       />
@@ -93,16 +96,19 @@ const LoginTemplate = () => {
           clearError()
         }}
         onBlur={() => setPasswordValidation(validatePassword(password))}
-        helperText={
-          passwordValidation === 'error'
-            ? 'Min. 12 characters, upper/lowercase, number & special character'
-            : ''
-        }
+        helperText={getValidationHelperText(
+          passwordValidation,
+          PASSWORD_HELPER_TEXT
+        )}
         validation={passwordValidation}
         margin='0 0 1rem 0'
       />
 
-      {error && <p role='alert'>{error}</p>}
+      {error && (
+        <Text as='p' color='error' role='alert' margin='0 0 1rem 0'>
+          {error}
+        </Text>
+      )}
 
       <Button
         variant='primary'

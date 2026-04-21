@@ -34,7 +34,13 @@ const TextArea = ({
   return (
     <SC.Container $fullWidth={fullWidth} $margin={margin} $maxWidth={maxWidth}>
       {label && (
-        <Text size='small' color='text' style={{ marginBottom: '0.375rem' }}>
+        <Text
+          as='label'
+          htmlFor={fieldId}
+          size='small'
+          color='text'
+          margin='0 0 0.375rem 0'
+        >
           {label}
         </Text>
       )}
@@ -65,7 +71,7 @@ const TextArea = ({
           id={helperId}
           size='small'
           color={showError ? 'error' : 'textMuted'}
-          style={{ marginTop: '0.5rem' }}
+          margin='0.5rem 0 0 0'
         >
           {helperText}
         </Text>
