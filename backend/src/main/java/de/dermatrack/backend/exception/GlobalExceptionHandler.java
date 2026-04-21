@@ -1,6 +1,14 @@
 package de.dermatrack.backend.exception;
 
-import lombok.extern.slf4j.Slf4j;
+import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import de.dermatrack.backend.exception.auth.EmailAlreadyExistsException;
+import de.dermatrack.backend.exception.auth.InvalidCredentialsException;
+import de.dermatrack.backend.exception.auth.InvalidRefreshTokenException;
+import de.dermatrack.backend.exception.auth.UsernameAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -16,10 +24,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
 @Slf4j
@@ -29,9 +34,10 @@ public class GlobalExceptionHandler {
      * Handle validation errors from @Valid annotations
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex,
+            WebRequest request) {
         log.warn("Validation error: {}", ex.getMessage());
-        
+
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
@@ -55,9 +61,10 @@ public class GlobalExceptionHandler {
      * Handle validation errors from @Validated annotations
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex,
+            WebRequest request) {
         log.warn("Constraint violation: {}", ex.getMessage());
-        
+
         Map<String, String> errors = new HashMap<>();
         for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
             String fieldName = violation.getPropertyPath().toString();
@@ -81,7 +88,8 @@ public class GlobalExceptionHandler {
      * Handle malformed JSON requests
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex,
+            WebRequest request) {
         log.warn("Malformed JSON request: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -99,13 +107,14 @@ public class GlobalExceptionHandler {
      * Handle type mismatch errors (e.g., invalid UUID format)
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleTypeMismatchException(MethodArgumentTypeMismatchException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleTypeMismatchException(MethodArgumentTypeMismatchException ex,
+            WebRequest request) {
         log.warn("Type mismatch error: {}", ex.getMessage());
 
         Class<?> requiredType = ex.getRequiredType();
         String expectedType = requiredType != null ? requiredType.getSimpleName() : "Unknown";
-            
-        String message = String.format("Invalid value '%s' for parameter '%s'. Expected type: %s", 
+
+        String message = String.format("Invalid value '%s' for parameter '%s'. Expected type: %s",
                 ex.getValue(), ex.getName(), expectedType);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -123,7 +132,8 @@ public class GlobalExceptionHandler {
      * Handle IllegalArgumentException (from your service layer)
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex,
+            WebRequest request) {
         log.warn("Illegal argument: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -141,7 +151,8 @@ public class GlobalExceptionHandler {
      * Handle resource not found exceptions
      */
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex,
+            WebRequest request) {
         log.warn("Resource not found: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -153,6 +164,42 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    /**
+     * Handle duplicate username or email during registration
+     */
+    @ExceptionHandler({ UsernameAlreadyExistsException.class, EmailAlreadyExistsException.class })
+    public ResponseEntity<ErrorResponse> handleConflictException(RuntimeException ex, WebRequest request) {
+        log.warn("Conflict: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(OffsetDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error("Conflict")
+                .message(ex.getMessage())
+                .path(request.getDescription(false).replace("uri=", ""))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    /**
+     * Handle invalid credentials or refresh tokens
+     */
+    @ExceptionHandler({ InvalidCredentialsException.class, InvalidRefreshTokenException.class })
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(RuntimeException ex, WebRequest request) {
+        log.warn("Unauthorized: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(OffsetDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error("Unauthorized")
+                .message(ex.getMessage())
+                .path(request.getDescription(false).replace("uri=", ""))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
     /**
@@ -177,7 +224,8 @@ public class GlobalExceptionHandler {
      * Handle missing request parameters
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponse> handleMissingParams(MissingServletRequestParameterException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleMissingParams(MissingServletRequestParameterException ex,
+            WebRequest request) {
         log.warn("Missing request parameter: {}", ex.getMessage());
 
         String parameterName = ex.getParameterName();
@@ -198,7 +246,8 @@ public class GlobalExceptionHandler {
      * Handle unsupported HTTP methods
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex,
+            WebRequest request) {
         log.warn("HTTP method not supported: {}", ex.getMessage());
 
         String method = ex.getMethod();

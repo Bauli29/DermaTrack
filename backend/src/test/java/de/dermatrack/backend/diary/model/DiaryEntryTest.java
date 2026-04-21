@@ -1,4 +1,4 @@
-package de.dermatrack.backend.diary.api.model;
+package de.dermatrack.backend.diary.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import de.dermatrack.backend.auth.api.model.AppUser;
+import de.dermatrack.backend.auth.model.AppUser;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

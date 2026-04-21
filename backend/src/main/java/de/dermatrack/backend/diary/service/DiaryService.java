@@ -6,8 +6,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.dermatrack.backend.diary.api.model.DiaryEntry;
-import de.dermatrack.backend.diary.api.repository.IDiaryEntryRepository;
+import de.dermatrack.backend.diary.model.DiaryEntry;
+import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 import de.dermatrack.backend.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

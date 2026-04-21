@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import de.dermatrack.backend.auth.api.model.AppUser;
-import de.dermatrack.backend.auth.api.repository.IAppUserRepository;
+import de.dermatrack.backend.auth.model.AppUser;
+import de.dermatrack.backend.auth.repository.IAppUserRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration

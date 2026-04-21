@@ -27,6 +27,9 @@ app:
   auth:
     username: _
     password: _
+  jwt:
+    access-secret: local-dev-access-secret-must-be-at-least-32bytes!
+    refresh-secret: local-dev-refresh-secret-must-be-at-least-32bytes!
   mockdata:
     enabled: true
 

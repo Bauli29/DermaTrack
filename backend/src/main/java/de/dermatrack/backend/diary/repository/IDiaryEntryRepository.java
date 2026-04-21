@@ -1,11 +1,11 @@
-package de.dermatrack.backend.diary.api.repository;
+package de.dermatrack.backend.diary.repository;
 
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import de.dermatrack.backend.diary.api.model.DiaryEntry;
+import de.dermatrack.backend.diary.model.DiaryEntry;
 
 @Repository
 public interface IDiaryEntryRepository extends JpaRepository<DiaryEntry, UUID> {

@@ -1,4 +1,4 @@
-package de.dermatrack.backend.auth.api.model;
+package de.dermatrack.backend.auth.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

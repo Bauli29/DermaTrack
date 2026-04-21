@@ -1,4 +1,4 @@
-package de.dermatrack.backend.auth.api.repository;
+package de.dermatrack.backend.auth.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import de.dermatrack.backend.auth.repository.IAppUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import de.dermatrack.backend.auth.api.model.AppUser;
+import de.dermatrack.backend.auth.model.AppUser;
 
 /**
  * Integration tests for AppUser Repository

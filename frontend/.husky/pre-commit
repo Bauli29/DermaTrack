@@ -32,6 +32,12 @@ if [ "$frontend_changed" = true ]; then
 
   echo "Running lint check..."
   pnpm run lint:check
+
+  echo "Running tests..."
+  pnpm run test
+
+  echo "Running build..."
+  pnpm run build
 fi
 
 if [ "$backend_changed" = true ]; then

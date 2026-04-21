@@ -24,10 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import de.dermatrack.backend.auth.api.model.AppUser;
-import de.dermatrack.backend.auth.api.repository.IAppUserRepository;
-import de.dermatrack.backend.diary.api.model.DiaryEntry;
-import de.dermatrack.backend.diary.api.repository.IDiaryEntryRepository;
+import de.dermatrack.backend.auth.model.AppUser;
+import de.dermatrack.backend.auth.repository.IAppUserRepository;
+import de.dermatrack.backend.diary.model.DiaryEntry;
+import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 
 /**
  * Integration tests for DiaryController

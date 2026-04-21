@@ -1,4 +1,4 @@
-package de.dermatrack.backend.auth.api.model;
+package de.dermatrack.backend.auth.model;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;

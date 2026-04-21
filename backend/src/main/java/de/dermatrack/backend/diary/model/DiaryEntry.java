@@ -1,4 +1,4 @@
-package de.dermatrack.backend.diary.api.model;
+package de.dermatrack.backend.diary.model;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -8,7 +8,7 @@ import org.hibernate.annotations.UuidGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import de.dermatrack.backend.auth.api.model.AppUser;
+import de.dermatrack.backend.auth.model.AppUser;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

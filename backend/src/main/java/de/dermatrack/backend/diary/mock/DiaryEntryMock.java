@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import de.dermatrack.backend.auth.api.model.AppUser;
-import de.dermatrack.backend.diary.api.model.DiaryEntry;
-import de.dermatrack.backend.diary.api.repository.IDiaryEntryRepository;
+import de.dermatrack.backend.auth.model.AppUser;
+import de.dermatrack.backend.diary.model.DiaryEntry;
+import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 

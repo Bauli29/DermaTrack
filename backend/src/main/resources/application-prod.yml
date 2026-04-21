@@ -10,6 +10,9 @@ app:
   auth:
     username: ${AUTH_USERNAME}
     password: ${AUTH_PASSWORD}
+  jwt:
+    access-secret: ${JWT_ACCESS_SECRET}
+    refresh-secret: ${JWT_REFRESH_SECRET}
 
 logging:
   level:

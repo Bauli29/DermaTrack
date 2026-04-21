@@ -20,9 +20,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import de.dermatrack.backend.auth.api.model.AppUser;
-import de.dermatrack.backend.diary.api.model.DiaryEntry;
-import de.dermatrack.backend.diary.api.repository.IDiaryEntryRepository;
+import de.dermatrack.backend.auth.model.AppUser;
+import de.dermatrack.backend.diary.model.DiaryEntry;
+import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 import de.dermatrack.backend.exception.ResourceNotFoundException;
 
 /**

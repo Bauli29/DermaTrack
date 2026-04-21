@@ -9,6 +9,7 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
+    open-in-view: false
   h2:
     console:
       enabled: false
@@ -21,6 +22,9 @@ app:
   auth:
     username: testuser
     password: testpassword
+  jwt:
+    access-secret: test-access-secret-test-access-secret-32bytes!
+    refresh-secret: test-refresh-secret-test-refresh-secret-32bytes!
   mockdata:
     enabled: false
 

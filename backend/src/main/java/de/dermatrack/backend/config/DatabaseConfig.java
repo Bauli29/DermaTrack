@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
-import de.dermatrack.backend.auth.api.model.AppUser;
+import de.dermatrack.backend.auth.model.AppUser;
 import de.dermatrack.backend.auth.mock.AppUserMock;
 import de.dermatrack.backend.diary.mock.DiaryEntryMock;
 import lombok.RequiredArgsConstructor;

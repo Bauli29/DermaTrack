@@ -1,4 +1,4 @@
-package de.dermatrack.backend.auth.api.repository;
+package de.dermatrack.backend.auth.repository;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import de.dermatrack.backend.auth.api.model.RefreshToken;
+import de.dermatrack.backend.auth.model.RefreshToken;
 
 @Repository
 public interface IRefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {

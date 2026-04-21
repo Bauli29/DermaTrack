@@ -8,13 +8,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.dermatrack.backend.auth.api.model.AppUser;
-import de.dermatrack.backend.auth.api.repository.IAppUserRepository;
+import de.dermatrack.backend.auth.model.AppUser;
+import de.dermatrack.backend.auth.repository.IAppUserRepository;
 import de.dermatrack.backend.diary.api.dto.DiaryEntryCreateRequest;
 import de.dermatrack.backend.diary.api.dto.DiaryEntryResponse;
 import de.dermatrack.backend.diary.api.dto.DiaryEntryUpdateRequest;
 import de.dermatrack.backend.diary.api.mapper.DiaryEntryMapper;
-import de.dermatrack.backend.diary.api.model.DiaryEntry;
+import de.dermatrack.backend.diary.model.DiaryEntry;
 import de.dermatrack.backend.diary.service.DiaryService;
 import de.dermatrack.backend.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;

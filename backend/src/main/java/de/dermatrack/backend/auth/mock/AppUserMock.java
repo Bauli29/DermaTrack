@@ -6,8 +6,8 @@ import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import de.dermatrack.backend.auth.api.model.AppUser;
-import de.dermatrack.backend.auth.api.repository.IAppUserRepository;
+import de.dermatrack.backend.auth.model.AppUser;
+import de.dermatrack.backend.auth.repository.IAppUserRepository;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 

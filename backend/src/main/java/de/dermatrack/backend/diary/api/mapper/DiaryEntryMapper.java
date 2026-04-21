@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import de.dermatrack.backend.diary.api.dto.DiaryEntryCreateRequest;
 import de.dermatrack.backend.diary.api.dto.DiaryEntryResponse;
 import de.dermatrack.backend.diary.api.dto.DiaryEntryUpdateRequest;
-import de.dermatrack.backend.diary.api.model.DiaryEntry;
+import de.dermatrack.backend.diary.model.DiaryEntry;
 
 @Component
 public class DiaryEntryMapper {

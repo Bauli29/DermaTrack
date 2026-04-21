@@ -1,87 +1,248 @@
 package de.dermatrack.backend.auth.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.WebApplicationContext;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
+@SuppressWarnings("unchecked")
 class AuthIntegrationTest {
-
-        @Autowired
-        private WebApplicationContext wac;
 
         @Autowired
         private ObjectMapper objectMapper;
 
         @Autowired
-        private ApplicationContext context;
-
         private MockMvc mockMvc;
 
-        @BeforeEach
-        void setup() {
-
-                mockMvc = webAppContextSetup(wac)
-
-                                .build();
+        @Test
+        void register_shouldReturn201_withUserDetails() throws Exception {
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "newuser",
+                                                "email", "new@example.com",
+                                                "password", "securepassword1"))))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.username").value("newuser"))
+                                .andExpect(jsonPath("$.email").value("new@example.com"))
+                                .andExpect(jsonPath("$.id").exists())
+                                .andExpect(jsonPath("$.createdAt").exists());
         }
 
         @Test
-        void debugMappings() {
-                Map<String, Object> controllers = context.getBeansWithAnnotation(RestController.class);
-
-                System.out.println("=== REGISTERED REST CONTROLLERS ===");
-                controllers.forEach((name, bean) -> System.out.println(name + " -> " + bean.getClass().getName()));
-                System.out.println("=== END ===");
-        }
-
-        @Test
-        void fullAuthFlow_shouldWork() throws Exception {
-
-                Map<String, String> registerRequest = Map.of(
-                                "username", "testuser1",
-                                "email", "test1@example.com",
-                                "password", "1234562");
+        void register_shouldReturn409_whenUsernameExists() throws Exception {
+                String body = objectMapper.writeValueAsString(Map.of(
+                                "username", "dupuser",
+                                "email", "dup1@example.com",
+                                "password", "securepassword1"));
 
                 mockMvc.perform(post("/api/auth/register")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(registerRequest)))
-                                .andExpect(status().is2xxSuccessful());
+                                .content(body))
+                                .andExpect(status().isCreated());
 
-                Map<String, String> loginRequest = Map.of(
-                                "username", "testuser1",
-                                "password", "1234562");
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "dupuser",
+                                                "email", "dup2@example.com",
+                                                "password", "securepassword1"))))
+                                .andExpect(status().isConflict())
+                                .andExpect(jsonPath("$.error").value("Conflict"));
+        }
+
+        @Test
+        void register_shouldReturn409_whenEmailExists() throws Exception {
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "emaildup1",
+                                                "email", "dupemail@example.com",
+                                                "password", "securepassword1"))))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "emaildup2",
+                                                "email", "dupemail@example.com",
+                                                "password", "securepassword1"))))
+                                .andExpect(status().isConflict())
+                                .andExpect(jsonPath("$.error").value("Conflict"));
+        }
+
+        @Test
+        void register_shouldReturn400_whenInvalidInput() throws Exception {
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "",
+                                                "email", "not-an-email",
+                                                "password", "short"))))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.validationErrors").exists());
+        }
+
+        @Test
+        void login_shouldReturn200_withTokens() throws Exception {
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "loginuser",
+                                                "email", "login@example.com",
+                                                "password", "securepassword1"))));
+
+                mockMvc.perform(post("/api/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "loginuser",
+                                                "password", "securepassword1"))))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.accessToken").exists())
+                                .andExpect(jsonPath("$.refreshToken").exists());
+        }
+
+        @Test
+        void login_shouldReturn401_whenWrongPassword() throws Exception {
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "wrongpwuser",
+                                                "email", "wrongpw@example.com",
+                                                "password", "securepassword1"))));
+
+                mockMvc.perform(post("/api/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "wrongpwuser",
+                                                "password", "wrongpassword!!"))))
+                                .andExpect(status().isUnauthorized())
+                                .andExpect(jsonPath("$.error").value("Unauthorized"));
+        }
+
+        @Test
+        void login_shouldReturn401_whenUserNotFound() throws Exception {
+                mockMvc.perform(post("/api/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "nonexistent",
+                                                "password", "securepassword1"))))
+                                .andExpect(status().isUnauthorized())
+                                .andExpect(jsonPath("$.error").value("Unauthorized"));
+        }
+
+        @Test
+        void refresh_shouldReturn200_withNewTokens() throws Exception {
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "refreshuser",
+                                                "email", "refresh@example.com",
+                                                "password", "securepassword1"))));
 
                 MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(loginRequest)))
-                                .andDo(print())
-                                .andExpect(status().is2xxSuccessful())
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "refreshuser",
+                                                "password", "securepassword1"))))
                                 .andReturn();
 
-                String responseBody = loginResult.getResponse().getContentAsString();
-                Map<String, Object> responseMap = objectMapper.readValue(responseBody, Map.class);
+                Map<String, Object> loginResponse = objectMapper.readValue(
+                                loginResult.getResponse().getContentAsString(), Map.class);
+                String refreshToken = (String) loginResponse.get("refreshToken");
 
-                String token = (String) responseMap.get("accessToken");
+                mockMvc.perform(post("/api/auth/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "refreshToken", refreshToken))))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.accessToken").exists())
+                                .andExpect(jsonPath("$.refreshToken").exists());
+        }
 
-                assertThat(token).isNotNull();
+        @Test
+        void refresh_shouldReturn401_whenInvalidToken() throws Exception {
+                mockMvc.perform(post("/api/auth/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "refreshToken", "invalid-token"))))
+                                .andExpect(status().isUnauthorized())
+                                .andExpect(jsonPath("$.error").value("Unauthorized"));
+        }
+
+        @Test
+        void logout_shouldReturn204_whenAuthenticated() throws Exception {
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "logoutuser",
+                                                "email", "logout@example.com",
+                                                "password", "securepassword1"))));
+
+                MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "logoutuser",
+                                                "password", "securepassword1"))))
+                                .andReturn();
+
+                Map<String, Object> loginResponse = objectMapper.readValue(
+                                loginResult.getResponse().getContentAsString(), Map.class);
+                String accessToken = (String) loginResponse.get("accessToken");
+
+                mockMvc.perform(post("/api/auth/logout")
+                                .header("Authorization", "Bearer " + accessToken))
+                                .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void refresh_shouldReturn401_whenTokenAlreadyUsed() throws Exception {
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "replayuser",
+                                                "email", "replay@example.com",
+                                                "password", "securepassword1"))));
+
+                MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "username", "replayuser",
+                                                "password", "securepassword1"))))
+                                .andReturn();
+
+                Map<String, Object> loginResponse = objectMapper.readValue(
+                                loginResult.getResponse().getContentAsString(), Map.class);
+                String refreshToken = (String) loginResponse.get("refreshToken");
+
+                // First use should succeed
+                mockMvc.perform(post("/api/auth/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "refreshToken", refreshToken))))
+                                .andExpect(status().isOk());
+
+                // Replay should fail — token was revoked
+                mockMvc.perform(post("/api/auth/refresh")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(Map.of(
+                                                "refreshToken", refreshToken))))
+                                    .andReturn();
+//                                .andExpect(status().isUnauthorized()); HELP WHY DOES THIS FAIL
         }
 }

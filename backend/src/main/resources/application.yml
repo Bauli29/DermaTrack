@@ -23,6 +23,30 @@ spring:
     deserialization:
       fail-on-unknown-properties: true
 
+app:
+  jwt:
+    access-secret: ${JWT_ACCESS_SECRET:default-dev-access-secret-must-be-at-least-32bytes!}
+    refresh-secret: ${JWT_REFRESH_SECRET:default-dev-refresh-secret-must-be-at-least-32bytes!}
+    access-expiration-ms: 900000
+    refresh-expiration-ms: 604800000
+  security:
+    cors:
+      allowed-origins:
+        - http://localhost:3000
+        - https://derma-track.vercel.app
+      allowed-methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowed-headers:
+        - Authorization
+        - Content-Type
+        - Accept
+      allow-credentials: true
+      max-age-seconds: 3600
+
 server:
   port: ${PORT:8080}
   tomcat:
@@ -49,22 +73,3 @@ logging:
     "[org.hibernate.SQL]": WARN
     "[org.springdoc]": DEBUG
     "[web]": DEBUG
-
-app:
-  security:
-    cors:
-      allowed-origins:
-        - http://localhost:3000
-        - https://derma-track.vercel.app
-      allowed-methods:
-        - GET
-        - POST
-        - PUT
-        - DELETE
-        - OPTIONS
-      allowed-headers:
-        - Authorization
-        - Content-Type
-        - Accept
-      allow-credentials: true
-      max-age-seconds: 3600

@@ -6,6 +6,7 @@ import static org.springframework.http.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN;
 import static org.springframework.http.HttpHeaders.ORIGIN;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,7 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
         "app.security.cors.max-age-seconds=600"
 })
 @AutoConfigureMockMvc
-@ActiveProfiles("local-h2")
+@ActiveProfiles("test")
 @DisplayName("Security Configuration Integration Tests")
 class SecurityConfigurationIntegrationTest {
 
@@ -56,5 +58,28 @@ class SecurityConfigurationIntegrationTest {
                 .andExpect(header().string("X-Content-Type-Options", "nosniff"))
                 .andExpect(header().string("Referrer-Policy", "no-referrer"))
                 .andExpect(header().string("Permissions-Policy", "camera=(), geolocation=(), microphone=()"));
+    }
+
+    @Test
+    @DisplayName("Auth endpoints should be publicly accessible")
+    void authEndpoints_shouldBePublic() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"x\",\"password\":\"y\"}"))
+                .andExpect(status().isUnauthorized()); // 401 from InvalidCredentialsException, not 403
+    }
+
+    @Test
+    @DisplayName("Protected endpoints should return 401 without token")
+    void protectedEndpoints_shouldRequireAuth() throws Exception {
+        mockMvc.perform(get("/api/diary"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("Health endpoint should be publicly accessible")
+    void healthEndpoint_shouldBePublic() throws Exception {
+        mockMvc.perform(get("/actuator/health"))
+                .andExpect(status().isOk());
     }
 }

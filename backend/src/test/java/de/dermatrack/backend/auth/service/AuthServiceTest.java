@@ -1,19 +1,15 @@
 package de.dermatrack.backend.auth.service;
 
-import de.dermatrack.backend.auth.api.dto.AuthResponse;
-import de.dermatrack.backend.auth.api.dto.LoginRequest;
-import de.dermatrack.backend.auth.api.dto.RegisterRequest;
-import de.dermatrack.backend.auth.api.model.AppUser;
-import de.dermatrack.backend.auth.api.model.RefreshToken;
-import de.dermatrack.backend.auth.api.repository.IAppUserRepository;
-import de.dermatrack.backend.auth.api.repository.IRefreshTokenRepository;
-import de.dermatrack.backend.auth.jwt.JwtService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -21,8 +17,27 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import de.dermatrack.backend.auth.api.dto.AuthResponse;
+import de.dermatrack.backend.auth.api.dto.LoginRequest;
+import de.dermatrack.backend.auth.api.dto.RegisterRequest;
+import de.dermatrack.backend.auth.jwt.JwtService;
+import de.dermatrack.backend.auth.model.AppUser;
+import de.dermatrack.backend.auth.model.RefreshToken;
+import de.dermatrack.backend.auth.repository.IAppUserRepository;
+import de.dermatrack.backend.auth.repository.IRefreshTokenRepository;
+import de.dermatrack.backend.exception.auth.EmailAlreadyExistsException;
+import de.dermatrack.backend.exception.auth.InvalidCredentialsException;
+import de.dermatrack.backend.exception.auth.InvalidRefreshTokenException;
+import de.dermatrack.backend.exception.auth.UsernameAlreadyExistsException;
 
 @ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)
 class AuthServiceTest {
@@ -42,6 +57,11 @@ class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+
     @Test
     void register_shouldSaveUser_whenValid() {
         RegisterRequest request = new RegisterRequest();
@@ -52,9 +72,14 @@ class AuthServiceTest {
         when(userRepository.existsByUsername("user")).thenReturn(false);
         when(userRepository.existsByEmail("mail@test.com")).thenReturn(false);
         when(passwordEncoder.encode("pass")).thenReturn("encoded");
+        when(userRepository.save(any(AppUser.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        authService.register(request);
+        AppUser result = authService.register(request);
 
+        assertNotNull(result);
+        assertEquals("user", result.getUsername());
+        assertEquals("encoded", result.getPassword());
+        assertEquals("mail@test.com", result.getEmail());
         verify(userRepository).save(argThat(user -> user.getUsername().equals("user") &&
                 user.getPassword().equals("encoded") &&
                 user.getEmail().equals("mail@test.com")));
@@ -69,7 +94,7 @@ class AuthServiceTest {
 
         when(userRepository.existsByUsername("user")).thenReturn(true);
 
-        assertThrows(RuntimeException.class, () -> authService.register(request));
+        assertThrows(UsernameAlreadyExistsException.class, () -> authService.register(request));
         verify(userRepository, never()).save(any());
     }
 
@@ -83,7 +108,7 @@ class AuthServiceTest {
         when(userRepository.existsByUsername("user")).thenReturn(false);
         when(userRepository.existsByEmail("mail@test.com")).thenReturn(true);
 
-        assertThrows(RuntimeException.class, () -> authService.register(request));
+        assertThrows(EmailAlreadyExistsException.class, () -> authService.register(request));
         verify(userRepository, never()).save(any());
     }
 
@@ -99,7 +124,7 @@ class AuthServiceTest {
 
         when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("pass", "encoded")).thenReturn(true);
-        when(jwtService.generateAccessTokens("user")).thenReturn("access");
+        when(jwtService.generateAccessToken("user")).thenReturn("access");
         when(jwtService.generateRefreshToken("user")).thenReturn("refresh");
         when(jwtService.extractRefreshTokenExpiration("refresh"))
                 .thenReturn(Date.from(OffsetDateTime.now(ZoneOffset.UTC).plusDays(7).toInstant()));
@@ -119,7 +144,7 @@ class AuthServiceTest {
 
         when(userRepository.findByUsername("user")).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> authService.login(request));
+        assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
     }
 
     @Test
@@ -135,7 +160,7 @@ class AuthServiceTest {
         when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("pass", "encoded")).thenReturn(false);
 
-        assertThrows(RuntimeException.class, () -> authService.login(request));
+        assertThrows(InvalidCredentialsException.class, () -> authService.login(request));
     }
 
     @Test
@@ -154,7 +179,7 @@ class AuthServiceTest {
 
         when(refreshTokenRepository.findByTokenAndRevokedFalse(oldToken)).thenReturn(Optional.of(persistedToken));
         when(jwtService.isRefreshTokenValid(oldToken)).thenReturn(true);
-        when(jwtService.generateAccessTokens("user")).thenReturn("newAccess");
+        when(jwtService.generateAccessToken("user")).thenReturn("newAccess");
         when(jwtService.generateRefreshToken("user")).thenReturn("newRefresh");
         when(jwtService.extractRefreshTokenExpiration("newRefresh"))
                 .thenReturn(Date.from(OffsetDateTime.now(ZoneOffset.UTC).plusDays(7).toInstant()));
@@ -182,7 +207,25 @@ class AuthServiceTest {
         when(refreshTokenRepository.findByTokenAndRevokedFalse("bad")).thenReturn(Optional.of(persistedToken));
         when(jwtService.isRefreshTokenValid("bad")).thenReturn(false);
 
-        assertThrows(RuntimeException.class, () -> authService.refresh("bad"));
+        assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh("bad"));
+        assertTrue(persistedToken.isRevoked());
+    }
+
+    @Test
+    void refresh_shouldThrow_whenExpiredToken() {
+        AppUser user = new AppUser();
+        user.setUsername("user");
+
+        RefreshToken persistedToken = RefreshToken.builder()
+                .user(user)
+                .token("expired")
+                .expiresAt(OffsetDateTime.now(ZoneOffset.UTC).minusMinutes(10))
+                .revoked(false)
+                .build();
+
+        when(refreshTokenRepository.findByTokenAndRevokedFalse("expired")).thenReturn(Optional.of(persistedToken));
+
+        assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh("expired"));
         assertTrue(persistedToken.isRevoked());
     }
 
@@ -190,7 +233,7 @@ class AuthServiceTest {
     void refresh_shouldThrow_whenTokenNotInRepository() {
         when(refreshTokenRepository.findByTokenAndRevokedFalse("missing")).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> authService.refresh("missing"));
+        assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh("missing"));
     }
 
     @Test
@@ -208,6 +251,12 @@ class AuthServiceTest {
         authService.logout();
 
         verify(refreshTokenRepository).deleteByUserId(userId);
+    }
+
+    @Test
+    void logout_shouldThrow_whenNotAuthenticated() {
         SecurityContextHolder.clearContext();
+
+        assertThrows(InvalidCredentialsException.class, () -> authService.logout());
     }
 }
