@@ -1,6 +1,26 @@
 'use client'
 import Link from 'next/link'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
+
+// used from NavLink and NavActionButton
+const navItemLayout = css`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+`
+// used from NavLink and NavActionButton
+const navItemFocus = css`
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.focus};
+    outline-offset: 2px;
+  }
+`
 
 export const NavBar = styled.nav`
   position: fixed;
@@ -32,16 +52,8 @@ export const NavContent = styled.div`
 `
 
 export const NavLink = styled(Link)<{ $isActive: boolean }>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-  padding: 8px 12px;
+  ${navItemLayout}
   text-decoration: none;
-  border-radius: 8px;
 
   /* Hover effect (for devices with pointer) */
   @media (hover: hover) {
@@ -50,24 +62,12 @@ export const NavLink = styled(Link)<{ $isActive: boolean }>`
     }
   }
 
-  /* Focus visible for keyboard navigation */
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.focus};
-    outline-offset: 2px;
-  }
+  ${navItemFocus}
 `
 
 export const NavActionButton = styled.button`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-  padding: 8px 12px;
+  ${navItemLayout}
   border: none;
-  border-radius: 8px;
   background: transparent;
   cursor: pointer;
 
@@ -77,10 +77,7 @@ export const NavActionButton = styled.button`
     }
   }
 
-  &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.focus};
-    outline-offset: 2px;
-  }
+  ${navItemFocus}
 
   &:disabled {
     cursor: not-allowed;

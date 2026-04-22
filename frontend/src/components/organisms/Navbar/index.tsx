@@ -60,6 +60,39 @@ const NavBar = ({ items = NavItems }: IBottomNavProps) => {
     router.push('/login')
   }, [logout, router])
 
+  // used from NavLink and NavActionButton
+  const renderNavItemContent = React.useCallback(
+    ({
+      icon,
+      label,
+      active,
+    }: {
+      icon: string
+      label: string
+      active: boolean
+    }) => (
+      <>
+        <Icon
+          name={icon}
+          color={active ? 'primary' : 'textSecondary'}
+          size='lg'
+          aria-hidden='true'
+        />
+        <Text
+          as='span'
+          size='small'
+          color={active ? 'primary' : 'textSecondary'}
+          weight={active ? 600 : 400}
+          noSpacing
+          truncate
+        >
+          {label}
+        </Text>
+      </>
+    ),
+    []
+  )
+
   return (
     <SC.NavBar role='navigation' aria-label='Main navigation'>
       <SC.NavContent>
@@ -75,22 +108,11 @@ const NavBar = ({ items = NavItems }: IBottomNavProps) => {
                 disabled={isLoading}
                 aria-label='Logout'
               >
-                <Icon
-                  name='logout'
-                  color='textSecondary'
-                  size='lg'
-                  aria-hidden='true'
-                />
-                <Text
-                  as='span'
-                  size='small'
-                  color='textSecondary'
-                  weight={400}
-                  noSpacing
-                  truncate
-                >
-                  Logout
-                </Text>
+                {renderNavItemContent({
+                  icon: 'logout',
+                  label: 'Logout',
+                  active: false,
+                })}
               </SC.NavActionButton>
             )
           }
@@ -103,22 +125,11 @@ const NavBar = ({ items = NavItems }: IBottomNavProps) => {
               $isActive={active}
               aria-current={active ? 'page' : undefined}
             >
-              <Icon
-                name={item.icon}
-                color={active ? 'primary' : 'textSecondary'}
-                size='lg'
-                aria-hidden='true'
-              />
-              <Text
-                as='span'
-                size='small'
-                color={active ? 'primary' : 'textSecondary'}
-                weight={active ? 600 : 400}
-                noSpacing
-                truncate
-              >
-                {item.label}
-              </Text>
+              {renderNavItemContent({
+                icon: item.icon,
+                label: item.label,
+                active,
+              })}
             </SC.NavLink>
           )
         })}
