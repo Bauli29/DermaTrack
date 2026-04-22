@@ -1,10 +1,11 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import React from 'react'
 
 import Icon from '@/components/atoms/Icon'
 import Text from '@/components/atoms/Text'
+import { useAuth } from '@/hooks/use-auth'
 
 import * as SC from './styles'
 
@@ -39,6 +40,8 @@ const NavItems: INavItem[] = [
 
 const NavBar = ({ items = NavItems }: IBottomNavProps) => {
   const pathname = usePathname()
+  const router = useRouter()
+  const { isLoggedIn, isLoading, logout } = useAuth()
 
   // Memoize active state check to avoid recalculations
   const isActive = React.useCallback(
@@ -52,10 +55,46 @@ const NavBar = ({ items = NavItems }: IBottomNavProps) => {
     [pathname]
   )
 
+  const handleLogout = React.useCallback(async () => {
+    await logout()
+    router.push('/login')
+  }, [logout, router])
+
   return (
     <SC.NavBar role='navigation' aria-label='Main navigation'>
       <SC.NavContent>
         {items.map(item => {
+          if (item.href === '/login' && isLoggedIn) {
+            return (
+              <SC.NavActionButton
+                key='logout'
+                type='button'
+                onClick={() => {
+                  void handleLogout()
+                }}
+                disabled={isLoading}
+                aria-label='Logout'
+              >
+                <Icon
+                  name='logout'
+                  color='textSecondary'
+                  size='lg'
+                  aria-hidden='true'
+                />
+                <Text
+                  as='span'
+                  size='small'
+                  color='textSecondary'
+                  weight={400}
+                  noSpacing
+                  truncate
+                >
+                  Logout
+                </Text>
+              </SC.NavActionButton>
+            )
+          }
+
           const active = isActive(item)
           return (
             <SC.NavLink
