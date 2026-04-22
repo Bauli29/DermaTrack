@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Button from '@/components/atoms/Button'
 import Slider from '@/components/atoms/Slider'
 import Text from '@/components/atoms/Text'
+import DateCalendarPicker from '@/components/organisms/DateCalendarPicker'
 
 import { formatDateInput } from '@/lib/date'
 
@@ -206,13 +207,12 @@ const DailyTrackingTemplate = () => {
           <Text size='small' color='textSecondary'>
             Date
           </Text>
-          <SC.DateInput
-            type='date'
+          <DateCalendarPicker
             value={date}
-            max={formatDateInput(new Date())}
-            onChange={event => updateFormValue('date', event.target.value)}
-            aria-invalid={isFutureDate}
-            aria-describedby='date-helper'
+            maxDate={formatDateInput(new Date())}
+            onChange={nextDate => updateFormValue('date', nextDate)}
+            ariaInvalid={isFutureDate}
+            ariaDescribedBy='date-helper'
           />
           <SC.HelperText id='date-helper'>
             You can fill for today or a past date. Actual server timestamp is

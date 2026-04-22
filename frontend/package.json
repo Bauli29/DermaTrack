@@ -25,6 +25,7 @@
     "next-swagger-doc": "^0.4.1",
     "pnpm": "^10.24.0",
     "react": "19.2.0",
+    "react-datepicker": "^9.1.0",
     "react-dom": "19.2.0",
     "styled-components": "^6.1.19",
     "swagger-ui": "^5.30.3",

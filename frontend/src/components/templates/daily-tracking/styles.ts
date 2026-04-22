@@ -179,18 +179,3 @@ export const HelperText = styled.span`
   color: ${({ theme }) => theme.colors.textMuted};
   font-size: 0.85rem;
 `
-
-export const DateInput = styled.input`
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.colors.card};
-  color: ${({ theme }) => theme.colors.text};
-
-  &:focus {
-    border-color: ${({ theme }) => theme.colors.active};
-    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.focus}33;
-    outline: none;
-  }
-`
