@@ -31,19 +31,21 @@ public class DiaryController implements IDiaryController {
     // Service handles all exceptions
 
     @Override
-    public ResponseEntity<List<DiaryEntryResponse>> getAllDiaryEntries() {
+    public ResponseEntity<List<DiaryEntryResponse>> getAllDiaryEntries(Principal principal) {
         log.trace("Controller: Getting all diary entries");
 
-        List<DiaryEntry> entries = diaryService.findAll();
+        AppUser currentUser = resolveCurrentUser(principal);
+        List<DiaryEntry> entries = diaryService.findAllByUserId(currentUser.getId());
 
         return ResponseEntity.ok(diaryEntryMapper.toResponseList(entries));
     }
 
     @Override
-    public ResponseEntity<DiaryEntryResponse> getDiaryEntryById(UUID id) {
+    public ResponseEntity<DiaryEntryResponse> getDiaryEntryById(Principal principal, UUID id) {
         log.trace("Controller: Getting diary entry by id: {}", id);
 
-        DiaryEntry entry = diaryService.findById(id);
+        AppUser currentUser = resolveCurrentUser(principal);
+        DiaryEntry entry = diaryService.findByIdAndUserId(id, currentUser.getId());
 
         return ResponseEntity.ok(diaryEntryMapper.toResponse(entry));
     }
@@ -52,11 +54,12 @@ public class DiaryController implements IDiaryController {
     public ResponseEntity<DiaryEntryResponse> createDiaryEntry(Principal principal, DiaryEntryCreateRequest request) {
         log.trace("Controller: Creating new diary entry");
 
+        AppUser currentUser = resolveCurrentUser(principal);
         DiaryEntry diaryEntry = diaryEntryMapper.toEntity(request);
 
-        diaryEntry.setUser(resolveCurrentUser(principal));
+        diaryEntry.setUser(currentUser);
 
-        DiaryEntry savedEntry = diaryService.save(diaryEntry);
+        DiaryEntry savedEntry = diaryService.createForUser(diaryEntry, currentUser.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(diaryEntryMapper.toResponse(savedEntry));
     }
@@ -66,26 +69,19 @@ public class DiaryController implements IDiaryController {
             DiaryEntryUpdateRequest request) {
         log.trace("Controller: Updating diary entry with id: {}", id);
 
+        AppUser currentUser = resolveCurrentUser(principal);
         DiaryEntry diaryEntry = diaryEntryMapper.toEntity(request);
-
-        // Get the existing entry to preserve createdAt
-        DiaryEntry existingEntry = diaryService.findById(id);
-
-        // Set the ID and preserve createdAt
-        diaryEntry.setId(id);
-        diaryEntry.setCreatedAt(existingEntry.getCreatedAt());
-        diaryEntry.setUser(resolveCurrentUser(principal));
-
-        DiaryEntry updatedEntry = diaryService.save(diaryEntry);
+        DiaryEntry updatedEntry = diaryService.updateForUser(id, currentUser.getId(), diaryEntry);
 
         return ResponseEntity.ok(diaryEntryMapper.toResponse(updatedEntry));
     }
 
     @Override
-    public ResponseEntity<Void> deleteDiaryEntry(UUID id) {
+    public ResponseEntity<Void> deleteDiaryEntry(Principal principal, UUID id) {
         log.trace("Controller: Deleting diary entry with id: {}", id);
 
-        diaryService.deleteById(id);
+        AppUser currentUser = resolveCurrentUser(principal);
+        diaryService.deleteByIdAndUserId(id, currentUser.getId());
 
         return ResponseEntity.noContent().build();
     }

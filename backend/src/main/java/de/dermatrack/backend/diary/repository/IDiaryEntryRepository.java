@@ -1,5 +1,8 @@
 package de.dermatrack.backend.diary.repository;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +20,12 @@ public interface IDiaryEntryRepository extends JpaRepository<DiaryEntry, UUID> {
     // findAll() - Get all entries
     // deleteById(UUID) - Delete by ID
     // existsById(UUID) - Check existence by ID
+
+    List<DiaryEntry> findAllByUser_Id(UUID userId);
+
+    Optional<DiaryEntry> findByIdAndUser_Id(UUID id, UUID userId);
+
+    boolean existsByUser_IdAndEntryDate(UUID userId, LocalDate entryDate);
+
+    boolean existsByUser_IdAndEntryDateAndIdNot(UUID userId, LocalDate entryDate, UUID id);
 }

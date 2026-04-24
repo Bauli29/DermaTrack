@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import de.dermatrack.backend.exception.diary.DiaryEntryAlreadyExistsException;
 import de.dermatrack.backend.exception.auth.EmailAlreadyExistsException;
 import de.dermatrack.backend.exception.auth.InvalidCredentialsException;
 import de.dermatrack.backend.exception.auth.InvalidRefreshTokenException;
@@ -30,256 +31,258 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    /**
-     * Handle validation errors from @Valid annotations
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex,
-            WebRequest request) {
-        log.warn("Validation error: {}", ex.getMessage());
+        /**
+         * Handle validation errors from @Valid annotations
+         */
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex,
+                        WebRequest request) {
+                log.warn("Validation error: {}", ex.getMessage());
 
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
+                Map<String, String> errors = new HashMap<>();
+                ex.getBindingResult().getAllErrors().forEach((error) -> {
+                        String fieldName = ((FieldError) error).getField();
+                        String errorMessage = error.getDefaultMessage();
+                        errors.put(fieldName, errorMessage);
+                });
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Validation Failed")
-                .message("Input validation failed")
-                .path(request.getDescription(false).replace("uri=", ""))
-                .validationErrors(errors)
-                .build();
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .error("Validation Failed")
+                                .message("Input validation failed")
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .validationErrors(errors)
+                                .build();
 
-        return ResponseEntity.badRequest().body(errorResponse);
-    }
-
-    /**
-     * Handle validation errors from @Validated annotations
-     */
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex,
-            WebRequest request) {
-        log.warn("Constraint violation: {}", ex.getMessage());
-
-        Map<String, String> errors = new HashMap<>();
-        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-            String fieldName = violation.getPropertyPath().toString();
-            String errorMessage = violation.getMessage();
-            errors.put(fieldName, errorMessage);
+                return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Constraint Violation")
-                .message("Input constraints violated")
-                .path(request.getDescription(false).replace("uri=", ""))
-                .validationErrors(errors)
-                .build();
+        /**
+         * Handle validation errors from @Validated annotations
+         */
+        @ExceptionHandler(ConstraintViolationException.class)
+        public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex,
+                        WebRequest request) {
+                log.warn("Constraint violation: {}", ex.getMessage());
 
-        return ResponseEntity.badRequest().body(errorResponse);
-    }
+                Map<String, String> errors = new HashMap<>();
+                for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+                        String fieldName = violation.getPropertyPath().toString();
+                        String errorMessage = violation.getMessage();
+                        errors.put(fieldName, errorMessage);
+                }
 
-    /**
-     * Handle malformed JSON requests
-     */
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex,
-            WebRequest request) {
-        log.warn("Malformed JSON request: {}", ex.getMessage());
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .error("Constraint Violation")
+                                .message("Input constraints violated")
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .validationErrors(errors)
+                                .build();
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Malformed JSON")
-                .message("Request body contains invalid JSON")
-                .path(request.getDescription(false).replace("uri=", ""))
-                .build();
+                return ResponseEntity.badRequest().body(errorResponse);
+        }
 
-        return ResponseEntity.badRequest().body(errorResponse);
-    }
+        /**
+         * Handle malformed JSON requests
+         */
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex,
+                        WebRequest request) {
+                log.warn("Malformed JSON request: {}", ex.getMessage());
 
-    /**
-     * Handle type mismatch errors (e.g., invalid UUID format)
-     */
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleTypeMismatchException(MethodArgumentTypeMismatchException ex,
-            WebRequest request) {
-        log.warn("Type mismatch error: {}", ex.getMessage());
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .error("Malformed JSON")
+                                .message("Request body contains invalid JSON")
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .build();
 
-        Class<?> requiredType = ex.getRequiredType();
-        String expectedType = requiredType != null ? requiredType.getSimpleName() : "Unknown";
+                return ResponseEntity.badRequest().body(errorResponse);
+        }
 
-        String message = String.format("Invalid value '%s' for parameter '%s'. Expected type: %s",
-                ex.getValue(), ex.getName(), expectedType);
+        /**
+         * Handle type mismatch errors (e.g., invalid UUID format)
+         */
+        @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+        public ResponseEntity<ErrorResponse> handleTypeMismatchException(MethodArgumentTypeMismatchException ex,
+                        WebRequest request) {
+                log.warn("Type mismatch error: {}", ex.getMessage());
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Type Mismatch")
-                .message(message)
-                .path(request.getDescription(false).replace("uri=", ""))
-                .build();
+                Class<?> requiredType = ex.getRequiredType();
+                String expectedType = requiredType != null ? requiredType.getSimpleName() : "Unknown";
 
-        return ResponseEntity.badRequest().body(errorResponse);
-    }
+                String message = String.format("Invalid value '%s' for parameter '%s'. Expected type: %s",
+                                ex.getValue(), ex.getName(), expectedType);
 
-    /**
-     * Handle IllegalArgumentException (from your service layer)
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex,
-            WebRequest request) {
-        log.warn("Illegal argument: {}", ex.getMessage());
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .error("Type Mismatch")
+                                .message(message)
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .build();
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Invalid Request")
-                .message(ex.getMessage())
-                .path(request.getDescription(false).replace("uri=", ""))
-                .build();
+                return ResponseEntity.badRequest().body(errorResponse);
+        }
 
-        return ResponseEntity.badRequest().body(errorResponse);
-    }
+        /**
+         * Handle IllegalArgumentException (from your service layer)
+         */
+        @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex,
+                        WebRequest request) {
+                log.warn("Illegal argument: {}", ex.getMessage());
 
-    /**
-     * Handle resource not found exceptions
-     */
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex,
-            WebRequest request) {
-        log.warn("Resource not found: {}", ex.getMessage());
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .error("Invalid Request")
+                                .message(ex.getMessage())
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .build();
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
-                .error("Resource Not Found")
-                .message(ex.getMessage())
-                .path(request.getDescription(false).replace("uri=", ""))
-                .build();
+                return ResponseEntity.badRequest().body(errorResponse);
+        }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-    }
+        /**
+         * Handle resource not found exceptions
+         */
+        @ExceptionHandler(ResourceNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex,
+                        WebRequest request) {
+                log.warn("Resource not found: {}", ex.getMessage());
 
-    /**
-     * Handle duplicate username or email during registration
-     */
-    @ExceptionHandler({ UsernameAlreadyExistsException.class, EmailAlreadyExistsException.class })
-    public ResponseEntity<ErrorResponse> handleConflictException(RuntimeException ex, WebRequest request) {
-        log.warn("Conflict: {}", ex.getMessage());
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.NOT_FOUND.value())
+                                .error("Resource Not Found")
+                                .message(ex.getMessage())
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .build();
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.CONFLICT.value())
-                .error("Conflict")
-                .message(ex.getMessage())
-                .path(request.getDescription(false).replace("uri=", ""))
-                .build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
-    }
+        /**
+         * Handle duplicate username or email during registration
+         */
+        @ExceptionHandler({ UsernameAlreadyExistsException.class, EmailAlreadyExistsException.class,
+                        DiaryEntryAlreadyExistsException.class })
+        public ResponseEntity<ErrorResponse> handleConflictException(RuntimeException ex, WebRequest request) {
+                log.warn("Conflict: {}", ex.getMessage());
 
-    /**
-     * Handle invalid credentials or refresh tokens
-     */
-    @ExceptionHandler({ InvalidCredentialsException.class, InvalidRefreshTokenException.class })
-    public ResponseEntity<ErrorResponse> handleUnauthorizedException(RuntimeException ex, WebRequest request) {
-        log.warn("Unauthorized: {}", ex.getMessage());
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.CONFLICT.value())
+                                .error("Conflict")
+                                .message(ex.getMessage())
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .build();
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.UNAUTHORIZED.value())
-                .error("Unauthorized")
-                .message(ex.getMessage())
-                .path(request.getDescription(false).replace("uri=", ""))
-                .build();
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+        }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-    }
+        /**
+         * Handle invalid credentials or refresh tokens
+         */
+        @ExceptionHandler({ InvalidCredentialsException.class, InvalidRefreshTokenException.class })
+        public ResponseEntity<ErrorResponse> handleUnauthorizedException(RuntimeException ex, WebRequest request) {
+                log.warn("Unauthorized: {}", ex.getMessage());
 
-    /**
-     * Handle Spring Security access denied
-     */
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
-        log.warn("Access denied: {}", ex.getMessage());
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.UNAUTHORIZED.value())
+                                .error("Unauthorized")
+                                .message(ex.getMessage())
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .build();
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.FORBIDDEN.value())
-                .error("Access Denied")
-                .message("You do not have permission to access this resource")
-                .path(request.getDescription(false).replace("uri=", ""))
-                .build();
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
-    }
+        /**
+         * Handle Spring Security access denied
+         */
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+                log.warn("Access denied: {}", ex.getMessage());
 
-    /**
-     * Handle missing request parameters
-     */
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponse> handleMissingParams(MissingServletRequestParameterException ex,
-            WebRequest request) {
-        log.warn("Missing request parameter: {}", ex.getMessage());
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.FORBIDDEN.value())
+                                .error("Access Denied")
+                                .message("You do not have permission to access this resource")
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .build();
 
-        String parameterName = ex.getParameterName();
-        String message = String.format("Missing required parameter: '%s'", parameterName);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+        }
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Missing Parameter")
-                .message(message)
-                .path(request.getDescription(false).replace("uri=", ""))
-                .build();
+        /**
+         * Handle missing request parameters
+         */
+        @ExceptionHandler(MissingServletRequestParameterException.class)
+        public ResponseEntity<ErrorResponse> handleMissingParams(MissingServletRequestParameterException ex,
+                        WebRequest request) {
+                log.warn("Missing request parameter: {}", ex.getMessage());
 
-        return ResponseEntity.badRequest().body(errorResponse);
-    }
+                String parameterName = ex.getParameterName();
+                String message = String.format("Missing required parameter: '%s'", parameterName);
 
-    /**
-     * Handle unsupported HTTP methods
-     */
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex,
-            WebRequest request) {
-        log.warn("HTTP method not supported: {}", ex.getMessage());
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.BAD_REQUEST.value())
+                                .error("Missing Parameter")
+                                .message(message)
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .build();
 
-        String method = ex.getMethod();
-        String message = String.format("HTTP method '%s' is not supported for this endpoint", method);
+                return ResponseEntity.badRequest().body(errorResponse);
+        }
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.METHOD_NOT_ALLOWED.value())
-                .error("Method Not Allowed")
-                .message(message)
-                .path(request.getDescription(false).replace("uri=", ""))
-                .build();
+        /**
+         * Handle unsupported HTTP methods
+         */
+        @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+        public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupported(
+                        HttpRequestMethodNotSupportedException ex,
+                        WebRequest request) {
+                log.warn("HTTP method not supported: {}", ex.getMessage());
 
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorResponse);
-    }
+                String method = ex.getMethod();
+                String message = String.format("HTTP method '%s' is not supported for this endpoint", method);
 
-    /**
-     * Handle all other unexpected exceptions
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
-        log.error("A highly sophisticated error occurred \uD83E\uDD22\uD83E\uDD2E: {}", ex.getMessage(), ex);
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.METHOD_NOT_ALLOWED.value())
+                                .error("Method Not Allowed")
+                                .message(message)
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .build();
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(OffsetDateTime.now())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error("Internal Server Error")
-                .message("An unexpected error occurred")
-                .path(request.getDescription(false).replace("uri=", ""))
-                .traceId(UUID.randomUUID().toString())
-                .build();
+                return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorResponse);
+        }
 
-        return ResponseEntity.internalServerError().body(errorResponse);
-    }
+        /**
+         * Handle all other unexpected exceptions
+         */
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
+                log.error("A highly sophisticated error occurred \uD83E\uDD22\uD83E\uDD2E: {}", ex.getMessage(), ex);
+
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                                .error("Internal Server Error")
+                                .message("An unexpected error occurred")
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .traceId(UUID.randomUUID().toString())
+                                .build();
+
+                return ResponseEntity.internalServerError().body(errorResponse);
+        }
 }

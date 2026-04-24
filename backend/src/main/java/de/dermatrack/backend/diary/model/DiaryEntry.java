@@ -1,6 +1,9 @@
 package de.dermatrack.backend.diary.model;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
@@ -11,7 +14,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.dermatrack.backend.auth.model.AppUser;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
@@ -20,6 +25,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
@@ -30,7 +36,11 @@ import lombok.Setter;
 @Entity
 @Table(name = "diary_entry", indexes = {
         @Index(name = "idx_diary_entry_created_at", columnList = "created_at"),
-        @Index(name = "idx_diary_entry_user_id", columnList = "user_id")
+        @Index(name = "idx_diary_entry_user_id", columnList = "user_id"),
+        @Index(name = "idx_diary_entry_entry_date", columnList = "entry_date"),
+        @Index(name = "idx_diary_entry_user_entry_date", columnList = "user_id,entry_date")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "uk_diary_entry_user_entry_date", columnNames = { "user_id", "entry_date" })
 })
 @Getter
 @Setter
@@ -57,45 +67,132 @@ public class DiaryEntry {
     @Schema(description = "Creation timestamp (UTC)", example = "2025-11-23T11:56:26.958Z", type = "string", format = "date-time", accessMode = Schema.AccessMode.READ_ONLY)
     private OffsetDateTime createdAt;
 
-    @Column(name = "allergies")
-    @Min(value = 0, message = "Allergies rating must be 0 or higher")
-    @Max(value = 10, message = "Allergies rating must be 10 or lower")
-    @Schema(description = "Allergies rating (0-10)", example = "0")
-    private Integer allergies;
-
-    @Column(name = "infections")
-    @Min(value = 0, message = "Infections rating must be 0 or higher")
-    @Max(value = 10, message = "Infections rating must be 10 or lower")
-    @Schema(description = "Infections rating (0-10)", example = "0")
-    private Integer infections;
+    @Column(name = "entry_date", nullable = false)
+    @Schema(description = "Business date of this daily tracking entry", example = "2026-04-23")
+    private LocalDate entryDate;
 
     @Column(name = "stress_level")
     @Min(value = 0, message = "Stress level must be 0 or higher")
     @Max(value = 10, message = "Stress level must be 10 or lower")
-    @Schema(description = "Stress level rating (0-10)", example = "5")
     private Integer stressLevel;
 
     @Column(name = "sleep")
     @Min(value = 0, message = "Sleep rating must be 0 or higher")
     @Max(value = 10, message = "Sleep rating must be 10 or lower")
-    @Schema(description = "Sleep quality rating (0-10)", example = "7")
     private Integer sleep;
 
-    @Column(name = "nutrition")
-    @Min(value = 0, message = "Nutrition rating must be 0 or higher")
-    @Max(value = 10, message = "Nutrition rating must be 10 or lower")
-    @Schema(description = "Nutrition rating (0-10)", example = "6")
-    private Integer nutrition;
+    @Column(name = "mental_strain")
+    @Min(value = 0, message = "Mental strain must be 0 or higher")
+    @Max(value = 10, message = "Mental strain must be 10 or lower")
+    private Integer mentalStrain;
 
-    @Column(name = "symptoms")
-    @Min(value = 0, message = "Symptoms rating must be 0 or higher")
-    @Max(value = 10, message = "Symptoms rating must be 10 or lower")
-    @Schema(description = "Symptoms severity rating (0-10)", example = "3")
-    private Integer symptoms;
+    @Column(name = "contact_shower")
+    private String contactShower;
 
-    @Column(name = "miscellaneous", columnDefinition = "TEXT")
-    @Schema(description = "Free text notes / miscellaneous information", example = "Today was a good day")
-    private String miscellaneous;
+    @Column(name = "contact_clothing")
+    private String contactClothing;
+
+    @Column(name = "contact_animal")
+    private String contactAnimal;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "diary_entry_custom_contact", joinColumns = @JoinColumn(name = "diary_entry_id"))
+    @Column(name = "factor")
+    private List<String> customContactFactors = new ArrayList<>();
+
+    @Column(name = "nutrition_nuts")
+    private String nutritionNuts;
+
+    @Column(name = "nutrition_fruits")
+    private String nutritionFruits;
+
+    @Column(name = "nutrition_shellfish")
+    private String nutritionShellfish;
+
+    @Column(name = "nutrition_dairy")
+    private String nutritionDairy;
+
+    @Column(name = "nutrition_gluten")
+    private String nutritionGluten;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "diary_entry_custom_nutrition", joinColumns = @JoinColumn(name = "diary_entry_id"))
+    @Column(name = "factor")
+    private List<String> customNutritionFactors = new ArrayList<>();
+
+    @Column(name = "care_skin_care")
+    private String careSkinCare;
+
+    @Column(name = "care_hair_products")
+    private String careHairProducts;
+
+    @Column(name = "care_soap_shampoo")
+    private String careSoapShampoo;
+
+    @Column(name = "care_cosmetics")
+    private String careCosmetics;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "diary_entry_custom_care", joinColumns = @JoinColumn(name = "diary_entry_id"))
+    @Column(name = "product")
+    private List<String> customCareProducts = new ArrayList<>();
+
+    @Column(name = "health_other_allergies")
+    private String healthOtherAllergies;
+
+    @Column(name = "health_infections")
+    private String healthInfections;
+
+    @Column(name = "symptom_itchiness")
+    @Min(value = 0, message = "Itchiness rating must be 0 or higher")
+    @Max(value = 10, message = "Itchiness rating must be 10 or lower")
+    private Integer symptomItchiness;
+
+    @Column(name = "symptom_scratch")
+    private Boolean symptomScratch;
+
+    @Column(name = "symptom_inflammation")
+    @Min(value = 0, message = "Inflammation rating must be 0 or higher")
+    @Max(value = 10, message = "Inflammation rating must be 10 or lower")
+    private Integer symptomInflammation;
+
+    @Column(name = "symptom_dryness")
+    @Min(value = 0, message = "Dryness rating must be 0 or higher")
+    @Max(value = 10, message = "Dryness rating must be 10 or lower")
+    private Integer symptomDryness;
+
+    @Column(name = "symptom_weeping_skin")
+    private Boolean symptomWeepingSkin;
+
+    @Column(name = "symptom_skin_cracks")
+    private Boolean symptomSkinCracks;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "diary_entry_spread_photo", joinColumns = @JoinColumn(name = "diary_entry_id"))
+    @Column(name = "photo_url", columnDefinition = "TEXT")
+    private List<String> symptomSpreadPhotoUrls = new ArrayList<>();
+
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
+
+    public void setCustomContactFactors(List<String> customContactFactors) {
+        this.customContactFactors = customContactFactors == null ? new ArrayList<>()
+                : new ArrayList<>(customContactFactors);
+    }
+
+    public void setCustomNutritionFactors(List<String> customNutritionFactors) {
+        this.customNutritionFactors = customNutritionFactors == null ? new ArrayList<>()
+                : new ArrayList<>(customNutritionFactors);
+    }
+
+    public void setCustomCareProducts(List<String> customCareProducts) {
+        this.customCareProducts = customCareProducts == null ? new ArrayList<>() : new ArrayList<>(customCareProducts);
+    }
+
+    public void setSymptomSpreadPhotoUrls(List<String> symptomSpreadPhotoUrls) {
+        this.symptomSpreadPhotoUrls = symptomSpreadPhotoUrls == null ? new ArrayList<>()
+                : new ArrayList<>(symptomSpreadPhotoUrls);
+    }
 
     @PrePersist
     protected void onCreate() {

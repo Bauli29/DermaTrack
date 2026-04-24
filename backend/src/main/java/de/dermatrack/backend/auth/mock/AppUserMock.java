@@ -39,7 +39,7 @@ public class AppUserMock {
         AppUser user = new AppUser();
         user.setUsername(username);
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode("password123"));
+        user.setPassword(passwordEncoder.encode("Password123!,"));
         return appUserRepository.save(user);
     }
 }

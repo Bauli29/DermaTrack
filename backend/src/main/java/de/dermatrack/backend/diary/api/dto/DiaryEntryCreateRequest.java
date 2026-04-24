@@ -1,8 +1,10 @@
 package de.dermatrack.backend.diary.api.dto;
 
+import java.time.LocalDate;
+
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,29 +17,20 @@ import lombok.Setter;
 @Schema(description = "Request payload for creating a diary entry")
 public class DiaryEntryCreateRequest {
 
-    @Min(value = 0, message = "Allergies rating must be 0 or higher")
-    @Max(value = 10, message = "Allergies rating must be 10 or lower")
-    private Integer allergies;
+    @NotNull
+    @Schema(description = "Business date of this daily tracking entry", example = "2026-04-23")
+    private LocalDate entryDate;
 
-    @Min(value = 0, message = "Infections rating must be 0 or higher")
-    @Max(value = 10, message = "Infections rating must be 10 or lower")
-    private Integer infections;
+    @NotNull
+    @Valid
+    private DailyTrackingPayloadDto tracking;
 
-    @Min(value = 0, message = "Stress level must be 0 or higher")
-    @Max(value = 10, message = "Stress level must be 10 or lower")
-    private Integer stressLevel;
+    // Explicit accessors keep mapper compatibility even if Lombok tooling is stale.
+    public LocalDate getEntryDate() {
+        return entryDate;
+    }
 
-    @Min(value = 0, message = "Sleep rating must be 0 or higher")
-    @Max(value = 10, message = "Sleep rating must be 10 or lower")
-    private Integer sleep;
-
-    @Min(value = 0, message = "Nutrition rating must be 0 or higher")
-    @Max(value = 10, message = "Nutrition rating must be 10 or lower")
-    private Integer nutrition;
-
-    @Min(value = 0, message = "Symptoms rating must be 0 or higher")
-    @Max(value = 10, message = "Symptoms rating must be 10 or lower")
-    private Integer symptoms;
-
-    private String miscellaneous;
+    public DailyTrackingPayloadDto getTracking() {
+        return tracking;
+    }
 }

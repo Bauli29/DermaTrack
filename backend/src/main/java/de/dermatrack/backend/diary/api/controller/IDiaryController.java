@@ -45,7 +45,7 @@ public interface IDiaryController {
                                         @Content(mediaType = "application/json", schema = @Schema(implementation = DiaryEntryResponse.class)) }),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))) })
         @GetMapping("")
-        ResponseEntity<List<DiaryEntryResponse>> getAllDiaryEntries();
+        ResponseEntity<List<DiaryEntryResponse>> getAllDiaryEntries(Principal principal);
 
         /**
          * GET - Get diary entry by ID
@@ -61,7 +61,7 @@ public interface IDiaryController {
                         @ApiResponse(responseCode = "404", description = "Diary Entry with supplied ID not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))) })
         @GetMapping("/{id}")
-        ResponseEntity<DiaryEntryResponse> getDiaryEntryById(@PathVariable UUID id);
+        ResponseEntity<DiaryEntryResponse> getDiaryEntryById(Principal principal, @PathVariable UUID id);
 
         /**
          * POST - Create new diary entry
@@ -74,6 +74,7 @@ public interface IDiaryController {
                         @ApiResponse(responseCode = "201", description = "Diary Entry created", content = {
                                         @Content(mediaType = "application/json", schema = @Schema(implementation = DiaryEntryResponse.class)) }),
                         @ApiResponse(responseCode = "400", description = "Invalid diary entry supplied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+                        @ApiResponse(responseCode = "409", description = "Diary Entry for this date already exists", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))) })
         @PostMapping()
         ResponseEntity<DiaryEntryResponse> createDiaryEntry(Principal principal,
@@ -91,6 +92,7 @@ public interface IDiaryController {
                         @ApiResponse(responseCode = "200", description = "Diary Entry updated", content = {
                                         @Content(mediaType = "application/json", schema = @Schema(implementation = DiaryEntryResponse.class)) }),
                         @ApiResponse(responseCode = "400", description = "Invalid diary entry supplied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+                        @ApiResponse(responseCode = "409", description = "Diary Entry for this date already exists", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "404", description = "Diary Entry with supplied ID not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))) })
         @PutMapping("/{id}")
@@ -111,5 +113,5 @@ public interface IDiaryController {
                         @ApiResponse(responseCode = "404", description = "Diary Entry with supplied ID not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))) })
         @DeleteMapping("/{id}")
-        ResponseEntity<Void> deleteDiaryEntry(@PathVariable UUID id);
+        ResponseEntity<Void> deleteDiaryEntry(Principal principal, @PathVariable UUID id);
 }

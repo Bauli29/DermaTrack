@@ -1,5 +1,16 @@
 package de.dermatrack.backend.diary.api.controller;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -9,19 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import de.dermatrack.backend.auth.model.AppUser;
@@ -29,9 +33,6 @@ import de.dermatrack.backend.auth.repository.IAppUserRepository;
 import de.dermatrack.backend.diary.model.DiaryEntry;
 import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 
-/**
- * Integration tests for DiaryController
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -56,32 +57,20 @@ class DiaryControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Create test user
         testUser = new AppUser();
         testUser.setUsername("testuser");
         testUser.setPassword("password123");
         testUser.setEmail("test@example.com");
         testUser = appUserRepository.save(testUser);
 
-        // Create test diary entry
-        testEntry = new DiaryEntry();
-        testEntry.setUser(testUser);
-        testEntry.setAllergies(5);
-        testEntry.setInfections(3);
-        testEntry.setStressLevel(7);
-        testEntry.setSleep(6);
-        testEntry.setNutrition(8);
-        testEntry.setSymptoms(4);
-        testEntry.setMiscellaneous("Integration test entry");
+        testEntry = buildEntity(testUser, LocalDate.of(2026, 4, 23), 7, 4, "pollen");
     }
 
     @Test
     @DisplayName("POST /api/diary should create new diary entry")
     void createDiaryEntry_ShouldReturnCreatedEntry() throws Exception {
-        // Arrange
-        String requestBody = buildDiaryEntryRequestBody(5, 3, 7, 6, 8, 4, "Integration test entry");
+        String requestBody = buildDiaryEntryRequestBody(LocalDate.of(2026, 4, 23), 7, 4, "pollen");
 
-        // Act & Assert
         mockMvc.perform(post("/api/diary")
                 .with(user("testuser"))
                 .with(csrf())
@@ -89,39 +78,30 @@ class DiaryControllerIntegrationTest {
                 .content(requestBody))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.allergies").value(5))
-                .andExpect(jsonPath("$.infections").value(3))
-                .andExpect(jsonPath("$.stressLevel").value(7))
-                .andExpect(jsonPath("$.sleep").value(6))
-                .andExpect(jsonPath("$.nutrition").value(8))
-                .andExpect(jsonPath("$.symptoms").value(4))
-                .andExpect(jsonPath("$.miscellaneous").value("Integration test entry"))
+                .andExpect(jsonPath("$.entryDate").value("2026-04-23"))
+                .andExpect(jsonPath("$.tracking.psyche.stressLevel").value(7))
+                .andExpect(jsonPath("$.tracking.health.otherAllergies").value("pollen"))
+                .andExpect(jsonPath("$.tracking.symptoms.itchiness").value(4))
                 .andExpect(jsonPath("$.createdAt").exists());
     }
 
     @Test
     @DisplayName("GET /api/diary/{id} should return diary entry")
     void getDiaryEntry_WhenExists_ShouldReturnEntry() throws Exception {
-        // Arrange
         DiaryEntry saved = diaryEntryRepository.save(testEntry);
 
-        // Act & Assert
         mockMvc.perform(get("/api/diary/{id}", saved.getId())
                 .with(user("testuser")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(saved.getId().toString()))
-                .andExpect(jsonPath("$.allergies").value(5))
-                .andExpect(jsonPath("$.miscellaneous").value("Integration test entry"));
+                .andExpect(jsonPath("$.entryDate").value("2026-04-23"))
+                .andExpect(jsonPath("$.tracking.psyche.stressLevel").value(7));
     }
 
     @Test
     @DisplayName("GET /api/diary/{id} should return 404 for non-existent entry")
     void getDiaryEntry_WhenNotExists_ShouldReturn404() throws Exception {
-        // Arrange
-        UUID nonExistentId = UUID.randomUUID();
-
-        // Act & Assert
-        mockMvc.perform(get("/api/diary/{id}", nonExistentId)
+        mockMvc.perform(get("/api/diary/{id}", UUID.randomUUID())
                 .with(user("testuser")))
                 .andExpect(status().isNotFound());
     }
@@ -129,15 +109,9 @@ class DiaryControllerIntegrationTest {
     @Test
     @DisplayName("GET /api/diary should return all diary entries")
     void getAllDiaryEntries_ShouldReturnList() throws Exception {
-        // Arrange
         diaryEntryRepository.save(testEntry);
+        diaryEntryRepository.save(buildEntity(testUser, LocalDate.of(2026, 4, 24), 5, 2, "none"));
 
-        DiaryEntry entry2 = new DiaryEntry();
-        entry2.setUser(testUser);
-        entry2.setAllergies(2);
-        diaryEntryRepository.save(entry2);
-
-        // Act & Assert
         mockMvc.perform(get("/api/diary")
                 .with(user("testuser")))
                 .andExpect(status().isOk())
@@ -146,16 +120,29 @@ class DiaryControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("GET /api/diary should only return entries for authenticated user")
+    void getAllDiaryEntries_ShouldFilterByOwner() throws Exception {
+        AppUser otherUser = new AppUser();
+        otherUser.setUsername("ownerfilter");
+        otherUser.setPassword("password123");
+        otherUser.setEmail("ownerfilter@example.com");
+        otherUser = appUserRepository.save(otherUser);
+
+        diaryEntryRepository.save(buildEntity(testUser, LocalDate.of(2026, 4, 23), 7, 4, "pollen"));
+        diaryEntryRepository.save(buildEntity(otherUser, LocalDate.of(2026, 4, 23), 2, 2, "none"));
+
+        mockMvc.perform(get("/api/diary")
+                .with(user("testuser")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
     @DisplayName("PUT /api/diary/{id} should update diary entry")
     void updateDiaryEntry_ShouldReturnUpdatedEntry() throws Exception {
-        // Arrange
         DiaryEntry saved = diaryEntryRepository.save(testEntry);
-        saved.setAllergies(9);
-        saved.setMiscellaneous("Updated notes");
+        String requestBody = buildDiaryEntryRequestBody(LocalDate.of(2026, 4, 25), 9, 6, "dust");
 
-        String requestBody = buildDiaryEntryRequestBody(9, 3, 7, 6, 8, 4, "Updated notes");
-
-        // Act & Assert
         mockMvc.perform(put("/api/diary/{id}", saved.getId())
                 .with(user("testuser"))
                 .with(csrf())
@@ -163,35 +150,156 @@ class DiaryControllerIntegrationTest {
                 .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(saved.getId().toString()))
-                .andExpect(jsonPath("$.allergies").value(9))
-                .andExpect(jsonPath("$.miscellaneous").value("Updated notes"));
+                .andExpect(jsonPath("$.entryDate").value("2026-04-25"))
+                .andExpect(jsonPath("$.tracking.psyche.stressLevel").value(9))
+                .andExpect(jsonPath("$.tracking.symptoms.itchiness").value(6))
+                .andExpect(jsonPath("$.tracking.health.otherAllergies").value("dust"));
     }
 
     @Test
-    @DisplayName("DELETE /api/diary/{id} should delete diary entry")
-    void deleteDiaryEntry_ShouldReturn204() throws Exception {
-        // Arrange
-        DiaryEntry saved = diaryEntryRepository.save(testEntry);
+    @DisplayName("PUT /api/diary/{id} should return 404 when entry belongs to another user")
+    void updateDiaryEntry_OtherUserEntry_ShouldReturn404() throws Exception {
+        AppUser otherUser = new AppUser();
+        otherUser.setUsername("otherupdater");
+        otherUser.setPassword("password123");
+        otherUser.setEmail("otherupdater@example.com");
+        otherUser = appUserRepository.save(otherUser);
 
-        // Act & Assert
-        mockMvc.perform(delete("/api/diary/{id}", saved.getId())
+        DiaryEntry otherUsersEntry = diaryEntryRepository.save(
+                buildEntity(otherUser, LocalDate.of(2026, 4, 23), 5, 2, "none"));
+
+        String requestBody = buildDiaryEntryRequestBody(LocalDate.of(2026, 4, 24), 8, 4, "dust");
+
+        mockMvc.perform(put("/api/diary/{id}", otherUsersEntry.getId())
                 .with(user("testuser"))
-                .with(csrf()))
-                .andExpect(status().isNoContent());
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isNotFound());
+    }
 
-        // Verify deletion
+    @Test
+    @DisplayName("PUT /api/diary/{id} should allow keeping the same date for the same entry")
+    void updateDiaryEntry_SameDateSameEntry_ShouldReturnOk() throws Exception {
+        DiaryEntry saved = diaryEntryRepository.save(testEntry);
+        String requestBody = buildDiaryEntryRequestBody(LocalDate.of(2026, 4, 23), 9, 6, "dust");
+
+        mockMvc.perform(put("/api/diary/{id}", saved.getId())
+                .with(user("testuser"))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(saved.getId().toString()))
+                .andExpect(jsonPath("$.entryDate").value("2026-04-23"));
+    }
+
+    @Test
+    @DisplayName("POST /api/diary should return 409 when same user creates duplicate entry for same date")
+    void createDiaryEntry_DuplicateDateForSameUser_ShouldReturn409() throws Exception {
+        diaryEntryRepository.save(testEntry);
+        String requestBody = buildDiaryEntryRequestBody(LocalDate.of(2026, 4, 23), 6, 3, "dust");
+
+        mockMvc.perform(post("/api/diary")
+                .with(user("testuser"))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("POST /api/diary should allow same date for different users")
+    void createDiaryEntry_SameDateDifferentUsers_ShouldReturnCreated() throws Exception {
+        AppUser otherUser = new AppUser();
+        otherUser.setUsername("othercreator");
+        otherUser.setPassword("password123");
+        otherUser.setEmail("othercreator@example.com");
+        appUserRepository.save(otherUser);
+
+        diaryEntryRepository.save(testEntry);
+        String requestBody = buildDiaryEntryRequestBody(LocalDate.of(2026, 4, 23), 5, 3, "none");
+
+        mockMvc.perform(post("/api/diary")
+                .with(user("othercreator"))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    @DisplayName("GET /api/diary/{id} should return 404 when entry belongs to another user")
+    void getDiaryEntry_OtherUserEntry_ShouldReturn404() throws Exception {
+        AppUser otherUser = new AppUser();
+        otherUser.setUsername("otheruser");
+        otherUser.setPassword("password123");
+        otherUser.setEmail("other@example.com");
+        otherUser = appUserRepository.save(otherUser);
+
+        DiaryEntry otherUsersEntry = buildEntity(otherUser, LocalDate.of(2026, 4, 23), 5, 3, "none");
+        DiaryEntry saved = diaryEntryRepository.save(otherUsersEntry);
+
         mockMvc.perform(get("/api/diary/{id}", saved.getId())
                 .with(user("testuser")))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    @DisplayName("PUT /api/diary/{id} should return 409 when moving to an already used date")
+    void updateDiaryEntry_DuplicateDate_ShouldReturn409() throws Exception {
+        diaryEntryRepository.save(buildEntity(testUser, LocalDate.of(2026, 4, 23), 7, 4, "pollen"));
+        DiaryEntry secondEntry = diaryEntryRepository
+                .save(buildEntity(testUser, LocalDate.of(2026, 4, 24), 5, 2, "none"));
+
+        String requestBody = buildDiaryEntryRequestBody(LocalDate.of(2026, 4, 23), 6, 3, "dust");
+
+        mockMvc.perform(put("/api/diary/{id}", secondEntry.getId())
+                .with(user("testuser"))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("DELETE /api/diary/{id} should delete diary entry")
+    void deleteDiaryEntry_ShouldReturn204() throws Exception {
+        DiaryEntry saved = diaryEntryRepository.save(testEntry);
+
+        mockMvc.perform(delete("/api/diary/{id}", saved.getId())
+                .with(user("testuser"))
+                .with(csrf()))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/diary/{id}", saved.getId())
+                .with(user("testuser")))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("DELETE /api/diary/{id} should return 404 when entry belongs to another user")
+    void deleteDiaryEntry_OtherUserEntry_ShouldReturn404() throws Exception {
+        AppUser otherUser = new AppUser();
+        otherUser.setUsername("otherdeleter");
+        otherUser.setPassword("password123");
+        otherUser.setEmail("otherdeleter@example.com");
+        otherUser = appUserRepository.save(otherUser);
+
+        DiaryEntry otherUsersEntry = diaryEntryRepository.save(
+                buildEntity(otherUser, LocalDate.of(2026, 4, 23), 5, 3, "none"));
+
+        mockMvc.perform(delete("/api/diary/{id}", otherUsersEntry.getId())
+                .with(user("testuser"))
+                .with(csrf()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     @DisplayName("POST /api/diary with invalid data should return 400")
     void createDiaryEntry_WithInvalidData_ShouldReturn400() throws Exception {
-        // Arrange
-        String requestBody = buildDiaryEntryRequestBody(15, 3, 7, 6, 8, 4, "Integration test entry");
+        String requestBody = buildDiaryEntryRequestBody(LocalDate.of(2026, 4, 23), 7, 11, "pollen");
 
-        // Act & Assert
         mockMvc.perform(post("/api/diary")
                 .with(user("testuser"))
                 .with(csrf())
@@ -203,21 +311,95 @@ class DiaryControllerIntegrationTest {
     @Test
     @DisplayName("Accessing endpoints without authentication should return 401")
     void accessWithoutAuth_ShouldReturn401() throws Exception {
-        // Act & Assert
         mockMvc.perform(get("/api/diary"))
                 .andExpect(status().isUnauthorized());
     }
 
-    private String buildDiaryEntryRequestBody(int allergies, int infections, int stressLevel, int sleep,
-            int nutrition, int symptoms, String miscellaneous) throws Exception {
-        ObjectNode requestBody = objectMapper.createObjectNode();
-        requestBody.put("allergies", allergies);
-        requestBody.put("infections", infections);
-        requestBody.put("stressLevel", stressLevel);
-        requestBody.put("sleep", sleep);
-        requestBody.put("nutrition", nutrition);
-        requestBody.put("symptoms", symptoms);
-        requestBody.put("miscellaneous", miscellaneous);
-        return objectMapper.writeValueAsString(requestBody);
+    private DiaryEntry buildEntity(AppUser user, LocalDate entryDate, int stressLevel, int itchiness,
+            String allergies) {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setUser(user);
+        entry.setEntryDate(entryDate);
+        entry.setStressLevel(stressLevel);
+        entry.setSleep(6);
+        entry.setMentalStrain(5);
+        entry.setContactShower("yes");
+        entry.setContactClothing("cotton");
+        entry.setContactAnimal("none");
+        entry.setCustomContactFactors(List.of("dust"));
+        entry.setNutritionNuts("no");
+        entry.setNutritionFruits("yes");
+        entry.setNutritionShellfish("no");
+        entry.setNutritionDairy("yes");
+        entry.setNutritionGluten("no");
+        entry.setCustomNutritionFactors(List.of("coffee"));
+        entry.setCareSkinCare("basic");
+        entry.setCareHairProducts("none");
+        entry.setCareSoapShampoo("sensitive");
+        entry.setCareCosmetics("none");
+        entry.setCustomCareProducts(List.of("cream-a"));
+        entry.setHealthOtherAllergies(allergies);
+        entry.setHealthInfections("none");
+        entry.setSymptomItchiness(itchiness);
+        entry.setSymptomScratch(true);
+        entry.setSymptomInflammation(3);
+        entry.setSymptomDryness(2);
+        entry.setSymptomWeepingSkin(false);
+        entry.setSymptomSkinCracks(false);
+        entry.setSymptomSpreadPhotoUrls(List.of("https://example.com/p1.jpg"));
+        return entry;
+    }
+
+    private String buildDiaryEntryRequestBody(LocalDate entryDate, int stressLevel, int itchiness, String allergies)
+            throws Exception {
+        ObjectNode root = objectMapper.createObjectNode();
+        root.put("entryDate", entryDate.toString());
+
+        ObjectNode tracking = root.putObject("tracking");
+
+        ObjectNode psyche = tracking.putObject("psyche");
+        psyche.put("stressLevel", stressLevel);
+        psyche.put("sleep", 6);
+        psyche.put("mentalStrain", 5);
+
+        ObjectNode contactFactors = tracking.putObject("contactFactors");
+        contactFactors.put("shower", "yes");
+        contactFactors.put("clothing", "cotton");
+        contactFactors.put("animalContact", "none");
+        ArrayNode customContactFactors = contactFactors.putArray("customContactFactors");
+        customContactFactors.add("dust");
+
+        ObjectNode nutrition = tracking.putObject("nutrition");
+        nutrition.put("nuts", "no");
+        nutrition.put("fruits", "yes");
+        nutrition.put("shellfish", "no");
+        nutrition.put("dairy", "yes");
+        nutrition.put("gluten", "no");
+        ArrayNode customNutritionFactors = nutrition.putArray("customNutritionFactors");
+        customNutritionFactors.add("coffee");
+
+        ObjectNode careProducts = tracking.putObject("careProducts");
+        careProducts.put("skinCare", "basic");
+        careProducts.put("hairProducts", "none");
+        careProducts.put("soapShampoo", "sensitive");
+        careProducts.put("cosmetics", "none");
+        ArrayNode customCareProducts = careProducts.putArray("customCareProducts");
+        customCareProducts.add("cream-a");
+
+        ObjectNode health = tracking.putObject("health");
+        health.put("otherAllergies", allergies);
+        health.put("infections", "none");
+
+        ObjectNode symptoms = tracking.putObject("symptoms");
+        symptoms.put("itchiness", itchiness);
+        symptoms.put("scratch", true);
+        symptoms.put("inflammation", 3);
+        symptoms.put("dryness", 2);
+        symptoms.put("weepingSkin", false);
+        symptoms.put("skinCracks", false);
+        ArrayNode spreadPhotoUrls = symptoms.putArray("spreadPhotoUrls");
+        spreadPhotoUrls.add("https://example.com/p1.jpg");
+
+        return objectMapper.writeValueAsString(root);
     }
 }

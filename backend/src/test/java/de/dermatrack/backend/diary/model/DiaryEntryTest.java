@@ -2,7 +2,9 @@ package de.dermatrack.backend.diary.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -15,9 +17,6 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
-/**
- * Unit tests for DiaryEntry model
- */
 @DisplayName("DiaryEntry Model Tests")
 class DiaryEntryTest {
 
@@ -38,83 +37,70 @@ class DiaryEntryTest {
         diaryEntry.setId(UUID.randomUUID());
         diaryEntry.setUser(testUser);
         diaryEntry.setCreatedAt(OffsetDateTime.now());
+        diaryEntry.setEntryDate(LocalDate.of(2026, 4, 23));
     }
 
     @Test
     @DisplayName("Valid diary entry should have no validation errors")
     void validDiaryEntry_ShouldPassValidation() {
-        // Arrange
-        diaryEntry.setAllergies(5);
-        diaryEntry.setInfections(3);
         diaryEntry.setStressLevel(7);
         diaryEntry.setSleep(6);
-        diaryEntry.setNutrition(8);
-        diaryEntry.setSymptoms(4);
+        diaryEntry.setMentalStrain(5);
+        diaryEntry.setSymptomItchiness(4);
+        diaryEntry.setSymptomInflammation(3);
+        diaryEntry.setSymptomDryness(2);
 
-        // Act
         var violations = validator.validate(diaryEntry);
 
-        // Assert
         assertThat(violations).isEmpty();
     }
 
     @Test
-    @DisplayName("Rating below 0 should fail validation")
-    void rating_BelowZero_ShouldFailValidation() {
-        // Arrange
-        diaryEntry.setAllergies(-1);
+    @DisplayName("Stress level below 0 should fail validation")
+    void stressLevel_BelowZero_ShouldFailValidation() {
+        diaryEntry.setStressLevel(-1);
 
-        // Act
         var violations = validator.validate(diaryEntry);
 
-        // Assert
         assertThat(violations)
                 .isNotEmpty()
                 .extracting(ConstraintViolation::getMessage)
-                .contains("Allergies rating must be 0 or higher");
+                .contains("Stress level must be 0 or higher");
     }
 
     @Test
-    @DisplayName("Rating above 10 should fail validation")
-    void rating_AboveTen_ShouldFailValidation() {
-        // Arrange
-        diaryEntry.setAllergies(11);
+    @DisplayName("Dryness above 10 should fail validation")
+    void dryness_AboveTen_ShouldFailValidation() {
+        diaryEntry.setSymptomDryness(11);
 
-        // Act
         var violations = validator.validate(diaryEntry);
 
-        // Assert
         assertThat(violations)
                 .isNotEmpty()
                 .extracting(ConstraintViolation::getMessage)
-                .contains("Allergies rating must be 10 or lower");
+                .contains("Dryness rating must be 10 or lower");
     }
 
     @Test
-    @DisplayName("Rating between 0 and 10 should pass validation")
+    @DisplayName("Boundary values should pass validation")
     void rating_ValidRange_ShouldPassValidation() {
-        // Arrange - Alle 6 Felder haben identische @Min(0) @Max(10) Validierung
-        diaryEntry.setAllergies(0);
-        diaryEntry.setInfections(5);
-        diaryEntry.setStressLevel(10);
-        diaryEntry.setSleep(7);
-        diaryEntry.setNutrition(8);
-        diaryEntry.setSymptoms(3);
+        diaryEntry.setStressLevel(0);
+        diaryEntry.setSleep(10);
+        diaryEntry.setMentalStrain(5);
+        diaryEntry.setSymptomItchiness(10);
+        diaryEntry.setSymptomInflammation(0);
+        diaryEntry.setSymptomDryness(7);
 
-        // Act
         var violations = validator.validate(diaryEntry);
 
-        // Assert
         assertThat(violations).isEmpty();
     }
 
     @Test
     @DisplayName("getUserId() should return user's ID when user is set")
     void getUserId_WhenUserIsSet_ShouldReturnUserId() {
-        // Act
         UUID userId = diaryEntry.getUserId();
 
-        // Assert
         assertThat(userId).isNotNull();
         assertThat(userId).isEqualTo(testUser.getId());
     }
@@ -122,27 +108,21 @@ class DiaryEntryTest {
     @Test
     @DisplayName("getUserId() should return null when user is not set")
     void getUserId_WhenUserIsNull_ShouldReturnNull() {
-        // Arrange
         diaryEntry.setUser(null);
 
-        // Act
         UUID userId = diaryEntry.getUserId();
 
-        // Assert
         assertThat(userId).isNull();
     }
 
     @Test
     @DisplayName("onCreate() should set createdAt if not already set")
     void onCreate_WhenCreatedAtIsNull_ShouldSetCreatedAt() {
-        // Arrange
         diaryEntry.setCreatedAt(null);
         OffsetDateTime beforeCall = OffsetDateTime.now();
 
-        // Act
         diaryEntry.onCreate();
 
-        // Assert
         assertThat(diaryEntry.getCreatedAt()).isNotNull();
         assertThat(diaryEntry.getCreatedAt()).isAfterOrEqualTo(beforeCall);
     }
@@ -150,46 +130,44 @@ class DiaryEntryTest {
     @Test
     @DisplayName("onCreate() should not change createdAt if already set")
     void onCreate_WhenCreatedAtIsSet_ShouldNotChangeIt() {
-        // Arrange
         OffsetDateTime originalTime = OffsetDateTime.now().minusDays(1);
         diaryEntry.setCreatedAt(originalTime);
 
-        // Act
         diaryEntry.onCreate();
 
-        // Assert
         assertThat(diaryEntry.getCreatedAt()).isEqualTo(originalTime);
     }
 
     @Test
-    @DisplayName("All fields should be properly set and retrieved")
+    @DisplayName("All relevant fields should be properly set and retrieved")
     void allFields_ShouldBeProperlySetAndRetrieved() {
-        // Arrange
         UUID id = UUID.randomUUID();
         OffsetDateTime createdAt = OffsetDateTime.now();
-        String miscText = "Test miscellaneous notes";
+        LocalDate entryDate = LocalDate.of(2026, 4, 24);
 
-        // Act
         diaryEntry.setId(id);
         diaryEntry.setCreatedAt(createdAt);
-        diaryEntry.setAllergies(1);
-        diaryEntry.setInfections(2);
-        diaryEntry.setStressLevel(3);
-        diaryEntry.setSleep(4);
-        diaryEntry.setNutrition(5);
-        diaryEntry.setSymptoms(6);
-        diaryEntry.setMiscellaneous(miscText);
+        diaryEntry.setEntryDate(entryDate);
+        diaryEntry.setStressLevel(1);
+        diaryEntry.setSleep(2);
+        diaryEntry.setMentalStrain(3);
+        diaryEntry.setCustomContactFactors(List.of("dust"));
+        diaryEntry.setCustomNutritionFactors(List.of("coffee"));
+        diaryEntry.setCustomCareProducts(List.of("cream-a"));
+        diaryEntry.setSymptomSpreadPhotoUrls(List.of("https://example.com/p1.jpg"));
+        diaryEntry.setNotes("note");
 
-        // Assert
         assertThat(diaryEntry.getId()).isEqualTo(id);
         assertThat(diaryEntry.getUser()).isEqualTo(testUser);
         assertThat(diaryEntry.getCreatedAt()).isEqualTo(createdAt);
-        assertThat(diaryEntry.getAllergies()).isEqualTo(1);
-        assertThat(diaryEntry.getInfections()).isEqualTo(2);
-        assertThat(diaryEntry.getStressLevel()).isEqualTo(3);
-        assertThat(diaryEntry.getSleep()).isEqualTo(4);
-        assertThat(diaryEntry.getNutrition()).isEqualTo(5);
-        assertThat(diaryEntry.getSymptoms()).isEqualTo(6);
-        assertThat(diaryEntry.getMiscellaneous()).isEqualTo(miscText);
+        assertThat(diaryEntry.getEntryDate()).isEqualTo(entryDate);
+        assertThat(diaryEntry.getStressLevel()).isEqualTo(1);
+        assertThat(diaryEntry.getSleep()).isEqualTo(2);
+        assertThat(diaryEntry.getMentalStrain()).isEqualTo(3);
+        assertThat(diaryEntry.getCustomContactFactors()).containsExactly("dust");
+        assertThat(diaryEntry.getCustomNutritionFactors()).containsExactly("coffee");
+        assertThat(diaryEntry.getCustomCareProducts()).containsExactly("cream-a");
+        assertThat(diaryEntry.getSymptomSpreadPhotoUrls()).containsExactly("https://example.com/p1.jpg");
+        assertThat(diaryEntry.getNotes()).isEqualTo("note");
     }
 }
