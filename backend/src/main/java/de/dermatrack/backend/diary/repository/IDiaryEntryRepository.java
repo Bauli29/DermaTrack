@@ -28,4 +28,7 @@ public interface IDiaryEntryRepository extends JpaRepository<DiaryEntry, UUID> {
     boolean existsByUser_IdAndEntryDate(UUID userId, LocalDate entryDate);
 
     boolean existsByUser_IdAndEntryDateAndIdNot(UUID userId, LocalDate entryDate, UUID id);
+
+    List<DiaryEntry> findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(UUID userId, LocalDate fromDate,
+            LocalDate toDate);
 }
