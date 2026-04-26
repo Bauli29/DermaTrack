@@ -9,7 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import de.dermatrack.backend.diary.model.DiaryEntry;
-import de.dermatrack.backend.statistics.model.line.SymptomTrendLineChartModel;
+import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
 import de.dermatrack.backend.statistics.service.impl.WeightedSymptomCalculator;
 import de.dermatrack.backend.statistics.support.StatisticsTestDataFactory;
 
@@ -24,22 +24,23 @@ class StatisticsLineChartMapperTest {
         LocalDate endDate = LocalDate.of(2026, 4, 25);
         LocalDate fromDate = endDate.minusDays(6);
 
-        DiaryEntry firstDay = StatisticsTestDataFactory.buildEntry(fromDate, 4, 2, 3, true, false, false);
-        DiaryEntry thirdDay = StatisticsTestDataFactory.buildEntry(fromDate.plusDays(2), 8, 4, 6, true, true, false);
+        DiaryEntry firstDay = StatisticsTestDataFactory.buildEntryForLineChart(fromDate, 4, 2, 3);
+        DiaryEntry thirdDay = StatisticsTestDataFactory.buildEntryForLineChart(fromDate.plusDays(2), 8, 4, 6);
 
-        SymptomTrendLineChartModel chart = mapper.toSymptomTrendChart(List.of(firstDay, thirdDay), fromDate, endDate);
+        SymptomTrendChartModel chart = mapper.toSymptomTrendChart(List.of(firstDay, thirdDay), fromDate, endDate);
 
         assertThat(chart.getChartType()).isEqualTo("line");
         assertThat(chart.getCategories()).hasSize(7);
         assertThat(chart.getSeries()).hasSize(4);
 
-        assertThat(chart.getSeries().get(0).getName()).isEqualTo("Itchiness");
+        assertThat(chart.getSeries().get(0).getName()).isEqualTo("Mental Strain");
         assertThat(chart.getSeries().get(0).getData().get(0)).isEqualTo(4.0);
         assertThat(chart.getSeries().get(0).getData().get(1)).isNull();
         assertThat(chart.getSeries().get(0).getData().get(2)).isEqualTo(8.0);
 
-        assertThat(chart.getSeries().get(3).getName()).isEqualTo("Weighted Symptoms");
-        assertThat(chart.getSeries().get(3).getData().get(0)).isEqualTo(2.9);
-        assertThat(chart.getSeries().get(3).getData().get(1)).isNull();
+        assertThat(chart.getSeries().get(2).getName()).isEqualTo("Sleep");
+        assertThat(chart.getSeries().get(2).getData().get(0)).isEqualTo(3.0);
+        assertThat(chart.getSeries().get(2).getData().get(1)).isNull();
+        assertThat(chart.getSeries().get(2).getData().get(2)).isEqualTo(6.0);
     }
 }

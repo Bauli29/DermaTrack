@@ -11,7 +11,7 @@ public final class StatisticsTestDataFactory {
     private StatisticsTestDataFactory() {
     }
 
-    public static DiaryEntry buildEntry(LocalDate date, Integer itchiness, Integer dryness, Integer inflammation,
+    public static DiaryEntry buildEntryForBarChart(LocalDate date, Integer itchiness, Integer dryness, Integer inflammation,
             Boolean scratch, Boolean weepingSkin, Boolean skinCracks) {
         DiaryEntry entry = new DiaryEntry();
         entry.setEntryDate(date);
@@ -24,6 +24,14 @@ public final class StatisticsTestDataFactory {
         return entry;
     }
 
+    public static DiaryEntry buildEntryForLineChart(LocalDate date, Integer mentalstrain, Integer stress, Integer sleep) {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setEntryDate(date);
+        entry.setMentalStrain(mentalstrain);
+        entry.setStressLevel(stress);
+        entry.setSleep(sleep);
+        return entry;
+    }
     public static List<LocalDate> lastSevenDaysEndingAt(LocalDate endDate) {
         List<LocalDate> dates = new ArrayList<>();
         LocalDate current = endDate.minusDays(6);

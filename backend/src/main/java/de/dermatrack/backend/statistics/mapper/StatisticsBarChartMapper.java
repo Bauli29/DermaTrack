@@ -12,16 +12,12 @@ import de.dermatrack.backend.diary.model.DiaryEntry;
 import de.dermatrack.backend.statistics.model.common.HighchartsSeriesModel;
 import de.dermatrack.backend.statistics.model.common.StatisticsDateRangeModel;
 import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
-import de.dermatrack.backend.statistics.service.IWeightedSymptomCalculator;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class StatisticsLineChartMapper {
-
-    private final IWeightedSymptomCalculator weightedSymptomCalculator;
-
-    public SymptomTrendChartModel toSymptomTrendChart(List<DiaryEntry> entries, LocalDate fromDate,
+public class StatisticsBarChartMapper {
+        public SymptomTrendChartModel toSymptomTrendChart(List<DiaryEntry> entries, LocalDate fromDate,
             LocalDate toDate) {
         Map<LocalDate, DiaryEntry> entriesByDate = new HashMap<>();
         for (DiaryEntry entry : entries) {
@@ -32,29 +28,27 @@ public class StatisticsLineChartMapper {
         List<Double> itchiness = new ArrayList<>();
         List<Double> dryness = new ArrayList<>();
         List<Double> inflammation = new ArrayList<>();
-        List<Double> weightedSymptoms = new ArrayList<>();
 
         LocalDate current = fromDate;
         while (!current.isAfter(toDate)) {
             categories.add(current.toString());
             DiaryEntry entry = entriesByDate.get(current);
 
-            itchiness.add(intToDouble(entry == null ? null : entry.getMentalStrain()));
-            dryness.add(intToDouble(entry == null ? null : entry.getStressLevel()));
-            inflammation.add(intToDouble(entry == null ? null : entry.getSleep()));
-            weightedSymptoms.add(entry == null ? null : weightedSymptomCalculator.calculateSymptomWeight(entry));
+            itchiness.add(intToDouble(entry == null ? null : entry.getSymptomItchiness()));
+            dryness.add(intToDouble(entry == null ? null : entry.getSymptomDryness()));
+            inflammation.add(intToDouble(entry == null ? null : entry.getSymptomInflammation()));
 
             current = current.plusDays(1);
         }
 
         List<HighchartsSeriesModel> series = List.of(
-                new HighchartsSeriesModel("Mental Strain", itchiness),
-                new HighchartsSeriesModel("Stress Level", dryness),
-                new HighchartsSeriesModel("Sleep", inflammation),
-                new HighchartsSeriesModel("Weighted Symptoms", weightedSymptoms));
+                new HighchartsSeriesModel("Itchiness", itchiness),
+                new HighchartsSeriesModel("Dryness", dryness),
+                new HighchartsSeriesModel("Inflammation", inflammation)
+            );
 
         return new SymptomTrendChartModel(
-                "line",
+                "column",
                 categories,
                 series,
                 new StatisticsDateRangeModel(fromDate, toDate));

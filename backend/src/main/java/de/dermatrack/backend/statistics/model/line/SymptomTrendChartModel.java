@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SymptomTrendLineChartModel {
+public class SymptomTrendChartModel {
 
     private String chartType;
     private List<String> categories;

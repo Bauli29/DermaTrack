@@ -2,7 +2,7 @@
 # Purpose: daily local development with in-memory H2 and mock seed data.
 spring:
   datasource:
-    url: jdbc:h2:mem:dev
+    url: jdbc:h2:mem:dev;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -46,3 +46,5 @@ logging:
   level:
     "[de.dermatrack]": INFO
     "[org.hibernate.SQL]": WARN
+    
+    
