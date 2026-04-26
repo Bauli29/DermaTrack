@@ -8,6 +8,7 @@ import Icon from '@/components/atoms/Icon'
 import Text from '@/components/atoms/Text'
 
 import Brand from '@/components/molecules/Brand'
+import ThemeToggleButton from '@/components/molecules/ThemeToggleButton'
 
 import { usePageTitle } from '@/hooks/use-page-title'
 
@@ -52,6 +53,7 @@ const Header = ({
       </SC.Center>
 
       <SC.Right>
+        <ThemeToggleButton />
         {showBrand && (
           <Brand
             name={brandName}

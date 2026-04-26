@@ -10,16 +10,12 @@ export const Header = styled.header`
   background: ${({ theme }) => theme.colors.surface};
   color: ${({ theme }) => theme.colors.text};
   border-bottom: 1px solid ${({ theme }) => theme.colors.borderLight};
-  padding-top: env(safe-area-inset-top, 0px);
   display: grid;
   grid-template-columns: 1fr auto 1fr; /* left/right size to content; title flexes */
   column-gap: 8px;
   align-items: center;
-  height: var(
-    --header-height,
-    64px
-  ); /* larger, thumb-friendly mobile touch target */
-  padding: 0 12px;
+  height: 64px; /* larger, thumb-friendly mobile touch target */
+  padding: env(safe-area-inset-top, 0px) 12px 0;
 `
 
 export const Left = styled.div`
@@ -48,6 +44,7 @@ export const Right = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 0.5rem;
   min-width: 0;
   padding-right: 8px;
 `

@@ -19,7 +19,6 @@ import { usePageTitle } from '@/hooks/use-page-title'
 import { getHealth } from '@/services/actuator/health'
 
 import * as SC from './styles'
-import ThemeButton from './temp-theme-button'
 
 import type { TButtonVariant } from '@/components/atoms/Button/types'
 import type { TIconColor, TIconSize } from '@/components/atoms/Icon/types'
@@ -160,9 +159,6 @@ const TestTemplate = () => {
 
   return (
     <SC.TestPageWrapper>
-      {/* Header is now global (rendered from ClientLayout), so we don't add it here */}
-      <ThemeButton />
-
       <Headline variant='h2' color='critical' align='center'>
         Backend Health: {healthStatus}
       </Headline>
