@@ -7,8 +7,10 @@ import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
 import Link from '@/components/atoms/Link'
 import Slider from '@/components/atoms/Slider'
+import Select from '@/components/atoms/Select'
 import Text from '@/components/atoms/Text'
 
+import CompoundRadioButtons from '@/components/molecules/CompoundRadioButtons'
 import Input from '@/components/molecules/Input'
 import TextArea from '@/components/molecules/TextArea'
 
@@ -108,6 +110,10 @@ const TestTemplate = () => {
   const { setTitle } = usePageTitle()
   const [basicSliderValue, setBasicSliderValue] = useState(50)
   const [temperatureValue, setTemperatureValue] = useState(20)
+  const [selectedTrackingCategory, setSelectedTrackingCategory] = useState('')
+  const [selectedContactFactor, setSelectedContactFactor] =
+    useState('animal-contact')
+  const [animalContactDetails, setAnimalContactDetails] = useState('')
 
   // Single-line inputs (Input component)
   const [name, setName] = useState('')
@@ -160,9 +166,65 @@ const TestTemplate = () => {
       <Headline variant='h2' color='critical' align='center'>
         Backend Health: {healthStatus}
       </Headline>
-      <Headline variant='h2' color='primary' align='left'>
-        Primary Section
+
+      <Headline variant='h3' color='secondary' align='left' noSpacing>
+        Compound Radio Buttons
       </Headline>
+      <Text size='small' color='textMuted' margin='0 0 1rem 0'>
+        Reusable molecule for radio choices that can reveal one follow-up text
+        field on the second level.
+      </Text>
+
+      <CompoundRadioButtons
+        name='contact-factors-demo'
+        legend='Contact Factors'
+        helperText='Select one option. Some options can open an extra text field for more detail.'
+        value={selectedContactFactor}
+        onChange={setSelectedContactFactor}
+        margin='0 0 1.5rem 0'
+        options={[
+          {
+            value: 'shower',
+            label: 'Shower',
+          },
+          {
+            value: 'clothing',
+            label: 'Clothing',
+          },
+          {
+            value: 'animal-contact',
+            label: 'Animal Contact',
+            detailInput: {
+              placeholder: 'Text field ...',
+              label: 'Additional Detail',
+              value: animalContactDetails,
+              onChange: setAnimalContactDetails,
+              helperText: 'Example for the requested second-level text input.',
+            },
+          },
+        ]}
+      />
+
+      <Headline variant='h3' color='secondary' align='left' noSpacing>
+        Selects
+      </Headline>
+      <Text size='small' color='textMuted' margin='0 0 1rem 0'>
+        Atom for native dropdown selections with project-aligned styling.
+      </Text>
+
+      <Select
+        aria-label='Tracking category'
+        placeholder='Choose a tracking category'
+        value={selectedTrackingCategory}
+        onChange={event => setSelectedTrackingCategory(event.target.value)}
+        maxWidth='320px'
+        margin='0 0 1.5rem 0'
+        options={[
+          { value: 'contact-factors', label: 'Contact Factors' },
+          { value: 'symptoms', label: 'Symptoms' },
+          { value: 'medication', label: 'Medication' },
+        ]}
+      />
 
       <Headline variant='h3' color='secondary' align='left' noSpacing>
         Buttons
