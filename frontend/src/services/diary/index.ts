@@ -1,4 +1,5 @@
 import type { TDiaryEntryInput } from '@/validation/diary'
+import { sessionAwareFetch } from '@/lib/session-aware-fetch'
 
 interface IApiErrorLike {
   error?: string
@@ -65,11 +66,17 @@ export const createDiaryEntry = async (
   fetchImpl: TDiaryFetch = fetch
 ): Promise<TCreateDiaryEntryResult> => {
   try {
-    const response = await fetchImpl('/api/diary', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
+    const response = await sessionAwareFetch(
+      '/api/diary',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      },
+      {
+        fetchImpl,
+      }
+    )
 
     if (!response.ok) {
       return {

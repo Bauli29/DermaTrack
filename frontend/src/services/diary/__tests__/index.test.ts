@@ -29,6 +29,10 @@ const createMockResponse = ({
   }) as unknown as Response
 
 describe('diary service', () => {
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
+
   it('submits diary entries to the frontend api route', async () => {
     const fetchImpl = jest.fn().mockResolvedValue(
       createMockResponse({
@@ -113,5 +117,120 @@ describe('diary service', () => {
       success: false,
       error: 'Network down',
     })
+  })
+
+  it('silently refreshes the session and retries once on 401', async () => {
+    const fetchImpl = jest
+      .fn()
+      .mockResolvedValueOnce(
+        createMockResponse({
+          status: 401,
+          contentType: 'application/json',
+          jsonBody: { error: 'Unauthorized' },
+        })
+      )
+      .mockResolvedValueOnce(
+        createMockResponse({
+          status: 200,
+          contentType: 'application/json',
+          jsonBody: { refreshed: true },
+        })
+      )
+      .mockResolvedValueOnce(
+        createMockResponse({
+          status: 201,
+          contentType: 'application/json',
+          jsonBody: { id: 'entry-2' },
+        })
+      )
+
+    await expect(
+      createDiaryEntry(
+        {
+          symptoms: 4,
+          stressLevel: 2,
+        },
+        fetchImpl
+      )
+    ).resolves.toEqual({ success: true })
+
+    expect(fetchImpl).toHaveBeenCalledTimes(3)
+    expect(fetchImpl).toHaveBeenNthCalledWith(2, '/api/auth/refresh', {
+      method: 'POST',
+      credentials: 'include',
+    })
+  })
+
+  it('returns 401 error when refresh token is also invalid', async () => {
+    const fetchImpl = jest
+      .fn()
+      .mockResolvedValueOnce(
+        createMockResponse({
+          status: 401,
+          contentType: 'application/json',
+          jsonBody: { error: 'Session expired' },
+        })
+      )
+      .mockResolvedValueOnce(
+        createMockResponse({
+          status: 401,
+          contentType: 'application/json',
+          jsonBody: { error: 'Refresh token invalid' },
+        })
+      )
+
+    await expect(
+      createDiaryEntry(
+        {
+          symptoms: 4,
+        },
+        fetchImpl
+      )
+    ).resolves.toEqual({
+      success: false,
+      error: 'Session expired',
+    })
+
+    expect(fetchImpl).toHaveBeenCalledTimes(2)
+  })
+
+  it('retries at most once even if the retried request is still unauthorized', async () => {
+    const fetchImpl = jest
+      .fn()
+      .mockResolvedValueOnce(
+        createMockResponse({
+          status: 401,
+          contentType: 'application/json',
+          jsonBody: { error: 'Unauthorized' },
+        })
+      )
+      .mockResolvedValueOnce(
+        createMockResponse({
+          status: 200,
+          contentType: 'application/json',
+          jsonBody: { refreshed: true },
+        })
+      )
+      .mockResolvedValueOnce(
+        createMockResponse({
+          status: 401,
+          contentType: 'application/json',
+          jsonBody: { error: 'Still unauthorized' },
+        })
+      )
+
+    await expect(
+      createDiaryEntry(
+        {
+          symptoms: 4,
+        },
+        fetchImpl
+      )
+    ).resolves.toEqual({
+      success: false,
+      error: 'Still unauthorized',
+    })
+
+    expect(fetchImpl).toHaveBeenCalledTimes(3)
   })
 })

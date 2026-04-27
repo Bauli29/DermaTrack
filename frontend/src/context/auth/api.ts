@@ -1,6 +1,7 @@
 'use client'
 
 import { createAuthError, EAuthErrorCode, parseApiError } from '@/types/errors'
+import { sessionAwareFetch } from '@/lib/session-aware-fetch'
 
 import type { ISessionResponse } from '@/types/auth'
 import type { IApiErrorResponse, IAuthError } from '@/types/errors'
@@ -20,10 +21,17 @@ const fetchAuthRoute = (
   options: RequestInit,
   fetchImpl: TAuthFetch = fetch
 ): Promise<Response> =>
-  fetchImpl(path, {
-    ...options,
-    credentials: 'include',
-  })
+  sessionAwareFetch(
+    path,
+    {
+      ...options,
+      credentials: 'include',
+    },
+    {
+      fetchImpl,
+      enableSessionRecovery: false,
+    }
+  )
 
 const readJsonResponse = async <T>(response: Response): Promise<T | null> =>
   (await response.json().catch(() => null)) as T | null
