@@ -23,6 +23,7 @@ public class DiaryEntryMapper {
     public DiaryEntry toEntity(DiaryEntryCreateRequest request) {
         DiaryEntry entity = new DiaryEntry();
         entity.setEntryDate(request.getEntryDate());
+        entity.setNotes(request.getNotes());
         mapTrackingToEntity(request.getTracking(), entity);
         return entity;
     }
@@ -30,6 +31,7 @@ public class DiaryEntryMapper {
     public DiaryEntry toEntity(DiaryEntryUpdateRequest request) {
         DiaryEntry entity = new DiaryEntry();
         entity.setEntryDate(request.getEntryDate());
+        entity.setNotes(request.getNotes());
         mapTrackingToEntity(request.getTracking(), entity);
         return entity;
     }
@@ -41,6 +43,7 @@ public class DiaryEntryMapper {
         response.setCreatedAt(entity.getCreatedAt());
         response.setEntryDate(entity.getEntryDate());
         response.setTracking(mapEntityToTracking(entity));
+        response.setNotes(entity.getNotes());
         return response;
     }
 

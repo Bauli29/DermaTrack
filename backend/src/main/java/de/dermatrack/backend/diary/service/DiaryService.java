@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import de.dermatrack.backend.diary.model.DiaryEntry;
 import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 import de.dermatrack.backend.exception.ResourceNotFoundException;
-import de.dermatrack.backend.exception.diary.DiaryEntryAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -89,18 +88,18 @@ public class DiaryService {
 
     public DiaryEntry createForUser(DiaryEntry diaryEntry, UUID userId) {
         LocalDate entryDate = diaryEntry.getEntryDate();
-        if (IDiaryEntryRepository.existsByUser_IdAndEntryDate(userId, entryDate)) {
-            throw new DiaryEntryAlreadyExistsException(userId, entryDate);
-        }
-        return IDiaryEntryRepository.save(diaryEntry);
+        return IDiaryEntryRepository
+                .findByUser_IdAndEntryDate(userId, entryDate)
+                .map(existing -> {
+                    return updateForUser(existing.getId(), userId, diaryEntry);
+                })
+                .orElseGet(() -> {
+                    return IDiaryEntryRepository.save(diaryEntry);
+                });
     }
 
     public DiaryEntry updateForUser(UUID id, UUID userId, DiaryEntry diaryEntry) {
         DiaryEntry existingEntry = findByIdAndUserId(id, userId);
-
-        if (IDiaryEntryRepository.existsByUser_IdAndEntryDateAndIdNot(userId, diaryEntry.getEntryDate(), id)) {
-            throw new DiaryEntryAlreadyExistsException(userId, diaryEntry.getEntryDate());
-        }
 
         existingEntry.setEntryDate(diaryEntry.getEntryDate());
         existingEntry.setStressLevel(diaryEntry.getStressLevel());

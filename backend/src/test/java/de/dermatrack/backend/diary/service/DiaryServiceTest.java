@@ -25,7 +25,6 @@ import de.dermatrack.backend.auth.model.AppUser;
 import de.dermatrack.backend.diary.model.DiaryEntry;
 import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 import de.dermatrack.backend.exception.ResourceNotFoundException;
-import de.dermatrack.backend.exception.diary.DiaryEntryAlreadyExistsException;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DiaryService Unit Tests")
@@ -157,19 +156,24 @@ class DiaryServiceTest {
         verify(diaryEntryRepository, never()).deleteById(any(UUID.class));
     }
 
-    @Test
-    @DisplayName("createForUser() should throw conflict when entry exists for same user/date")
-    void createForUser_WhenDuplicateDate_ShouldThrowConflict() {
-        UUID userId = testUser.getId();
-        LocalDate entryDate = testEntry.getEntryDate();
-        when(diaryEntryRepository.existsByUser_IdAndEntryDate(userId, entryDate)).thenReturn(true);
-
-        assertThatThrownBy(() -> diaryService.createForUser(testEntry, userId))
-                .isInstanceOf(DiaryEntryAlreadyExistsException.class);
-
-        verify(diaryEntryRepository).existsByUser_IdAndEntryDate(userId, entryDate);
-        verify(diaryEntryRepository, never()).save(any(DiaryEntry.class));
-    }
+    /*
+     * @Test
+     * 
+     * @DisplayName("createForUser() should throw conflict when entry exists for same user/date"
+     * )
+     * void createForUser_WhenDuplicateDate_ShouldThrowConflict() {
+     * UUID userId = testUser.getId();
+     * LocalDate entryDate = testEntry.getEntryDate();
+     * when(diaryEntryRepository.existsByUser_IdAndEntryDate(userId,
+     * entryDate)).thenReturn(true);
+     * 
+     * assertThatThrownBy(() -> diaryService.createForUser(testEntry, userId))
+     * .isInstanceOf(DiaryEntryAlreadyExistsException.class);
+     * 
+     * verify(diaryEntryRepository).existsByUser_IdAndEntryDate(userId, entryDate);
+     * verify(diaryEntryRepository, never()).save(any(DiaryEntry.class));
+     * }
+     */
 
     @Test
     @DisplayName("findAllByUserId() should return owner-scoped entries")
@@ -201,13 +205,13 @@ class DiaryServiceTest {
     void createForUser_WhenDateIsFree_ShouldSave() {
         UUID userId = testUser.getId();
         LocalDate entryDate = testEntry.getEntryDate();
-        when(diaryEntryRepository.existsByUser_IdAndEntryDate(userId, entryDate)).thenReturn(false);
+        when(diaryEntryRepository.findByUser_IdAndEntryDate(userId, entryDate)).thenReturn(Optional.empty());
         when(diaryEntryRepository.save(testEntry)).thenReturn(testEntry);
 
         DiaryEntry result = diaryService.createForUser(testEntry, userId);
 
         assertThat(result).isEqualTo(testEntry);
-        verify(diaryEntryRepository).existsByUser_IdAndEntryDate(userId, entryDate);
+        verify(diaryEntryRepository).findByUser_IdAndEntryDate(userId, entryDate);
         verify(diaryEntryRepository).save(testEntry);
     }
 
@@ -224,21 +228,29 @@ class DiaryServiceTest {
         verify(diaryEntryRepository).findByIdAndUser_Id(testId, anotherUserId);
     }
 
-    @Test
-    @DisplayName("updateForUser() should throw conflict when another entry already uses target date")
-    void updateForUser_WhenDateAlreadyTaken_ShouldThrowConflict() {
-        UUID userId = testUser.getId();
-        when(diaryEntryRepository.findByIdAndUser_Id(testId, userId)).thenReturn(Optional.of(testEntry));
-        when(diaryEntryRepository.existsByUser_IdAndEntryDateAndIdNot(userId, testEntry.getEntryDate(), testId))
-                .thenReturn(true);
-
-        assertThatThrownBy(() -> diaryService.updateForUser(testId, userId, testEntry))
-                .isInstanceOf(DiaryEntryAlreadyExistsException.class);
-
-        verify(diaryEntryRepository).findByIdAndUser_Id(testId, userId);
-        verify(diaryEntryRepository).existsByUser_IdAndEntryDateAndIdNot(userId, testEntry.getEntryDate(), testId);
-        verify(diaryEntryRepository, never()).save(any(DiaryEntry.class));
-    }
+    /*
+     * @Test
+     * 
+     * @DisplayName("updateForUser() should throw conflict when another entry already uses target date"
+     * )
+     * void updateForUser_WhenDateAlreadyTaken_ShouldThrowConflict() {
+     * UUID userId = testUser.getId();
+     * when(diaryEntryRepository.findByIdAndUser_Id(testId,
+     * userId)).thenReturn(Optional.of(testEntry));
+     * when(diaryEntryRepository.existsByUser_IdAndEntryDateAndIdNot(userId,
+     * testEntry.getEntryDate(), testId))
+     * .thenReturn(true);
+     * 
+     * assertThatThrownBy(() -> diaryService.updateForUser(testId, userId,
+     * testEntry))
+     * .isInstanceOf(DiaryEntryAlreadyExistsException.class);
+     * 
+     * verify(diaryEntryRepository).findByIdAndUser_Id(testId, userId);
+     * verify(diaryEntryRepository).existsByUser_IdAndEntryDateAndIdNot(userId,
+     * testEntry.getEntryDate(), testId);
+     * verify(diaryEntryRepository, never()).save(any(DiaryEntry.class));
+     * }
+     */
 
     @Test
     @DisplayName("updateForUser() should preserve owner and createdAt when update is valid")
@@ -252,8 +264,6 @@ class DiaryServiceTest {
         updateRequest.setStressLevel(9);
 
         when(diaryEntryRepository.findByIdAndUser_Id(testId, userId)).thenReturn(Optional.of(testEntry));
-        when(diaryEntryRepository.existsByUser_IdAndEntryDateAndIdNot(userId, updateRequest.getEntryDate(), testId))
-                .thenReturn(false);
         when(diaryEntryRepository.save(testEntry)).thenReturn(testEntry);
 
         DiaryEntry result = diaryService.updateForUser(testId, userId, updateRequest);

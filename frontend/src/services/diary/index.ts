@@ -1,4 +1,5 @@
 import type { TDiaryEntryInput } from '@/validation/diary'
+//import { encryptDiaryMiscellaneousIfEnabled } from '@/lib/diary-encryption'
 
 interface IApiErrorLike {
   error?: string
@@ -61,15 +62,24 @@ const getDiaryRuntimeErrorMessage = (error: unknown): string =>
     : 'Failed to save entry. Please try again.'
 
 export const createDiaryEntry = async (
-  payload: TDiaryEntryInput,
+  payload: TDiaryEntryInput & { id?: string },
   fetchImpl: TDiaryFetch = fetch
 ): Promise<TCreateDiaryEntryResult> => {
   try {
-    const response = await fetchImpl('/api/diary', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
+    //const bodyPayload = await encryptDiaryMiscellaneousIfEnabled(payload)
+    //const response = await fetchImpl('/api/diary', {
+    //method: 'POST',
+    const isUpdate = Boolean(payload.id)
+
+    const response = await fetchImpl(
+      isUpdate ? `/api/diary/${payload.id}` : '/api/diary',
+      {
+        method: isUpdate ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        //body: JSON.stringify(bodyPayload),
+        body: JSON.stringify(payload),
+      }
+    )
 
     if (!response.ok) {
       return {

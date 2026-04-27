@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Button from '@/components/atoms/Button'
 import Slider from '@/components/atoms/Slider'
 import Text from '@/components/atoms/Text'
+import CompoundCheckboxes from '@/components/molecules/CompoundCheckboxes'
 import DateCalendarPicker from '@/components/organisms/DateCalendarPicker'
 
 import { formatDateInput } from '@/lib/date'
@@ -23,18 +24,22 @@ import {
 import * as SC from './styles'
 import {
   appendSelectedImages,
+  CONTACT_FACTOR_OPTIONS,
   createInitialDailyTrackingValues,
   DAILY_TRACKING_DISCARD_CONFIRMATION_TEXT,
   DAILY_TRACKING_SUCCESS_REDIRECT_DELAY_MS,
   DAILY_TRACKING_SUCCESS_MESSAGE,
-  FACTOR_FIELD_DEFINITIONS,
   hasPendingDailyTrackingChanges,
   IDailyTrackingFormValues,
   IDailyTrackingSliderFieldDefinition,
   isFutureDailyTrackingDate,
+  PSYCHE_FACTOR_DEFINITIONS,
   prepareDailyTrackingSubmission,
   removeSelectedImage,
+  SYMPTOM_CHECKBOX_OPTIONS,
   SYMPTOM_FIELD_DEFINITIONS,
+  CARE_FACTOR_OPTIONS,
+  NUTRITION_FACTOR_OPTIONS,
 } from './utils'
 
 const DEFAULT_SLIDER_PROPS = {
@@ -227,7 +232,108 @@ const DailyTrackingTemplate = () => {
           <Text size='medium' weight={600}>
             Factors
           </Text>
-          {FACTOR_FIELD_DEFINITIONS.map(renderSliderField)}
+          <SC.SubsectionContainer>
+            <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
+              Psyche
+            </Text>
+            {PSYCHE_FACTOR_DEFINITIONS.map(renderSliderField)}
+          </SC.SubsectionContainer>
+
+          <SC.SubsectionContainer>
+            <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
+              Contact Factors
+            </Text>
+            <CompoundCheckboxes
+              name='contact-factors'
+              options={CONTACT_FACTOR_OPTIONS.map(option => ({
+                value: option.value,
+                label: option.label,
+                detailInput: {
+                  label: `Details about ${option.label}`,
+                  placeholder: `Describe your ${option.label.toLowerCase()} contact...`,
+                  value: formValues.contactFactorDetails[option.value] ?? '',
+                  onChange: (value: string) => {
+                    setFormValues(prev => ({
+                      ...prev,
+                      contactFactorDetails: {
+                        ...prev.contactFactorDetails,
+                        [option.value]: value,
+                      },
+                    }))
+                    clearSuccessState()
+                  },
+                },
+              }))}
+              values={formValues.contactFactors}
+              onChange={(values: string[]) => {
+                updateFormValue('contactFactors', values)
+              }}
+            />
+          </SC.SubsectionContainer>
+
+          <SC.SubsectionContainer>
+            <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
+              Nutrition
+            </Text>
+            <CompoundCheckboxes
+              name='nutrition-factors'
+              options={NUTRITION_FACTOR_OPTIONS.map(option => ({
+                value: option.value,
+                label: option.label,
+                detailInput: {
+                  label: `Details about ${option.label}`,
+                  placeholder: `Describe your ${option.label.toLowerCase()} nutrition...`,
+                  value: formValues.nutritionFactorDetails[option.value] ?? '',
+                  onChange: (value: string) => {
+                    setFormValues(prev => ({
+                      ...prev,
+                      nutritionFactorDetails: {
+                        ...prev.nutritionFactorDetails,
+                        [option.value]: value,
+                      },
+                    }))
+                    clearSuccessState()
+                  },
+                },
+              }))}
+              values={formValues.nutritionFactors}
+              onChange={(values: string[]) => {
+                updateFormValue('nutritionFactors', values)
+              }}
+            />
+          </SC.SubsectionContainer>
+
+          <SC.SubsectionContainer>
+            <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
+              Care Products
+            </Text>
+            <CompoundCheckboxes
+              name='care-factors'
+              options={CARE_FACTOR_OPTIONS.map(option => ({
+                value: option.value,
+                label: option.label,
+                detailInput: {
+                  label: `Details about ${option.label}`,
+                  placeholder: `Describe your ${option.label.toLowerCase()} care product...`,
+                  value: formValues.careFactorDetails[option.value] ?? '',
+                  onChange: (value: string) => {
+                    setFormValues(prev => ({
+                      ...prev,
+                      careFactorDetails: {
+                        ...prev.careFactorDetails,
+                        [option.value]: value,
+                      },
+                    }))
+                    clearSuccessState()
+                  },
+                },
+              }))}
+              values={formValues.careFactors}
+              onChange={(values: string[]) => {
+                updateFormValue('careFactors', values)
+              }}
+            />
+          </SC.SubsectionContainer>
         </SC.Section>
 
         <SC.Section>
@@ -235,6 +341,30 @@ const DailyTrackingTemplate = () => {
             Symptoms
           </Text>
           {SYMPTOM_FIELD_DEFINITIONS.map(renderSliderField)}
+
+          <SC.SubsectionContainer>
+            <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
+              Skin symptoms
+            </Text>
+            {SYMPTOM_CHECKBOX_OPTIONS.map(option => (
+              <SC.FieldRow key={option.key}>
+                <label>
+                  <input
+                    type='checkbox'
+                    checked={Boolean(formValues[option.key])}
+                    onChange={event =>
+                      updateFormValue(
+                        option.key,
+                        event.target
+                          .checked as IDailyTrackingFormValues[typeof option.key]
+                      )
+                    }
+                  />{' '}
+                  {option.label}
+                </label>
+              </SC.FieldRow>
+            ))}
+          </SC.SubsectionContainer>
         </SC.Section>
 
         <SC.Section>
