@@ -27,6 +27,8 @@ export interface IDailyTrackingFormValues {
   nutritionFactorDetails: { [key: string]: string }
   careFactors: string[]
   careFactorDetails: { [key: string]: string }
+  healthFactors: string[]
+  healthFactorDetails: { [key: string]: string }
   itchiness: number
   inflammation: number
   dryness: number
@@ -65,6 +67,8 @@ export type TCareFactor =
   | 'hair products'
   | 'soapShampoo'
   | 'cosmetics'
+
+export type THealthFactor = 'other allergies' | 'infection'
 
 export interface IDailyTrackingSliderFieldDefinition {
   key: TDailyTrackingSliderFieldKey
@@ -112,9 +116,9 @@ export const SYMPTOM_FIELD_DEFINITIONS: readonly IDailyTrackingSliderFieldDefini
   ]
 
 export const SYMPTOM_CHECKBOX_OPTIONS = [
-  { key: 'scratch', label: 'Scratching' },
-  { key: 'weepingSkin', label: 'Weeping Skin' },
-  { key: 'skinCracks', label: 'Skin Cracks' },
+  { value: 'scratch', label: 'Scratching' },
+  { value: 'weepingSkin', label: 'Weeping Skin' },
+  { value: 'skinCracks', label: 'Skin Cracks' },
 ] as const
 
 export const CONTACT_FACTOR_OPTIONS = [
@@ -135,7 +139,6 @@ export const CARE_FACTOR_OPTIONS = [
   { value: 'skin care', label: 'Skin Care' },
   { value: 'hair products', label: 'Hair Products' },
   { value: 'soapShampoo', label: 'Soap & Shampoo' },
-
   { value: 'cosmetics', label: 'Cosmetics' },
 ] as const
 
@@ -161,6 +164,8 @@ export const createInitialDailyTrackingValues = (
   nutritionFactorDetails: {},
   careFactors: [],
   careFactorDetails: {},
+  healthFactors: [],
+  healthFactorDetails: {},
   itchiness: 0,
   inflammation: 0,
   dryness: 0,
@@ -255,11 +260,19 @@ const mapCareFactorToField = (careFactor: string): string => {
       return careFactor
   }
 }
+const mapHealthFactorToField = (factor: string): string => {
+  switch (factor) {
+    case 'allergies':
+      return 'otherAllergies'
+    case 'infections':
+      return 'infections'
+    default:
+      return factor
+  }
+}
 
 export const buildDiaryEntryInput = ({
   date,
-  allergies,
-  infections,
   stressLevel,
   sleep,
   mentalHealth,
@@ -269,6 +282,8 @@ export const buildDiaryEntryInput = ({
   nutritionFactorDetails,
   careFactors,
   careFactorDetails,
+  healthFactors,
+  healthFactorDetails,
   itchiness,
   inflammation,
   dryness,
@@ -312,10 +327,19 @@ export const buildDiaryEntryInput = ({
     }
   })
 
-  const health = {
+  const healthObj: { [key: string]: string } = {}
+  healthFactors.forEach(factor => {
+    const detail = healthFactorDetails[factor]
+    if (detail) {
+      const key = mapHealthFactorToField(factor)
+      healthObj[key] = detail
+    }
+  })
+
+  /*const health = {
     otherAllergies: allergies ? allergies.toString() : undefined,
     infections: infections ?? undefined,
-  }
+  }*/
 
   const symptomsObj = {
     itchiness: itchiness ?? undefined,
@@ -335,9 +359,7 @@ export const buildDiaryEntryInput = ({
     nutrition: Object.keys(nutritionObj).length > 0 ? nutritionObj : undefined,
     careProducts:
       Object.keys(careProductsObj).length > 0 ? careProductsObj : undefined,
-    health: Object.values(health).some(v => v !== undefined)
-      ? health
-      : undefined,
+    health: Object.keys(healthObj).length > 0 ? healthObj : undefined,
     symptoms: Object.values(symptomsObj).some(v => v !== undefined)
       ? symptomsObj
       : undefined,

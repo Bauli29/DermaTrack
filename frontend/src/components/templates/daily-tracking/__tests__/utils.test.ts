@@ -41,6 +41,8 @@ describe('daily tracking utils', () => {
         nutritionFactorDetails: {},
         careFactors: [],
         careFactorDetails: {},
+        healthFactors: [],
+        healthFactorDetails: {},
         itchiness: 0,
         inflammation: 0,
         dryness: 0,
@@ -130,6 +132,8 @@ describe('daily tracking utils', () => {
       nutritionFactorDetails: {},
       careFactors: [],
       careFactorDetails: {},
+      healthFactors: [],
+      healthFactorDetails: {},
       itchiness: 6,
       inflammation: 2,
       dryness: 1,
@@ -145,10 +149,7 @@ describe('daily tracking utils', () => {
       tracking: {
         careProducts: undefined,
         contactFactors: undefined,
-        health: {
-          infections: 2,
-          otherAllergies: undefined,
-        },
+        health: undefined,
         nutrition: undefined,
         psyche: {
           mentalStrain: 0,
@@ -180,6 +181,8 @@ describe('daily tracking utils', () => {
       nutritionFactorDetails: {},
       careFactors: [],
       careFactorDetails: {},
+      healthFactors: [],
+      healthFactorDetails: {},
       itchiness: 0,
       inflammation: 0,
       dryness: 0,
@@ -213,6 +216,8 @@ describe('daily tracking utils', () => {
           nutritionFactorDetails: {},
           careFactors: [],
           careFactorDetails: {},
+          healthFactors: [],
+          healthFactorDetails: {},
           itchiness: 6,
           inflammation: 2,
           dryness: 1,
@@ -232,10 +237,7 @@ describe('daily tracking utils', () => {
           tracking: {
             careProducts: undefined,
             contactFactors: undefined,
-            health: {
-              infections: 2,
-              otherAllergies: undefined,
-            },
+            health: undefined,
             nutrition: undefined,
             psyche: {
               mentalStrain: 0,
@@ -273,6 +275,8 @@ describe('daily tracking utils', () => {
           nutritionFactorDetails: {},
           careFactors: [],
           careFactorDetails: {},
+          healthFactors: [],
+          healthFactorDetails: {},
           itchiness: 0,
           inflammation: 0,
           dryness: 0,

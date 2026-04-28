@@ -40,6 +40,7 @@ import {
   SYMPTOM_FIELD_DEFINITIONS,
   CARE_FACTOR_OPTIONS,
   NUTRITION_FACTOR_OPTIONS,
+  HEALTH_FACTOR_OPTIONS,
 } from './utils'
 
 const DEFAULT_SLIDER_PROPS = {
@@ -74,6 +75,9 @@ const DailyTrackingTemplate = () => {
     images,
     baselineFormValues
   )
+  const selectedSymptoms = SYMPTOM_CHECKBOX_OPTIONS.filter(
+    option => formValues[option.value]
+  ).map(option => option.value)
 
   const clearScheduledRedirect = useCallback(() => {
     if (redirectTimeoutRef.current === null) {
@@ -140,6 +144,17 @@ const DailyTrackingTemplate = () => {
 
     setImages(prev => appendSelectedImages(prev, files))
     event.target.value = ''
+  }
+
+  const handleSymptomChange = (values: string[]) => {
+    setFormValues(prev => ({
+      ...prev,
+      scratch: values.includes('scratch'),
+      weepingSkin: values.includes('weepingSkin'),
+      skinCracks: values.includes('skinCracks'),
+    }))
+
+    clearSuccessState()
   }
 
   const removeImage = (index: number) => {
@@ -334,6 +349,38 @@ const DailyTrackingTemplate = () => {
               }}
             />
           </SC.SubsectionContainer>
+
+          <SC.SubsectionContainer>
+            <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
+              Health Factor
+            </Text>
+            <CompoundCheckboxes
+              name='health-factors'
+              options={HEALTH_FACTOR_OPTIONS.map(option => ({
+                value: option.value,
+                label: option.label,
+                detailInput: {
+                  label: `Details about ${option.label}`,
+                  placeholder: `Describe your ${option.label.toLowerCase()} ...`,
+                  value: formValues.healthFactorDetails[option.value] ?? '',
+                  onChange: (value: string) => {
+                    setFormValues(prev => ({
+                      ...prev,
+                      healthFactorDetails: {
+                        ...prev.healthFactorDetails,
+                        [option.value]: value,
+                      },
+                    }))
+                    clearSuccessState()
+                  },
+                },
+              }))}
+              values={formValues.healthFactors}
+              onChange={(values: string[]) => {
+                updateFormValue('healthFactors', values)
+              }}
+            />
+          </SC.SubsectionContainer>
         </SC.Section>
 
         <SC.Section>
@@ -346,24 +393,12 @@ const DailyTrackingTemplate = () => {
             <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
               Skin symptoms
             </Text>
-            {SYMPTOM_CHECKBOX_OPTIONS.map(option => (
-              <SC.FieldRow key={option.key}>
-                <label>
-                  <input
-                    type='checkbox'
-                    checked={Boolean(formValues[option.key])}
-                    onChange={event =>
-                      updateFormValue(
-                        option.key,
-                        event.target
-                          .checked as IDailyTrackingFormValues[typeof option.key]
-                      )
-                    }
-                  />{' '}
-                  {option.label}
-                </label>
-              </SC.FieldRow>
-            ))}
+            <CompoundCheckboxes
+              name='symptoms'
+              options={SYMPTOM_CHECKBOX_OPTIONS}
+              values={selectedSymptoms}
+              onChange={handleSymptomChange}
+            />
           </SC.SubsectionContainer>
         </SC.Section>
 

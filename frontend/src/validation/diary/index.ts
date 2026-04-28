@@ -58,12 +58,7 @@ export const CareProductsSchema = z
 export const HealthSchema = z
   .object({
     otherAllergies: z.string().optional(),
-    infections: z
-      .number()
-      .int('Infections rating must be a whole number')
-      .min(0, 'Infections rating cannot be less than 0')
-      .max(10, 'Infections rating cannot be greater than 10')
-      .optional(),
+    infections: z.string().optional().optional(),
   })
   .optional()
 
