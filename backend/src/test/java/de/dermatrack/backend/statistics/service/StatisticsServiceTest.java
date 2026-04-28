@@ -1,6 +1,8 @@
 package de.dermatrack.backend.statistics.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +13,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -85,5 +88,43 @@ class StatisticsServiceTest {
         assertThat(result).isSameAs(expected);
         verify(diaryEntryRepository).findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, endDate);
         verify(statisticsBarChartMapper).toSymptomTrendChart(entries, fromDate, endDate);
+    }
+
+    @Test
+    @DisplayName("getSymptomTrendLineLast7Days() should default endDate to today when omitted")
+    void getSymptomTrendLineLast7Days_WithNullEndDate_ShouldDefaultToToday() {
+        UUID userId = UUID.randomUUID();
+        LocalDate beforeCall = LocalDate.now();
+        List<DiaryEntry> entries = List.of();
+        SymptomTrendChartModel expected = new SymptomTrendChartModel();
+
+        when(diaryEntryRepository.findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(
+                eq(userId),
+                any(LocalDate.class),
+                any(LocalDate.class)))
+                .thenReturn(entries);
+        when(statisticsLineChartMapper.toSymptomTrendChart(
+                eq(entries),
+                any(LocalDate.class),
+                any(LocalDate.class)))
+                .thenReturn(expected);
+
+        SymptomTrendChartModel result = statisticsService.getSymptomTrendLineLast7Days(userId, null);
+        LocalDate afterCall = LocalDate.now();
+
+        ArgumentCaptor<LocalDate> fromDateCaptor = ArgumentCaptor.forClass(LocalDate.class);
+        ArgumentCaptor<LocalDate> endDateCaptor = ArgumentCaptor.forClass(LocalDate.class);
+
+        assertThat(result).isSameAs(expected);
+        verify(diaryEntryRepository).findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(
+                eq(userId),
+                fromDateCaptor.capture(),
+                endDateCaptor.capture());
+        verify(statisticsLineChartMapper).toSymptomTrendChart(
+                entries,
+                fromDateCaptor.getValue(),
+                endDateCaptor.getValue());
+        assertThat(endDateCaptor.getValue()).isBetween(beforeCall, afterCall);
+        assertThat(fromDateCaptor.getValue()).isEqualTo(endDateCaptor.getValue().minusDays(6));
     }
 }
