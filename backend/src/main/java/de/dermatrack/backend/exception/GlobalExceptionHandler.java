@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import de.dermatrack.backend.exception.diary.DiaryEntryAlreadyExistsException;
 import de.dermatrack.backend.exception.auth.EmailAlreadyExistsException;
 import de.dermatrack.backend.exception.auth.InvalidCredentialsException;
 import de.dermatrack.backend.exception.auth.InvalidRefreshTokenException;
@@ -170,8 +169,8 @@ public class GlobalExceptionHandler {
         /**
          * Handle duplicate username or email during registration
          */
-        @ExceptionHandler({ UsernameAlreadyExistsException.class, EmailAlreadyExistsException.class,
-                        DiaryEntryAlreadyExistsException.class })
+        @ExceptionHandler({ UsernameAlreadyExistsException.class, EmailAlreadyExistsException.class
+        })
         public ResponseEntity<ErrorResponse> handleConflictException(RuntimeException ex, WebRequest request) {
                 log.warn("Conflict: {}", ex.getMessage());
 

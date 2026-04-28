@@ -23,4 +23,6 @@ public class DiaryEntryResponse {
     private LocalDate entryDate;
 
     private DailyTrackingPayloadDto tracking;
+
+    private String notes;
 }

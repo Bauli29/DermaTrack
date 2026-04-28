@@ -31,6 +31,14 @@ export const Section = styled.section`
   gap: 8px;
 `
 
+export const SubsectionContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 12px;
+  border-left: 2px solid ${({ theme }) => theme.colors.borderLight};
+`
+
 export const FieldRow = styled.div`
   display: grid;
   grid-template-columns: 1fr; /* stack on mobile */

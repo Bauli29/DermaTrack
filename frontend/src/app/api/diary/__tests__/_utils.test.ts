@@ -151,7 +151,7 @@ describe('diary api utils', () => {
     })
     expect(badRequest.status).toBe(400)
     expect(validationBody.error).toBe('Validation failed')
-    expect(validationBody.details[0]).toContain('symptoms:')
+    expect(validationBody.details[0]).toContain('entryDate:')
     expect(invalidJson.status).toBe(400)
   })
 })

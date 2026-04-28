@@ -126,7 +126,7 @@ public class DiaryEntry {
     @Column(name = "care_hair_products")
     private String careHairProducts;
 
-    @Column(name = "care_soap_shampoo")
+    @Column(name = "care_soapShampoo")
     private String careSoapShampoo;
 
     @Column(name = "care_cosmetics")

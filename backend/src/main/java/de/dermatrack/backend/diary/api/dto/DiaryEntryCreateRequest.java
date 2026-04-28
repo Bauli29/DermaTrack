@@ -25,6 +25,9 @@ public class DiaryEntryCreateRequest {
     @Valid
     private DailyTrackingPayloadDto tracking;
 
+    @Schema(description = "Optional notes for the diary entry", example = "Felt better after applying cream")
+    private String notes;
+
     // Explicit accessors keep mapper compatibility even if Lombok tooling is stale.
     public LocalDate getEntryDate() {
         return entryDate;
@@ -32,5 +35,9 @@ public class DiaryEntryCreateRequest {
 
     public DailyTrackingPayloadDto getTracking() {
         return tracking;
+    }
+
+    public String getNotes() {
+        return notes;
     }
 }

@@ -62,20 +62,22 @@ const getDiaryRuntimeErrorMessage = (error: unknown): string =>
     : 'Failed to save entry. Please try again.'
 
 export const createDiaryEntry = async (
-  payload: TDiaryEntryInput,
+  payload: TDiaryEntryInput & { id?: string },
   fetchImpl: TDiaryFetch = fetch
 ): Promise<TCreateDiaryEntryResult> => {
   try {
+    const isUpdate = Boolean(payload.id)
+    const path = isUpdate ? `/api/diary/${payload.id}` : '/api/diary'
+    const method = isUpdate ? 'PUT' : 'POST'
+
     const response = await sessionAwareFetch(
-      '/api/diary',
+      path,
       {
-        method: 'POST',
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       },
-      {
-        fetchImpl,
-      }
+      { fetchImpl }
     )
 
     if (!response.ok) {

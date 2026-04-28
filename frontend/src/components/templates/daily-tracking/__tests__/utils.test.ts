@@ -1,3 +1,6 @@
+/// <reference types="jest" />
+
+import assert from 'node:assert'
 import {
   DAILY_TRACKING_DISCARD_CONFIRMATION_TEXT,
   DAILY_TRACKING_SUCCESS_REDIRECT_DELAY_MS,
@@ -21,26 +24,40 @@ const createMockFile = (
 
 describe('daily tracking utils', () => {
   it('creates stable initial form values from the provided date', () => {
-    expect(
-      createInitialDailyTrackingValues(new Date('2026-04-21T10:00:00Z'))
-    ).toEqual({
-      date: '2026-04-21',
-      allergies: undefined,
-      infections: undefined,
-      stressLevel: 0,
-      sleep: 0,
-      nutrition: 0,
-      symptoms: 0,
-      notes: '',
-    })
+    assert.deepStrictEqual(
+      createInitialDailyTrackingValues(new Date('2026-04-21T10:00:00Z')),
+      {
+        id: undefined,
+        date: '2026-04-21',
+        allergies: undefined,
+        infections: undefined,
+        stressLevel: 0,
+        sleep: 0,
+        nutrition: 0,
+        mentalHealth: 0,
+        contactFactors: [],
+        contactFactorDetails: {},
+        nutritionFactors: [],
+        nutritionFactorDetails: {},
+        careFactors: [],
+        careFactorDetails: {},
+        itchiness: 0,
+        inflammation: 0,
+        dryness: 0,
+        scratch: undefined,
+        weepingSkin: undefined,
+        skinCracks: undefined,
+        notes: '',
+      }
+    )
   })
 
   it('detects future dates and ignores invalid date strings', () => {
     const today = new Date('2026-04-21T10:00:00Z')
 
-    expect(isFutureDailyTrackingDate('2026-04-22', today)).toBe(true)
-    expect(isFutureDailyTrackingDate('2026-04-21', today)).toBe(false)
-    expect(isFutureDailyTrackingDate('not-a-date', today)).toBe(false)
+    assert.strictEqual(isFutureDailyTrackingDate('2026-04-22', today), true)
+    assert.strictEqual(isFutureDailyTrackingDate('2026-04-21', today), false)
+    assert.strictEqual(isFutureDailyTrackingDate('not-a-date', today), false)
   })
 
   it('validates image and date constraints for the form', () => {
@@ -51,21 +68,23 @@ describe('daily tracking utils', () => {
       6 * 1024 * 1024
     )
 
-    expect(
+    assert.strictEqual(
       validateDailyTrackingForm({
         date: '2026-04-22',
         images: [],
         today,
-      })
-    ).toBe('Date must not be in the future.')
+      }),
+      'Date must not be in the future.'
+    )
 
-    expect(
+    assert.strictEqual(
       validateDailyTrackingForm({
         date: '2026-04-21',
         images: [oversizedImage],
         today,
-      })
-    ).toBe('Each image must be <= 5MB.')
+      }),
+      'Each image must be <= 5MB.'
+    )
   })
 
   it('caps appended images at the configured maximum', () => {
@@ -79,8 +98,8 @@ describe('daily tracking utils', () => {
 
     const nextImages = appendSelectedImages(currentImages, selectedImages)
 
-    expect(nextImages).toHaveLength(5)
-    expect(nextImages.at(-1)?.name).toBe('new-1.png')
+    assert.strictEqual(nextImages.length, 5)
+    assert.strictEqual(nextImages.at(-1)?.name, 'new-1.png')
   })
 
   it('removes the selected image by index', () => {
@@ -90,9 +109,10 @@ describe('daily tracking utils', () => {
       createMockFile('third.png', 'image/png', 1024),
     ]
 
-    expect(
-      removeSelectedImage(currentImages, 1).map(image => image.name)
-    ).toEqual(['first.png', 'third.png'])
+    assert.deepStrictEqual(
+      removeSelectedImage(currentImages, 1).map(image => image.name),
+      ['first.png', 'third.png']
+    )
   })
 
   it('builds a cleaned diary payload and validates it through the shared schema', () => {
@@ -103,17 +123,47 @@ describe('daily tracking utils', () => {
       stressLevel: 4,
       sleep: 3,
       nutrition: 5,
-      symptoms: 6,
+      mentalHealth: 0,
+      contactFactors: [],
+      contactFactorDetails: {},
+      nutritionFactors: [],
+      nutritionFactorDetails: {},
+      careFactors: [],
+      careFactorDetails: {},
+      itchiness: 6,
+      inflammation: 2,
+      dryness: 1,
+      scratch: true,
+      weepingSkin: false,
+      skinCracks: true,
       notes: 'More context',
     })
 
-    expect(payload).toEqual({
-      infections: 2,
-      stressLevel: 4,
-      sleep: 3,
-      nutrition: 5,
-      symptoms: 6,
-      miscellaneous: 'More context',
+    assert.deepStrictEqual(payload, {
+      entryDate: '2026-04-21',
+      notes: 'More context',
+      tracking: {
+        careProducts: undefined,
+        contactFactors: undefined,
+        health: {
+          infections: 2,
+          otherAllergies: undefined,
+        },
+        nutrition: undefined,
+        psyche: {
+          mentalStrain: 0,
+          sleep: 3,
+          stressLevel: 4,
+        },
+        symptoms: {
+          itchiness: 6,
+          inflammation: 2,
+          dryness: 1,
+          scratch: true,
+          weepingSkin: false,
+          skinCracks: true,
+        },
+      },
     })
 
     const validationResult = validateDailyTrackingPayload({
@@ -123,19 +173,31 @@ describe('daily tracking utils', () => {
       stressLevel: 0,
       sleep: 0,
       nutrition: 0,
-      symptoms: 6,
+      mentalHealth: 0,
+      contactFactors: [],
+      contactFactorDetails: {},
+      nutritionFactors: [],
+      nutritionFactorDetails: {},
+      careFactors: [],
+      careFactorDetails: {},
+      itchiness: 0,
+      inflammation: 0,
+      dryness: 0,
+      scratch: undefined,
+      weepingSkin: undefined,
+      skinCracks: undefined,
       notes: '',
     })
 
-    expect(validationResult.success).toBe(true)
+    assert.strictEqual(validationResult.success, true)
   })
 
   it('uses a shared success redirect delay constant', () => {
-    expect(DAILY_TRACKING_SUCCESS_REDIRECT_DELAY_MS).toBe(700)
+    assert.strictEqual(DAILY_TRACKING_SUCCESS_REDIRECT_DELAY_MS, 700)
   })
 
   it('prepares valid diary submissions through one shared helper', () => {
-    expect(
+    assert.deepStrictEqual(
       prepareDailyTrackingSubmission({
         values: {
           date: '2026-04-21',
@@ -144,27 +206,58 @@ describe('daily tracking utils', () => {
           stressLevel: 4,
           sleep: 3,
           nutrition: 5,
-          symptoms: 6,
+          mentalHealth: 0,
+          contactFactors: [],
+          contactFactorDetails: {},
+          nutritionFactors: [],
+          nutritionFactorDetails: {},
+          careFactors: [],
+          careFactorDetails: {},
+          itchiness: 6,
+          inflammation: 2,
+          dryness: 1,
+          scratch: true,
+          weepingSkin: false,
+          skinCracks: true,
           notes: 'More context',
         },
         images: [],
         today: new Date('2026-04-21T10:00:00Z'),
-      })
-    ).toEqual({
-      success: true,
-      data: {
-        infections: 2,
-        stressLevel: 4,
-        sleep: 3,
-        nutrition: 5,
-        symptoms: 6,
-        miscellaneous: 'More context',
-      },
-    })
+      }),
+      {
+        success: true,
+        data: {
+          entryDate: '2026-04-21',
+          notes: 'More context',
+          tracking: {
+            careProducts: undefined,
+            contactFactors: undefined,
+            health: {
+              infections: 2,
+              otherAllergies: undefined,
+            },
+            nutrition: undefined,
+            psyche: {
+              mentalStrain: 0,
+              sleep: 3,
+              stressLevel: 4,
+            },
+            symptoms: {
+              itchiness: 6,
+              inflammation: 2,
+              dryness: 1,
+              scratch: true,
+              weepingSkin: false,
+              skinCracks: true,
+            },
+          },
+        },
+      }
+    )
   })
 
   it('reports shared submission errors and pending changes consistently', () => {
-    expect(
+    assert.deepStrictEqual(
       prepareDailyTrackingSubmission({
         values: {
           date: '2026-04-22',
@@ -173,25 +266,39 @@ describe('daily tracking utils', () => {
           stressLevel: 0,
           sleep: 0,
           nutrition: 0,
-          symptoms: 0,
+          mentalHealth: 0,
+          contactFactors: [],
+          contactFactorDetails: {},
+          nutritionFactors: [],
+          nutritionFactorDetails: {},
+          careFactors: [],
+          careFactorDetails: {},
+          itchiness: 0,
+          inflammation: 0,
+          dryness: 0,
+          scratch: undefined,
+          weepingSkin: undefined,
+          skinCracks: undefined,
           notes: '',
         },
         images: [],
         today: new Date('2026-04-21T10:00:00Z'),
-      })
-    ).toEqual({
-      success: false,
-      error: 'Date must not be in the future.',
-    })
+      }),
+      {
+        success: false,
+        error: 'Date must not be in the future.',
+      }
+    )
 
     const initialValues = createInitialDailyTrackingValues(
       new Date('2026-04-21T10:00:00Z')
     )
 
-    expect(
-      hasPendingDailyTrackingChanges(initialValues, [], initialValues)
-    ).toBe(false)
-    expect(
+    assert.strictEqual(
+      hasPendingDailyTrackingChanges(initialValues, [], initialValues),
+      false
+    )
+    assert.strictEqual(
       hasPendingDailyTrackingChanges(
         {
           ...initialValues,
@@ -199,20 +306,26 @@ describe('daily tracking utils', () => {
         },
         [],
         initialValues
-      )
-    ).toBe(true)
-    expect(
+      ),
+      true
+    )
+    assert.strictEqual(
       hasPendingDailyTrackingChanges(
         initialValues,
         [createMockFile('new.png', 'image/png', 1024)],
         initialValues
-      )
-    ).toBe(true)
+      ),
+      true
+    )
   })
 
   it('uses shared copy constants for success and discard behavior', () => {
-    expect(DAILY_TRACKING_SUCCESS_MESSAGE).toBe('Entry saved successfully.')
-    expect(DAILY_TRACKING_DISCARD_CONFIRMATION_TEXT).toBe(
+    assert.strictEqual(
+      DAILY_TRACKING_SUCCESS_MESSAGE,
+      'Entry saved successfully.'
+    )
+    assert.strictEqual(
+      DAILY_TRACKING_DISCARD_CONFIRMATION_TEXT,
       'Discard changes? Your input will be lost.'
     )
   })

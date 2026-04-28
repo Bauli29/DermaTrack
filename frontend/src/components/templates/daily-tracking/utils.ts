@@ -13,13 +13,26 @@ import {
 import { DiaryEntrySchema, type TDiaryEntryInput } from '@/validation/diary'
 
 export interface IDailyTrackingFormValues {
+  id?: string
   date: string
   allergies?: number
   infections?: number
   stressLevel: number
   sleep: number
-  nutrition: number
-  symptoms: number
+  nutrition?: number
+  mentalHealth: number
+  contactFactors: string[]
+  contactFactorDetails: { [key: string]: string }
+  nutritionFactors: string[]
+  nutritionFactorDetails: { [key: string]: string }
+  careFactors: string[]
+  careFactorDetails: { [key: string]: string }
+  itchiness: number
+  inflammation: number
+  dryness: number
+  scratch?: boolean
+  weepingSkin?: boolean
+  skinCracks?: boolean
   notes: string
 }
 
@@ -33,8 +46,25 @@ export type TDailyTrackingSliderFieldKey =
   | 'infections'
   | 'stressLevel'
   | 'sleep'
-  | 'nutrition'
-  | 'symptoms'
+  | 'mentalHealth'
+  | 'itchiness'
+  | 'inflammation'
+  | 'dryness'
+
+export type TContactFactor = 'shower' | 'clothing' | 'animal-contact'
+
+export type TNutritionFactor =
+  | 'Nuts'
+  | 'Fruits'
+  | 'Shellfish'
+  | 'Dairy'
+  | 'Gluten'
+
+export type TCareFactor =
+  | 'skin care'
+  | 'hair products'
+  | 'soapShampoo'
+  | 'cosmetics'
 
 export interface IDailyTrackingSliderFieldDefinition {
   key: TDailyTrackingSliderFieldKey
@@ -67,28 +97,76 @@ export type TDailyTrackingSubmissionResult =
   | IDailyTrackingSubmissionSuccess
   | IDailyTrackingSubmissionFailure
 
-export const FACTOR_FIELD_DEFINITIONS: readonly IDailyTrackingSliderFieldDefinition[] =
+export const PSYCHE_FACTOR_DEFINITIONS: readonly IDailyTrackingSliderFieldDefinition[] =
   [
-    { key: 'allergies', label: 'Allergies' },
-    { key: 'infections', label: 'Infections' },
-    { key: 'stressLevel', label: 'Stress level' },
+    { key: 'stressLevel', label: 'Stress' },
     { key: 'sleep', label: 'Sleep' },
-    { key: 'nutrition', label: 'Nutrition' },
+    { key: 'mentalHealth', label: 'Mental Health' },
   ]
 
 export const SYMPTOM_FIELD_DEFINITIONS: readonly IDailyTrackingSliderFieldDefinition[] =
-  [{ key: 'symptoms', label: 'Symptoms' }]
+  [
+    { key: 'itchiness', label: 'Itchiness' },
+    { key: 'inflammation', label: 'Inflammation' },
+    { key: 'dryness', label: 'Dryness' },
+  ]
+
+export const SYMPTOM_CHECKBOX_OPTIONS = [
+  { key: 'scratch', label: 'Scratching' },
+  { key: 'weepingSkin', label: 'Weeping Skin' },
+  { key: 'skinCracks', label: 'Skin Cracks' },
+] as const
+
+export const CONTACT_FACTOR_OPTIONS = [
+  { value: 'shower', label: 'Shower' },
+  { value: 'clothing', label: 'Clothing' },
+  { value: 'animal-contact', label: 'Animal Contact' },
+] as const
+
+export const NUTRITION_FACTOR_OPTIONS = [
+  { value: 'nuts', label: 'Nuts' },
+  { value: 'fruits', label: 'Fruits' },
+  { value: 'shellfish', label: 'Shellfish' },
+  { value: 'dairy', label: 'Dairy' },
+  { value: 'gluten', label: 'Gluten' },
+] as const
+
+export const CARE_FACTOR_OPTIONS = [
+  { value: 'skin care', label: 'Skin Care' },
+  { value: 'hair products', label: 'Hair Products' },
+  { value: 'soapShampoo', label: 'Soap & Shampoo' },
+
+  { value: 'cosmetics', label: 'Cosmetics' },
+] as const
+
+export const HEALTH_FACTOR_OPTIONS = [
+  { value: 'allergies', label: 'Allergies' },
+  { value: 'infections', label: 'Infections' },
+] as const
 
 export const createInitialDailyTrackingValues = (
   today: Date = new Date()
 ): IDailyTrackingFormValues => ({
+  id: undefined,
   date: formatDateInput(today),
   allergies: undefined,
   infections: undefined,
   stressLevel: 0,
   sleep: 0,
   nutrition: 0,
-  symptoms: 0,
+  mentalHealth: 0,
+  contactFactors: [],
+  contactFactorDetails: {},
+  nutritionFactors: [],
+  nutritionFactorDetails: {},
+  careFactors: [],
+  careFactorDetails: {},
+  itchiness: 0,
+  inflammation: 0,
+  dryness: 0,
+  scratch: undefined,
+  weepingSkin: undefined,
+  skinCracks: undefined,
   notes: '',
 })
 
@@ -163,26 +241,114 @@ export const validateDailyTrackingForm = ({
   return validateSelectedImages(images)
 }
 
+const mapCareFactorToField = (careFactor: string): string => {
+  switch (careFactor) {
+    case 'skin care':
+      return 'skinCare'
+    case 'hair products':
+      return 'hairProducts'
+    case 'soapShampoo':
+      return 'soapShampoo'
+    case 'cosmetics':
+      return 'cosmetics'
+    default:
+      return careFactor
+  }
+}
+
 export const buildDiaryEntryInput = ({
+  date,
   allergies,
   infections,
   stressLevel,
   sleep,
-  nutrition,
-  symptoms,
+  mentalHealth,
+  contactFactors,
+  contactFactorDetails,
+  nutritionFactors,
+  nutritionFactorDetails,
+  careFactors,
+  careFactorDetails,
+  itchiness,
+  inflammation,
+  dryness,
+  scratch,
+  weepingSkin,
+  skinCracks,
   notes,
-}: IDailyTrackingFormValues): TDiaryEntryInput =>
-  Object.fromEntries(
-    Object.entries({
-      allergies,
-      infections,
-      stressLevel,
-      sleep,
-      nutrition,
-      symptoms,
-      miscellaneous: notes || undefined,
-    }).filter(([, value]) => value !== undefined)
-  ) as TDiaryEntryInput
+}: IDailyTrackingFormValues): TDiaryEntryInput => {
+  const psyche = {
+    stressLevel: stressLevel ?? undefined,
+    sleep: sleep ?? undefined,
+    mentalStrain: mentalHealth ?? undefined,
+  }
+
+  // Build contact factors object from selected factors and details
+  const contactFactorsObj: { [key: string]: string } = {}
+  contactFactors.forEach(factor => {
+    const key = factor === 'animal-contact' ? 'animalContact' : factor
+    const detail = contactFactorDetails[factor]
+    if (detail) {
+      contactFactorsObj[key] = detail
+    }
+  })
+
+  // Build nutrition factors object from selected factors and details
+  const nutritionObj: { [key: string]: string } = {}
+  nutritionFactors.forEach(factor => {
+    const detail = nutritionFactorDetails[factor]
+    if (detail) {
+      nutritionObj[factor.toLowerCase()] = detail
+    }
+  })
+
+  // Build care products object from selected factors and details
+  const careProductsObj: { [key: string]: string } = {}
+  careFactors.forEach(factor => {
+    const key = mapCareFactorToField(factor)
+    const detail = careFactorDetails[factor]
+    if (detail) {
+      careProductsObj[key] = detail
+    }
+  })
+
+  const health = {
+    otherAllergies: allergies ? allergies.toString() : undefined,
+    infections: infections ?? undefined,
+  }
+
+  const symptomsObj = {
+    itchiness: itchiness ?? undefined,
+    inflammation: inflammation ?? undefined,
+    dryness: dryness ?? undefined,
+    scratch: scratch ?? undefined,
+    weepingSkin: weepingSkin ?? undefined,
+    skinCracks: skinCracks ?? undefined,
+  }
+
+  const tracking = {
+    psyche: Object.values(psyche).some(v => v !== undefined)
+      ? psyche
+      : undefined,
+    contactFactors:
+      Object.keys(contactFactorsObj).length > 0 ? contactFactorsObj : undefined,
+    nutrition: Object.keys(nutritionObj).length > 0 ? nutritionObj : undefined,
+    careProducts:
+      Object.keys(careProductsObj).length > 0 ? careProductsObj : undefined,
+    health: Object.values(health).some(v => v !== undefined)
+      ? health
+      : undefined,
+    symptoms: Object.values(symptomsObj).some(v => v !== undefined)
+      ? symptomsObj
+      : undefined,
+  }
+
+  return {
+    entryDate: date,
+    tracking,
+    notes,
+  }
+}
 
 export const validateDailyTrackingPayload = (
   values: IDailyTrackingFormValues

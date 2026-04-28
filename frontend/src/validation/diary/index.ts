@@ -1,21 +1,7 @@
 import { z } from 'zod'
 
-export const DiaryEntrySchema = z
+export const PsycheSchema = z
   .object({
-    allergies: z
-      .number()
-      .int('Allergies rating must be a whole number')
-      .min(0, 'Allergies rating cannot be less than 0')
-      .max(10, 'Allergies rating cannot be greater than 10')
-      .optional(),
-
-    infections: z
-      .number()
-      .int('Infections rating must be a whole number')
-      .min(0, 'Infections rating cannot be less than 0')
-      .max(10, 'Infections rating cannot be greater than 10')
-      .optional(),
-
     stressLevel: z
       .number()
       .int('Stress level must be a whole number')
@@ -30,27 +16,112 @@ export const DiaryEntrySchema = z
       .max(10, 'Sleep rating cannot be greater than 10')
       .optional(),
 
-    nutrition: z
+    mentalStrain: z
       .number()
-      .int('Nutrition rating must be a whole number')
-      .min(0, 'Nutrition rating cannot be less than 0')
-      .max(10, 'Nutrition rating cannot be greater than 10')
+      .int('Mental strain must be a whole number')
+      .min(0, 'Mental strain cannot be less than 0')
+      .max(10, 'Mental strain cannot be greater than 10')
+      .optional(),
+  })
+  .optional()
+
+export const ContactFactorsSchema = z
+  .object({
+    shower: z.string().optional(),
+    clothing: z.string().optional(),
+    animalContact: z.string().optional(),
+    customContactFactors: z.array(z.string()).optional(),
+  })
+  .optional()
+
+export const NutritionSchema = z
+  .object({
+    nuts: z.string().optional(),
+    fruits: z.string().optional(),
+    shellfish: z.string().optional(),
+    dairy: z.string().optional(),
+    gluten: z.string().optional(),
+    customNutritionFactors: z.array(z.string()).optional(),
+  })
+  .optional()
+
+export const CareProductsSchema = z
+  .object({
+    skinCare: z.string().optional(),
+    hairProducts: z.string().optional(),
+    soapShampoo: z.string().optional(),
+    cosmetics: z.string().optional(),
+    customCareProducts: z.array(z.string()).optional(),
+  })
+  .optional()
+
+export const HealthSchema = z
+  .object({
+    otherAllergies: z.string().optional(),
+    infections: z
+      .number()
+      .int('Infections rating must be a whole number')
+      .min(0, 'Infections rating cannot be less than 0')
+      .max(10, 'Infections rating cannot be greater than 10')
+      .optional(),
+  })
+  .optional()
+
+export const SymptomsSchema = z
+  .object({
+    itchiness: z
+      .number()
+      .int('Itchiness rating must be a whole number')
+      .min(0, 'Itchiness rating cannot be less than 0')
+      .max(10, 'Itchiness rating cannot be greater than 10')
       .optional(),
 
-    symptoms: z
-      .number()
-      .int('Symptoms rating must be a whole number')
-      .min(0, 'Symptoms rating cannot be less than 0')
-      .max(10, 'Symptoms rating cannot be greater than 10'),
+    scratch: z.boolean().optional(),
 
-    miscellaneous: z
+    inflammation: z
+      .number()
+      .int('Inflammation rating must be a whole number')
+      .min(0, 'Inflammation rating cannot be less than 0')
+      .max(10, 'Inflammation rating cannot be greater than 10')
+      .optional(),
+
+    dryness: z
+      .number()
+      .int('Dryness rating must be a whole number')
+      .min(0, 'Dryness rating cannot be less than 0')
+      .max(10, 'Dryness rating cannot be greater than 10')
+      .optional(),
+
+    weepingSkin: z.boolean().optional(),
+    skinCracks: z.boolean().optional(),
+    spreadPhotoUrls: z.array(z.string()).optional(),
+  })
+  .optional()
+
+export const DailyTrackingPayloadSchema = z
+  .object({
+    psyche: PsycheSchema,
+    contactFactors: ContactFactorsSchema,
+    nutrition: NutritionSchema,
+    careProducts: CareProductsSchema,
+    health: HealthSchema,
+    symptoms: SymptomsSchema,
+  })
+  .strict()
+
+export const DiaryEntryCreateSchema = z
+  .object({
+    entryDate: z
       .string()
-      .max(5000, 'Miscellaneous notes cannot exceed 5000 characters')
+      .regex(/^\d{4}-\d{2}-\d{2}$/, 'Entry date must be in YYYY-MM-DD format'),
+    tracking: DailyTrackingPayloadSchema,
+    notes: z
+      .string()
+      .max(5000, 'Notes cannot exceed 5000 characters')
       .optional(),
   })
-  .strict() // Rejects unknown keys
-  .refine(data => Object.values(data).some(v => v !== undefined), {
-    message: 'At least one field must be provided',
-  })
+  .strict()
+
+export const DiaryEntrySchema = DiaryEntryCreateSchema
 
 export type TDiaryEntryInput = z.infer<typeof DiaryEntrySchema>
