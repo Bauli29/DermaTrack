@@ -387,8 +387,9 @@ const DailyTrackingTemplate = () => {
           <Text size='medium' weight={600}>
             Symptoms
           </Text>
-          {SYMPTOM_FIELD_DEFINITIONS.map(renderSliderField)}
-
+          <SC.SubsectionContainer>
+            {SYMPTOM_FIELD_DEFINITIONS.map(renderSliderField)}
+          </SC.SubsectionContainer>
           <SC.SubsectionContainer>
             <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
               Skin symptoms
