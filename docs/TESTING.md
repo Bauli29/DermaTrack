@@ -321,6 +321,12 @@ Coverage-Report Backend:
 backend/target/site/jacoco/index.html
 ```
 
+Coverage-Report Frontend:
+
+```text
+frontend/coverage/lcov-report/index.html
+```
+
 ## 10. Aktuelle Luecken
 
 Die groessten verifizierten Luecken im Testplan sind derzeit:
