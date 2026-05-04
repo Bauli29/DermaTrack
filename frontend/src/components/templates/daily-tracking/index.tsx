@@ -73,46 +73,11 @@ const DailyTrackingTemplate = () => {
   const [success, setSuccess] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  /*useEffect(() => {
-    if (!formValues.date) return
-    if (formValues.date.trim() === '') return
-
-    console.log('DATE BEFORE FETCH:', formValues.date)
-
-    const loadEntry = async () => {
-      const result = await getDiaryEntryByDate(formValues.date)
-
-      if (!result.success) {
-        setError(result.error)
-        return
-      }
-
-      if (!result.data) {
-        const empty = createInitialDailyTrackingValues()
-        empty.date = formValues.date
-
-        setBaselineFormValues(empty)
-        setFormValues(empty)
-        return
-      }
-
-      const mapped = mapDiaryResponseToForm(result.data)
-
-      setBaselineFormValues(mapped)
-      setFormValues(mapped)
-    }
-
-    loadEntry()
-  }, [formValues.date])*/
   useEffect(() => {
     if (!selectedDate) return
 
     const loadEntry = async () => {
-      console.log('DATE BEFORE FETCH:', selectedDate)
-
       const result = await getDiaryEntryByDate(selectedDate)
-
-      console.log('Fetching Data')
 
       if (!result.success) {
         setError(result.error)
