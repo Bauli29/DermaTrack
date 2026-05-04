@@ -201,6 +201,7 @@ const Slider = ({
         aria-orientation='horizontal'
         onKeyDown={handleThumbKeyDown}
       />
+      <SC.ValueBubble $percentage={percentage}>{value}</SC.ValueBubble>
     </SC.SliderWrapper>
   )
 }

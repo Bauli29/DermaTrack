@@ -169,7 +169,6 @@ const DailyTrackingTemplate = () => {
           onChange={nextValue => updateFormValue(key, nextValue)}
           aria-label={label}
         />
-        <SC.SliderValue>{value}</SC.SliderValue>
       </SC.FieldRow>
     )
   }
@@ -289,9 +288,7 @@ const DailyTrackingTemplate = () => {
         </SC.Section>
 
         <SC.Section>
-          <Text size='medium' weight={600}>
-            Factors
-          </Text>
+          <SC.SectionTitle>Factors</SC.SectionTitle>
           <SC.SubsectionContainer>
             <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
               Psyche
@@ -429,9 +426,7 @@ const DailyTrackingTemplate = () => {
         </SC.Section>
 
         <SC.Section>
-          <Text size='medium' weight={600}>
-            Symptoms
-          </Text>
+          <SC.SectionTitle>Symptoms</SC.SectionTitle>
           <SC.SubsectionContainer>
             {SYMPTOM_FIELD_DEFINITIONS.map(renderSliderField)}
           </SC.SubsectionContainer>
@@ -449,9 +444,7 @@ const DailyTrackingTemplate = () => {
         </SC.Section>
 
         <SC.Section>
-          <Text size='medium' weight={600}>
-            Notes
-          </Text>
+          <SC.SectionTitle>Notes</SC.SectionTitle>
           <SC.NoteTextarea
             placeholder='Optional: add any context (medication, weather, triggers, etc.)'
             value={notes}
@@ -460,9 +453,7 @@ const DailyTrackingTemplate = () => {
         </SC.Section>
 
         <SC.Section>
-          <Text size='medium' weight={600}>
-            Images
-          </Text>
+          <SC.SectionTitle>Images</SC.SectionTitle>
           <SC.ImagePicker>
             <SC.FileInputLabel>
               Choose Images

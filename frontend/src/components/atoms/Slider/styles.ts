@@ -97,3 +97,19 @@ export const SliderThumb = styled.div<IStyledSliderThumbProps>`
     outline-offset: 2px;
   }
 `
+export const ValueBubble = styled.div<{ $percentage: number }>`
+  position: absolute;
+  left: ${({ $percentage }) => `${$percentage}%`};
+  transform: translate(-50%, -180%);
+
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.5rem;
+
+  background: ${({ theme }) => theme.colors.surface};
+  color: ${({ theme }) => theme.colors.text};
+  box-shadow: 0 2px 6px ${({ theme }) => theme.colors.shadow};
+
+  white-space: nowrap;
+  pointer-events: none;
+`
