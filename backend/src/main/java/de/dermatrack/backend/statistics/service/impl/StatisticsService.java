@@ -11,6 +11,7 @@ import de.dermatrack.backend.diary.model.DiaryEntry;
 import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 import de.dermatrack.backend.statistics.mapper.StatisticsBarChartMapper;
 import de.dermatrack.backend.statistics.mapper.StatisticsLineChartMapper;
+import de.dermatrack.backend.statistics.model.common.StatisticsPeriod;
 import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
 import de.dermatrack.backend.statistics.service.IStatisticsService;
 import lombok.RequiredArgsConstructor;
@@ -25,28 +26,30 @@ public class StatisticsService implements IStatisticsService {
     private final StatisticsBarChartMapper statisticsBarChartMapper;
 
     @Override
-    public SymptomTrendChartModel getSymptomTrendLineLast7Days(UUID userId, LocalDate endDate) {
-        return getTrendLast7Days(userId, endDate, statisticsLineChartMapper::toSymptomTrendChart);
+    public SymptomTrendChartModel getSymptomTrendLine(UUID userId, LocalDate endDate, StatisticsPeriod period) {
+        return getTrend(userId, endDate, period, statisticsLineChartMapper::toSymptomTrendChart);
     }
 
     @Override
-    public SymptomTrendChartModel getSymptomTrendBarLast7Days(UUID userId, LocalDate endDate) {
-        return getTrendLast7Days(userId, endDate, statisticsBarChartMapper::toSymptomTrendChart);
+    public SymptomTrendChartModel getSymptomTrendBar(UUID userId, LocalDate endDate, StatisticsPeriod period) {
+        return getTrend(userId, endDate, period, statisticsBarChartMapper::toSymptomTrendChart);
     }
 
-    private SymptomTrendChartModel getTrendLast7Days(
+    private SymptomTrendChartModel getTrend(
             UUID userId,
             LocalDate endDate,
+            StatisticsPeriod period,
             TrendChartMapper mapper) {
         LocalDate effectiveEndDate = endDate == null ? LocalDate.now() : endDate;
-        LocalDate fromDate = effectiveEndDate.minusDays(6);
+        StatisticsPeriod effectivePeriod = period == null ? StatisticsPeriod.LAST_7_DAYS : period;
+        LocalDate fromDate = effectiveEndDate.minusDays(effectivePeriod.getDays() - 1L);
 
         List<DiaryEntry> entries = diaryEntryRepository
                 .findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, effectiveEndDate);
 
         return mapper.map(entries, fromDate, effectiveEndDate);
     }
-    
+
     @FunctionalInterface
     private interface TrendChartMapper {
         SymptomTrendChartModel map(List<DiaryEntry> entries, LocalDate fromDate, LocalDate toDate);

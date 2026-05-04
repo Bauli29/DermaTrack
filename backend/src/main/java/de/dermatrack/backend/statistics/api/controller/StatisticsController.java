@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import de.dermatrack.backend.auth.model.AppUser;
 import de.dermatrack.backend.auth.repository.IAppUserRepository;
 import de.dermatrack.backend.exception.ResourceNotFoundException;
+import de.dermatrack.backend.statistics.model.common.StatisticsPeriod;
 import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
 import de.dermatrack.backend.statistics.service.IStatisticsService;
 import lombok.RequiredArgsConstructor;
@@ -21,17 +22,29 @@ public class StatisticsController implements IStatisticsController {
     private final IAppUserRepository appUserRepository;
 
     @Override
-    public ResponseEntity<SymptomTrendChartModel> getPsycheAndSymptomsLast7Days(
+    public ResponseEntity<SymptomTrendChartModel> getPsycheAndSymptoms(
             Principal principal,
-            LocalDate endDate) {
+            LocalDate endDate,
+            String period) {
         AppUser currentUser = resolveCurrentUser(principal);
-        return ResponseEntity.ok(statisticsService.getSymptomTrendLineLast7Days(currentUser.getId(), endDate));
+        return ResponseEntity.ok(
+                statisticsService.getSymptomTrendLine(
+                        currentUser.getId(),
+                        endDate,
+                        StatisticsPeriod.fromQueryValue(period)));
     }
 
     @Override
-    public ResponseEntity<SymptomTrendChartModel> getSymptomsLast7Days(Principal principal, LocalDate endDate) {
+    public ResponseEntity<SymptomTrendChartModel> getSymptoms(
+            Principal principal,
+            LocalDate endDate,
+            String period) {
         AppUser currentUser = resolveCurrentUser(principal);
-        return ResponseEntity.ok(statisticsService.getSymptomTrendBarLast7Days(currentUser.getId(), endDate));
+        return ResponseEntity.ok(
+                statisticsService.getSymptomTrendBar(
+                        currentUser.getId(),
+                        endDate,
+                        StatisticsPeriod.fromQueryValue(period)));
     }
 
     private AppUser resolveCurrentUser(Principal principal) {

@@ -5,6 +5,13 @@ export const Root = styled.div`
   position: relative;
   width: 100%;
 
+  /*noinspection CssUnusedSymbol*/
+  .react-datepicker-wrapper,
+  .react-datepicker__input-container {
+    width: 100%;
+  }
+
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__input {
     width: 100%;
     min-height: 44px;
@@ -16,21 +23,25 @@ export const Root = styled.div`
     font-size: 16px;
   }
 
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__input.is-invalid {
     border-color: ${({ theme }) => theme.colors.error};
   }
 
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__input:focus {
     border-color: ${({ theme }) => theme.colors.active};
     box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.focus}33;
     outline: none;
   }
 
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__popper {
     z-index: 20;
     inset-inline-start: 0 !important;
   }
 
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__calendar.react-datepicker {
     border: 1px solid ${({ theme }) => theme.colors.borderLight};
     border-radius: 10px;
@@ -40,15 +51,18 @@ export const Root = styled.div`
     overflow: hidden;
   }
 
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__calendar .react-datepicker__header {
     background: ${({ theme }) => theme.colors.card};
     border-bottom: 1px solid ${({ theme }) => theme.colors.borderLight};
   }
 
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__calendar .react-datepicker__current-month {
     color: ${({ theme }) => theme.colors.text};
   }
 
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__calendar .react-datepicker__day-name,
   .date-calendar-picker__calendar .react-datepicker__day {
     color: ${({ theme }) => theme.colors.text};
@@ -57,11 +71,13 @@ export const Root = styled.div`
     margin: 0.1rem;
   }
 
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__calendar .react-datepicker__day:hover {
     background: #dbeafe;
     border-radius: 8px;
   }
 
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__calendar .react-datepicker__day--selected,
   .date-calendar-picker__calendar .react-datepicker__day--keyboard-selected {
     background: ${({ theme }) => theme.colors.primary};
@@ -69,11 +85,13 @@ export const Root = styled.div`
     border-radius: 8px;
   }
 
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__calendar .react-datepicker__day--today {
     border: 1px solid ${({ theme }) => theme.colors.primary};
     border-radius: 8px;
   }
 
+  /*noinspection CssUnusedSymbol*/
   .date-calendar-picker__calendar .react-datepicker__day--disabled {
     color: ${({ theme }) => theme.colors.textMuted};
     opacity: 0.45;

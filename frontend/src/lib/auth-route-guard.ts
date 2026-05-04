@@ -16,7 +16,11 @@ const isProtectedRoute = (pathname: string): boolean => {
     return false
   }
 
-  return pathname === '/' || pathname.startsWith('/tracking')
+  return (
+    pathname === '/' ||
+    pathname.startsWith('/tracking') ||
+    pathname.startsWith('/statistics')
+  )
 }
 
 export const getAuthRedirectPath = (

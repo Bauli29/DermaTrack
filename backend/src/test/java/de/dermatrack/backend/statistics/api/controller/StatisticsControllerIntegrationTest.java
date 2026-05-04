@@ -51,7 +51,7 @@ class StatisticsControllerIntegrationTest {
 
     @Test
     @DisplayName("GET /api/statistics/psyche-symptoms should return a line chart in highcharts shape")
-    void getPsycheAndSymptomsLast7Days_ShouldReturnLineChart() throws Exception {
+    void getPsycheAndSymptoms_ShouldReturnLineChart() throws Exception {
         diaryEntryRepository.save(buildEntry(
                 testUser,
                 LocalDate.of(2026, 4, 20),
@@ -87,7 +87,7 @@ class StatisticsControllerIntegrationTest {
 
     @Test
     @DisplayName("GET /api/statistics/symptoms should return a column chart and ignore entries of other users")
-    void getSymptomsLast7Days_ShouldReturnColumnChartForAuthenticatedUserOnly() throws Exception {
+    void getSymptoms_ShouldReturnColumnChartForAuthenticatedUserOnly() throws Exception {
         AppUser otherUser = new AppUser();
         otherUser.setUsername("otherstatsuser");
         otherUser.setPassword("password123");
@@ -130,11 +130,44 @@ class StatisticsControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("GET /api/statistics/symptoms should support a broader selected period")
+    void getSymptoms_WithThirtyDayPeriod_ShouldReturnThirtyDayWindow() throws Exception {
+        diaryEntryRepository.save(buildEntry(
+                testUser,
+                LocalDate.of(2026, 3, 28),
+                1, 2, 3,
+                4, 2, 3,
+                false, false, false));
+
+        mockMvc.perform(get("/api/statistics/symptoms")
+                        .with(user("statsuser"))
+                        .queryParam("endDate", "2026-04-26")
+                        .queryParam("period", "30d"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.chartType").value("column"))
+                .andExpect(jsonPath("$.categories.length()").value(30))
+                .andExpect(jsonPath("$.categories[0]").value("2026-03-28"))
+                .andExpect(jsonPath("$.categories[29]").value("2026-04-26"))
+                .andExpect(jsonPath("$.dateRange.from").value("2026-03-28"))
+                .andExpect(jsonPath("$.dateRange.to").value("2026-04-26"))
+                .andExpect(jsonPath("$.series[0].data[0]").value(4.0));
+    }
+
+    @Test
     @DisplayName("GET /api/statistics/psyche-symptoms with invalid endDate should return 400")
-    void getPsycheAndSymptomsLast7Days_WithInvalidEndDate_ShouldReturn400() throws Exception {
+    void getPsycheAndSymptoms_WithInvalidEndDate_ShouldReturn400() throws Exception {
         mockMvc.perform(get("/api/statistics/psyche-symptoms")
                         .with(user("statsuser"))
                         .queryParam("endDate", "not-a-date"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("GET /api/statistics/psyche-symptoms with invalid period should return 400")
+    void getPsycheAndSymptoms_WithInvalidPeriod_ShouldReturn400() throws Exception {
+        mockMvc.perform(get("/api/statistics/psyche-symptoms")
+                        .with(user("statsuser"))
+                        .queryParam("period", "14d"))
                 .andExpect(status().isBadRequest());
     }
 

@@ -22,6 +22,7 @@ import de.dermatrack.backend.diary.model.DiaryEntry;
 import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 import de.dermatrack.backend.statistics.mapper.StatisticsBarChartMapper;
 import de.dermatrack.backend.statistics.mapper.StatisticsLineChartMapper;
+import de.dermatrack.backend.statistics.model.common.StatisticsPeriod;
 import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
 import de.dermatrack.backend.statistics.service.impl.StatisticsService;
 import de.dermatrack.backend.statistics.support.StatisticsTestDataFactory;
@@ -43,8 +44,8 @@ class StatisticsServiceTest {
     private StatisticsService statisticsService;
 
     @Test
-    @DisplayName("getSymptomTrendLineLast7Days() should fetch owner entries in 7-day window and map result")
-    void getSymptomTrendLineLast7Days_ShouldQueryRangeAndMap() {
+    @DisplayName("getSymptomTrendLine() should fetch owner entries in 7-day window and map result")
+    void getSymptomTrendLine_ShouldQueryRangeAndMap() {
         UUID userId = UUID.randomUUID();
         LocalDate endDate = LocalDate.of(2026, 4, 25);
         LocalDate fromDate = endDate.minusDays(6);
@@ -59,7 +60,10 @@ class StatisticsServiceTest {
                 .thenReturn(entries);
         when(statisticsLineChartMapper.toSymptomTrendChart(entries, fromDate, endDate)).thenReturn(expected);
 
-        SymptomTrendChartModel result = statisticsService.getSymptomTrendLineLast7Days(userId, endDate);
+        SymptomTrendChartModel result = statisticsService.getSymptomTrendLine(
+                userId,
+                endDate,
+                StatisticsPeriod.LAST_7_DAYS);
 
         assertThat(result).isSameAs(expected);
         verify(diaryEntryRepository).findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, endDate);
@@ -67,8 +71,8 @@ class StatisticsServiceTest {
     }
 
     @Test
-    @DisplayName("getSymptomTrendBarLast7Days() should fetch owner entries in 7-day window and map result")
-    void getSymptomTrendBarLast7Days_ShouldQueryRangeAndMap() {
+    @DisplayName("getSymptomTrendBar() should fetch owner entries in 7-day window and map result")
+    void getSymptomTrendBar_ShouldQueryRangeAndMap() {
         UUID userId = UUID.randomUUID();
         LocalDate endDate = LocalDate.of(2026, 4, 25);
         LocalDate fromDate = endDate.minusDays(6);
@@ -83,7 +87,10 @@ class StatisticsServiceTest {
                 .thenReturn(entries);
         when(statisticsBarChartMapper.toSymptomTrendChart(entries, fromDate, endDate)).thenReturn(expected);
 
-        SymptomTrendChartModel result = statisticsService.getSymptomTrendBarLast7Days(userId, endDate);
+        SymptomTrendChartModel result = statisticsService.getSymptomTrendBar(
+                userId,
+                endDate,
+                StatisticsPeriod.LAST_7_DAYS);
 
         assertThat(result).isSameAs(expected);
         verify(diaryEntryRepository).findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, endDate);
@@ -91,8 +98,8 @@ class StatisticsServiceTest {
     }
 
     @Test
-    @DisplayName("getSymptomTrendLineLast7Days() should default endDate to today when omitted")
-    void getSymptomTrendLineLast7Days_WithNullEndDate_ShouldDefaultToToday() {
+    @DisplayName("getSymptomTrendLine() should default endDate to today when omitted")
+    void getSymptomTrendLine_WithNullEndDate_ShouldDefaultToToday() {
         UUID userId = UUID.randomUUID();
         LocalDate beforeCall = LocalDate.now();
         List<DiaryEntry> entries = List.of();
@@ -109,7 +116,10 @@ class StatisticsServiceTest {
                 any(LocalDate.class)))
                 .thenReturn(expected);
 
-        SymptomTrendChartModel result = statisticsService.getSymptomTrendLineLast7Days(userId, null);
+        SymptomTrendChartModel result = statisticsService.getSymptomTrendLine(
+                userId,
+                null,
+                StatisticsPeriod.LAST_7_DAYS);
         LocalDate afterCall = LocalDate.now();
 
         ArgumentCaptor<LocalDate> fromDateCaptor = ArgumentCaptor.forClass(LocalDate.class);
@@ -126,5 +136,28 @@ class StatisticsServiceTest {
                 endDateCaptor.getValue());
         assertThat(endDateCaptor.getValue()).isBetween(beforeCall, afterCall);
         assertThat(fromDateCaptor.getValue()).isEqualTo(endDateCaptor.getValue().minusDays(6));
+    }
+
+    @Test
+    @DisplayName("getSymptomTrendLine() should use the selected broader period")
+    void getSymptomTrendLine_WithThirtyDayPeriod_ShouldQueryThirtyDayRange() {
+        UUID userId = UUID.randomUUID();
+        LocalDate endDate = LocalDate.of(2026, 4, 25);
+        LocalDate fromDate = endDate.minusDays(29);
+        List<DiaryEntry> entries = List.of();
+        SymptomTrendChartModel expected = new SymptomTrendChartModel();
+
+        when(diaryEntryRepository.findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, endDate))
+                .thenReturn(entries);
+        when(statisticsLineChartMapper.toSymptomTrendChart(entries, fromDate, endDate)).thenReturn(expected);
+
+        SymptomTrendChartModel result = statisticsService.getSymptomTrendLine(
+                userId,
+                endDate,
+                StatisticsPeriod.LAST_30_DAYS);
+
+        assertThat(result).isSameAs(expected);
+        verify(diaryEntryRepository).findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, endDate);
+        verify(statisticsLineChartMapper).toSymptomTrendChart(entries, fromDate, endDate);
     }
 }
