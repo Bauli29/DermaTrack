@@ -21,6 +21,20 @@ export type TCreateDiaryEntryResult =
 
 type TDiaryFetch = (input: string, init?: RequestInit) => Promise<Response>
 
+export interface IGetDiaryEntrySuccess<T> {
+  success: true
+  data: T | null
+}
+
+export interface IGetDiaryEntryFailure {
+  success: false
+  error: string
+}
+
+export type TGetDiaryEntryResult<T> =
+  | IGetDiaryEntrySuccess<T>
+  | IGetDiaryEntryFailure
+
 const getApiErrorMessage = (body: IApiErrorLike | null): string | null => {
   if (!body) {
     return null
@@ -88,6 +102,48 @@ export const createDiaryEntry = async (
     }
 
     return { success: true }
+  } catch (error) {
+    return {
+      success: false,
+      error: getDiaryRuntimeErrorMessage(error),
+    }
+  }
+}
+
+export const getDiaryEntryByDate = async <T = unknown>(
+  date: string,
+  fetchImpl: TDiaryFetch = fetch
+): Promise<TGetDiaryEntryResult<T>> => {
+  try {
+    if (!date || date.trim() === '') {
+      return { success: true, data: null }
+    }
+
+    const response = await sessionAwareFetch(
+      `/api/diary/by-date?date=${date}`,
+      {
+        method: 'GET',
+      },
+      { fetchImpl }
+    )
+
+    if (response.status === 404) {
+      return { success: true, data: null }
+    }
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: await getDiarySubmissionErrorMessage(response),
+      }
+    }
+
+    const data = (await response.json()) as T
+
+    return {
+      success: true,
+      data,
+    }
   } catch (error) {
     return {
       success: false,

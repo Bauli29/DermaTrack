@@ -145,4 +145,16 @@ public class DiaryService {
         IDiaryEntryRepository.delete(existingEntry);
     }
 
+    @Transactional(readOnly = true)
+    public DiaryEntry findByUserIdAndDate(UUID userId, LocalDate date) {
+        log.trace("Service: Finding diary entry for user {} on date {}", userId, date);
+
+        return IDiaryEntryRepository
+                .findByUser_IdAndEntryDate(userId, date)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "DiaryEntry",
+                        "entryDate",
+                        date));
+    }
+
 }

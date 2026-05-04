@@ -72,11 +72,13 @@ export const proxyDiaryRequest = async (
     id,
     body,
     cache,
+    //searchParams,
   }: {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE'
     id?: string
     body?: string
     cache?: RequestCache
+    searchParams?: string
   }
 ): Promise<Response> =>
   secureFetch(buildDiaryBackendPath(id), {

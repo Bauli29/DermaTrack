@@ -419,3 +419,51 @@ export const hasPendingDailyTrackingChanges = (
   (Object.keys(initialValues) as (keyof IDailyTrackingFormValues)[]).some(
     key => values[key] !== initialValues[key]
   )
+
+// Maps backend response → frontend form values
+export const mapDiaryResponseToForm = (
+  data: any // eslint-disable-line @typescript-eslint/no-explicit-any
+): IDailyTrackingFormValues => {
+  const tracking = data.tracking ?? {}
+  return {
+    id: data.id,
+    date: data.entryDate,
+
+    stressLevel: tracking.psyche?.stressLevel ?? 0,
+    sleep: tracking.psyche?.sleep ?? 0,
+    mentalHealth: tracking.psyche?.mentalStrain ?? 0,
+
+    contactFactors: Object.keys(tracking.contactFactors ?? {}).filter(
+      k => k !== 'customContactFactors' && tracking.contactFactors?.[k] !== null
+    ),
+
+    contactFactorDetails: tracking.contactFactors ?? {},
+
+    nutritionFactors: Object.keys(tracking.nutrition ?? {}).filter(
+      k => k !== 'customNutritionFactors' && tracking.nutrition?.[k] !== null
+    ),
+
+    nutritionFactorDetails: tracking.nutrition ?? {},
+
+    careFactors: Object.keys(tracking.careProducts ?? {}).filter(
+      k => k !== 'customCareProducts' && tracking.careProducts?.[k] !== null
+    ),
+
+    careFactorDetails: tracking.careProducts ?? {},
+
+    healthFactors: Object.keys(tracking.health ?? {}).filter(
+      k => tracking.health?.[k] !== null
+    ),
+
+    healthFactorDetails: tracking.health ?? {},
+
+    itchiness: tracking.symptoms?.itchiness ?? 0,
+    inflammation: tracking.symptoms?.inflammation ?? 0,
+    dryness: tracking.symptoms?.dryness ?? 0,
+    scratch: tracking.symptoms?.scratch ?? false,
+    weepingSkin: tracking.symptoms?.weepingSkin ?? false,
+    skinCracks: tracking.symptoms?.skinCracks ?? false,
+
+    notes: data.notes ?? '',
+  }
+}

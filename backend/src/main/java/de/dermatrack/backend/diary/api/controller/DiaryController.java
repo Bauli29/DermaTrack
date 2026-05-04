@@ -1,11 +1,16 @@
 package de.dermatrack.backend.diary.api.controller;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.dermatrack.backend.auth.model.AppUser;
@@ -21,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
+@RequestMapping("/diary")
 @RequiredArgsConstructor
 @Slf4j
 public class DiaryController implements IDiaryController {
@@ -29,6 +35,22 @@ public class DiaryController implements IDiaryController {
     private final IAppUserRepository appUserRepository;
     private final DiaryEntryMapper diaryEntryMapper;
     // Service handles all exceptions
+
+    @GetMapping("/by-date")
+    public ResponseEntity<DiaryEntryResponse> getByDate(
+            Principal principal,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        AppUser user = resolveCurrentUser(principal);
+        log.info("User resolved: {}", user.getUsername());
+        log.info("Searching diary for date: {}", date);
+        try {
+            DiaryEntry entry = diaryService.findByUserIdAndDate(user.getId(), date);
+            return ResponseEntity.ok(diaryEntryMapper.toResponse(entry));
+        } catch (ResourceNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 
     @Override
     public ResponseEntity<List<DiaryEntryResponse>> getAllDiaryEntries(Principal principal) {

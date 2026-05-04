@@ -15,6 +15,10 @@ import { usePageTitle } from '@/hooks/use-page-title'
 
 import { createDiaryEntry } from '@/services/diary'
 
+import { getDiaryEntryByDate } from '@/services/diary'
+
+import { mapDiaryResponseToForm } from './utils'
+
 import {
   ACCEPTED_IMAGE_TYPES,
   MAX_IMAGE_MB,
@@ -58,15 +62,87 @@ const DailyTrackingTemplate = () => {
   useEffect(() => {
     setTitle('Daily Tracking')
   }, [setTitle])
-
+  const [selectedDate, setSelectedDate] = useState<string>('')
+  const initialValues = createInitialDailyTrackingValues()
   const [baselineFormValues, setBaselineFormValues] =
-    useState<IDailyTrackingFormValues>(() => createInitialDailyTrackingValues())
+    useState<IDailyTrackingFormValues>(initialValues)
   const [formValues, setFormValues] =
-    useState<IDailyTrackingFormValues>(baselineFormValues)
+    useState<IDailyTrackingFormValues>(initialValues)
   const [images, setImages] = useState<File[]>([])
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  /*useEffect(() => {
+    if (!formValues.date) return
+    if (formValues.date.trim() === '') return
+
+    console.log('DATE BEFORE FETCH:', formValues.date)
+
+    const loadEntry = async () => {
+      const result = await getDiaryEntryByDate(formValues.date)
+
+      if (!result.success) {
+        setError(result.error)
+        return
+      }
+
+      if (!result.data) {
+        const empty = createInitialDailyTrackingValues()
+        empty.date = formValues.date
+
+        setBaselineFormValues(empty)
+        setFormValues(empty)
+        return
+      }
+
+      const mapped = mapDiaryResponseToForm(result.data)
+
+      setBaselineFormValues(mapped)
+      setFormValues(mapped)
+    }
+
+    loadEntry()
+  }, [formValues.date])*/
+  useEffect(() => {
+    if (!selectedDate) return
+
+    const loadEntry = async () => {
+      console.log('DATE BEFORE FETCH:', selectedDate)
+
+      const result = await getDiaryEntryByDate(selectedDate)
+
+      console.log('Fetching Data')
+
+      if (!result.success) {
+        setError(result.error)
+        return
+      }
+
+      const entry = Array.isArray(result.data)
+        ? result.data.find(e => e.entryDate === selectedDate)
+        : result.data
+
+      if (!entry) {
+        const empty = createInitialDailyTrackingValues()
+        empty.date = selectedDate
+
+        setBaselineFormValues(empty)
+        setFormValues(empty)
+        return
+      }
+
+      const mapped = mapDiaryResponseToForm(entry)
+
+      setBaselineFormValues(mapped)
+      setFormValues({
+        ...mapped,
+        date: selectedDate,
+      })
+    }
+
+    loadEntry()
+  }, [selectedDate])
 
   const { date, notes } = formValues
   const isFutureDate = isFutureDailyTrackingDate(date)
@@ -228,9 +304,13 @@ const DailyTrackingTemplate = () => {
             Date
           </Text>
           <DateCalendarPicker
-            value={date}
+            value={selectedDate}
             maxDate={formatDateInput(new Date())}
-            onChange={nextDate => updateFormValue('date', nextDate)}
+            onChange={nextDate => {
+              if (!nextDate) return
+              setSelectedDate(nextDate)
+              updateFormValue('date', nextDate)
+            }}
             ariaInvalid={isFutureDate}
             ariaDescribedBy='date-helper'
           />

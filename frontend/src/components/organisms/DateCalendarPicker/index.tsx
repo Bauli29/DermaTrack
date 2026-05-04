@@ -9,7 +9,7 @@ import { formatDateInput } from '@/lib/date'
 import * as SC from './styles'
 import type { IDateCalendarPickerProps } from './types'
 
-const parseDateInputValue = (value: string): Date | null => {
+/*const parseDateInputValue = (value: string): Date | null => {
   const [yearText, monthText, dayText] = value.split('-')
   const year = Number(yearText)
   const month = Number(monthText)
@@ -24,6 +24,44 @@ const parseDateInputValue = (value: string): Date | null => {
   }
 
   const date = new Date(year, month - 1, day)
+  if (Number.isNaN(date.getTime())) {
+    return null
+  }
+
+  const isSameDate =
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+
+  return isSameDate ? date : null
+}*/
+
+const parseDateInputValue = (value?: string | null): Date | null => {
+  if (typeof value !== 'string' || value.trim() === '') {
+    return null
+  }
+
+  const parts = value.split('-')
+  if (parts.length !== 3) {
+    return null
+  }
+
+  const [yearText, monthText, dayText] = parts
+
+  const year = Number(yearText)
+  const month = Number(monthText)
+  const day = Number(dayText)
+
+  if (
+    !Number.isInteger(year) ||
+    !Number.isInteger(month) ||
+    !Number.isInteger(day)
+  ) {
+    return null
+  }
+
+  const date = new Date(year, month - 1, day)
+
   if (Number.isNaN(date.getTime())) {
     return null
   }
