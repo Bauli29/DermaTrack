@@ -58,4 +58,13 @@ if [ "$backend_changed" = true ]; then
 fi
 
 echo ""
+echo "Checking backend coverage..."
+cd "$repo_root"
+if command -v node > /dev/null 2>&1; then
+  node "$repo_root/scripts/pre-commit-backend-coverage.js"
+else
+  echo "Node not found; skipping backend coverage check."
+fi
+
+echo ""
 echo "Relevant pre-commit checks passed."
