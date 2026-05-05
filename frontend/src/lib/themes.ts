@@ -21,6 +21,20 @@ export interface ITheme {
     healthy: string
     attention: string
     critical: string
+    optionBg: string
+    optionBgSelected: string
+    optionBorder: string
+    optionBorderSelected: string
+    optionHoverBorder: string
+    optionShadowSelected: string
+    optionDisabledOpacity: number
+    sectionBg: string
+    sectionBorder: string
+    subsectionBg: string
+    subsectionBorderAccent: string
+    title: string
+    accentText: string
+    label: string
   }
 }
 
@@ -34,78 +48,104 @@ export type TThemeName = 'light' | 'dark'
 
 export const lightTheme: ITheme = {
   colors: {
-    // Primary brand colors
-    primary: '#4A90E2', // Soft blue (accessible on white + readable text)
-    secondary: '#A678DE', // Pastel lavender
+    primary: '#4A90E2',
+    secondary: '#A678DE',
 
-    // Background colors
-    background: '#F9FAFB', // Gentle off-white background
-    surface: '#FFFFFF', // White panels
-    card: '#F0F2F5', // Slight contrast for cards
+    background: '#F9FAFB',
+    surface: '#FFFFFF',
+    card: '#eaf8f8',
 
-    // Text colors
-    text: '#1A1A1A', // Near-black text
-    textSecondary: '#4F4F4F', // Medium gray
-    textMuted: '#888888', // Muted text
+    text: '#1A1A1A',
+    textSecondary: '#4F4F4F',
+    textMuted: '#888888',
 
-    // UI element colors
-    border: '#DDDDDD', // Subtle border
+    border: '#DDDDDD',
     borderLight: '#E9E9E9',
-    shadow: '#0000001A', // Light shadow
+    shadow: '#0000001A',
 
-    // Status colors
-    success: '#6CCB7C', // Soft green
-    warning: '#FFD166', // Warm pastel yellow
-    error: '#E57373', // Soft red
-    info: '#5BC0EB', // Light cyan-blue
+    success: '#6CCB7C',
+    warning: '#FFD166',
+    error: '#E57373',
+    info: '#5BC0EB',
 
-    // Interactive colors
-    hover: '#E6F0FF', // Soft blue hover tint
-    active: '#4A90E2', // Same as primary for consistency
-    focus: '#9AC9FF', // Light blue focus ring
+    hover: '#E6F0FF',
+    active: '#4A90E2',
+    focus: '#9AC9FF',
 
-    // Medical/health specific colors
-    healthy: '#5AD66F', // Green accent
-    attention: '#F5A623', // Orange pastel
-    critical: '#D32F2F', // Accessible dark red
+    healthy: '#5AD66F',
+    attention: '#F5A623',
+    critical: '#D32F2F',
+
+    optionBg: '#FFFFFF',
+    optionBgSelected: '#eaf8f8',
+    optionBorder: '#DDDDDD',
+    optionBorderSelected: '#4A90E2',
+    optionHoverBorder: '#E9E9E9',
+    optionShadowSelected: '#0000001A',
+    optionDisabledOpacity: 0.75,
+    sectionBg: '#FFFFFF',
+    sectionBorder: '#E9E9E9',
+
+    subsectionBg: '#F1FAF9',
+    subsectionBorderAccent: '#A8DADC',
+    title: '#4F8F97',
+    accentText: '#6B8F8B',
+    label: '#3F4A4A', // slightly stronger than textSecondary
   },
 }
 
 export const darkTheme: ITheme = {
   colors: {
-    // Primary brand colors
-    primary: '#5AB0FF', // Bright blue accent
-    secondary: '#C58BFF', // Violet accent
+    // Brand
+    primary: '#6CB6FF', // softer + more modern blue
+    secondary: '#C792EA',
 
-    // Background colors
-    background: '#0D1117', // Deep neutral dark
-    surface: '#161B22', // Elevated surfaces
-    card: '#1E242D',
+    // Background layers
+    background: '#0B0F14', // deeper, less gray
+    surface: '#121821', // main surfaces
+    card: '#18202A', // elevated cards
 
-    // Text colors
-    text: '#E6E6E6', // Soft white text
-    textSecondary: '#B3B3B3',
-    textMuted: '#888888',
+    // Text
+    text: '#EAF2FF', // slightly cool white
+    textSecondary: '#A9B4C2',
+    textMuted: '#6B7785',
 
-    // UI element colors
-    border: '#2A2F37',
-    borderLight: '#3C4149',
-    shadow: '#00000066',
+    // Borders (more visible, less muddy)
+    border: '#263241',
+    borderLight: '#344356',
+    shadow: 'rgba(0, 0, 0, 0.5)',
 
-    // Status colors
-    success: '#3DDC97', // Vibrant mint green
-    warning: '#F4C430', // Warm gold
-    error: '#FF6B6B', // Bright coral red
-    info: '#4FC3F7',
+    // Status
+    success: '#4ADE80',
+    warning: '#FACC15',
+    error: '#FB7185',
+    info: '#38BDF8',
 
-    // Interactive colors
-    hover: '#1C2330', // Slightly lighter surface
-    active: '#5AB0FF',
-    focus: '#FF9E9E', // Soft pink focus glow
+    // Interaction
+    hover: '#1A2330',
+    active: '#6CB6FF',
+    focus: '#93C5FD',
 
-    // Medical/health specific colors
-    healthy: '#4ADE80', // Lime green
-    attention: '#FFD166', // Yellow-orange
-    critical: '#E84855', // Strong red-pink
+    // Medical
+    healthy: '#22C55E',
+    attention: '#F59E0B',
+    critical: '#EF4444',
+
+    optionBg: '#121821',
+    optionBgSelected: '#1B2A3A',
+    optionBorder: '#263241',
+    optionBorderSelected: '#6CB6FF',
+    optionHoverBorder: '#3A4A5F',
+    optionShadowSelected: 'rgba(108, 182, 255, 0.25)',
+    optionDisabledOpacity: 0.6,
+    sectionBg: '#121821',
+    sectionBorder: '#263241',
+
+    accentText: '#8FA3A1',
+    subsectionBg: '#16222E',
+    subsectionBorderAccent: '#92d1ef',
+
+    title: '#92d1ef',
+    label: '#B8C4D6',
   },
 }

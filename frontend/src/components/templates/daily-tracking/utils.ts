@@ -103,9 +103,9 @@ export type TDailyTrackingSubmissionResult =
 
 export const PSYCHE_FACTOR_DEFINITIONS: readonly IDailyTrackingSliderFieldDefinition[] =
   [
-    { key: 'stressLevel', label: 'Stress' },
-    { key: 'sleep', label: 'Sleep' },
-    { key: 'mentalHealth', label: 'Mental Health' },
+    { key: 'stressLevel', label: 'Stress Severity' },
+    { key: 'sleep', label: 'Sleep Quality' },
+    { key: 'mentalHealth', label: 'Mental Wellbeing' },
   ]
 
 export const SYMPTOM_FIELD_DEFINITIONS: readonly IDailyTrackingSliderFieldDefinition[] =

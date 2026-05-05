@@ -33,14 +33,14 @@ export const Section = styled.section`
   padding: 12px;
   border-radius: 12px;
 
-  background: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  background: ${({ theme }) => theme.colors.sectionBg};
+  border: 1px solid ${({ theme }) => theme.colors.sectionBorder};
 `
 
 export const SectionTitle = styled.div`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #4f8f97;
+  color: ${({ theme }) => theme.colors.title};
   letter-spacing: 0.2px;
 `
 
@@ -50,10 +50,10 @@ export const SubsectionContainer = styled.div`
   gap: 10px;
   padding: 12px;
 
-  border-left: 3px solid #a8dadc;
+  border-left: 3px solid ${({ theme }) => theme.colors.subsectionBorderAccent};
   border-radius: 10px;
 
-  background: #f1faf9;
+  background: ${({ theme }) => theme.colors.subsectionBg};
 `
 
 export const FieldRow = styled.div`
@@ -77,13 +77,13 @@ export const SliderValue = styled.span`
   width: 3ch;
   text-align: right;
   font-weight: 600;
-  color: #6b8f8b;
+  color: ${({ theme }) => theme.colors.accentText};
   font-size: 0.9rem;
 `
 
 export const Label = styled.label`
   font-size: 0.95rem;
-  color: ${({ theme }) => theme.colors.textSecondary};
+  color: ${({ theme }) => theme.colors.label};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

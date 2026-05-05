@@ -31,22 +31,32 @@ export const OptionCard = styled.div<{
   width: 100%;
   padding: 0.875rem 1rem;
   border-radius: 0.875rem;
+
   border: 1px solid
     ${({ theme, $selected }) =>
-      $selected ? theme.colors.primary : theme.colors.border};
+      $selected
+        ? theme.colors.optionBorderSelected
+        : theme.colors.optionBorder};
+
   background: ${({ theme, $selected }) =>
-    $selected ? theme.colors.card : theme.colors.surface};
+    $selected ? theme.colors.optionBgSelected : theme.colors.optionBg};
+
   box-shadow: ${({ theme, $selected }) =>
-    $selected ? `0 8px 20px ${theme.colors.shadow}` : 'none'};
+    $selected ? `0 8px 20px ${theme.colors.optionShadowSelected}` : 'none'};
+
+  opacity: ${({ theme, $disabled }) =>
+    $disabled ? theme.colors.optionDisabledOpacity : 1};
+
   transition:
     border-color 0.15s ease,
     background 0.15s ease,
     box-shadow 0.15s ease;
-  opacity: ${({ $disabled }) => ($disabled ? 0.75 : 1)};
 
   &:hover {
     border-color: ${({ theme, $selected }) =>
-      $selected ? theme.colors.primary : theme.colors.borderLight};
+      $selected
+        ? theme.colors.optionBorderSelected
+        : theme.colors.optionHoverBorder};
   }
 `
 
