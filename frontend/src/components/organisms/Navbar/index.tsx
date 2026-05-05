@@ -25,16 +25,16 @@ const NavItems: INavItem[] = [
     activePattern: /^\/tracking/,
   },
   {
+    href: '/timeline',
+    icon: 'calendar_month',
+    label: 'Timeline',
+    activePattern: /^\/timeline/,
+  },
+  {
     href: '/statistics',
     icon: 'bar_chart',
     label: 'Statistics',
     activePattern: /^\/statistics/,
-  },
-  {
-    href: '/test',
-    icon: 'science',
-    label: 'Test',
-    activePattern: /^\/test/,
   },
   {
     href: '/login',

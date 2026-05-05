@@ -11,6 +11,11 @@ describe('middleware auth guards', () => {
     expect(redirectPath).toBe('/login?next=%2Ftracking%2Fdaily')
   })
 
+  it('redirects anonymous users from protected timeline route to /login', () => {
+    const redirectPath = getAuthRedirectPath('/timeline', false)
+    expect(redirectPath).toBe('/login?next=%2Ftimeline')
+  })
+
   it('allows anonymous access to /swagger', () => {
     const redirectPath = getAuthRedirectPath('/swagger', false)
     expect(redirectPath).toBeNull()

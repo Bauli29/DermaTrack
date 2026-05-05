@@ -189,6 +189,22 @@ class DiaryServiceTest {
     }
 
     @Test
+    @DisplayName("findAllByUserIdAndDateRange() should return owner-scoped range entries")
+    void findAllByUserIdAndDateRange_ShouldReturnOwnerRangeEntries() {
+        UUID userId = testUser.getId();
+        LocalDate fromDate = LocalDate.of(2026, 4, 1);
+        LocalDate toDate = LocalDate.of(2026, 4, 30);
+        List<DiaryEntry> entries = List.of(testEntry);
+        when(diaryEntryRepository.findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, toDate))
+                .thenReturn(entries);
+
+        List<DiaryEntry> result = diaryService.findAllByUserIdAndDateRange(userId, fromDate, toDate);
+
+        assertThat(result).containsExactly(testEntry);
+        verify(diaryEntryRepository).findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, toDate);
+    }
+
+    @Test
     @DisplayName("findByIdAndUserId() should return entry when it belongs to owner")
     void findByIdAndUserId_WhenOwned_ShouldReturnEntry() {
         UUID userId = testUser.getId();

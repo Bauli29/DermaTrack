@@ -10,10 +10,16 @@ export const GET = async (request: NextRequest): Promise<Response> => {
   try {
     const { searchParams } = new URL(request.url)
     const date = searchParams.get('date')
+    const backendSearchParams = new URLSearchParams()
+
+    if (date) {
+      backendSearchParams.set('date', date)
+    }
 
     const response = await proxyDiaryRequest(request, {
       method: 'GET',
-      searchParams: `?date=${date}`,
+      id: 'by-date',
+      searchParams: backendSearchParams.toString(),
     })
 
     return forwardDiaryResponse(response, 'Failed to fetch diary entry by date')

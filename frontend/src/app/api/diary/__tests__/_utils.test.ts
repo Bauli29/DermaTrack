@@ -85,6 +85,12 @@ describe('diary api utils', () => {
   it('builds diary backend paths consistently', () => {
     expect(buildDiaryBackendPath()).toBe('/api/diary')
     expect(buildDiaryBackendPath('entry-123')).toBe('/api/diary/entry-123')
+    expect(buildDiaryBackendPath(undefined, 'fromDate=2026-04-01')).toBe(
+      '/api/diary?fromDate=2026-04-01'
+    )
+    expect(buildDiaryBackendPath('by-date', '?date=2026-04-23')).toBe(
+      '/api/diary/by-date?date=2026-04-23'
+    )
   })
 
   it('adds authorization headers only when an access token is present', () => {

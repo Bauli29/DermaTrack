@@ -22,8 +22,23 @@ export interface IDiaryRouteContext {
   params: Promise<IDiaryRouteParams>
 }
 
-export const buildDiaryBackendPath = (id?: string): string =>
-  id ? `${BACKEND_DIARY_BASE_PATH}/${id}` : BACKEND_DIARY_BASE_PATH
+const normalizeDiarySearchParams = (searchParams?: string): string => {
+  if (!searchParams) {
+    return ''
+  }
+
+  return searchParams.startsWith('?') ? searchParams.slice(1) : searchParams
+}
+
+export const buildDiaryBackendPath = (
+  id?: string,
+  searchParams?: string
+): string => {
+  const path = id ? `${BACKEND_DIARY_BASE_PATH}/${id}` : BACKEND_DIARY_BASE_PATH
+  const normalizedSearchParams = normalizeDiarySearchParams(searchParams)
+
+  return normalizedSearchParams ? `${path}?${normalizedSearchParams}` : path
+}
 
 export const buildDiaryHeaders = (accessToken?: string): HeadersInit =>
   accessToken ? { Authorization: `Bearer ${accessToken}` } : {}
@@ -72,7 +87,7 @@ export const proxyDiaryRequest = async (
     id,
     body,
     cache,
-    //searchParams,
+    searchParams,
   }: {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE'
     id?: string
@@ -81,7 +96,7 @@ export const proxyDiaryRequest = async (
     searchParams?: string
   }
 ): Promise<Response> =>
-  secureFetch(buildDiaryBackendPath(id), {
+  secureFetch(buildDiaryBackendPath(id, searchParams), {
     method,
     body,
     cache,

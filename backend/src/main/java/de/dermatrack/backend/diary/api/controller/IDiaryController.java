@@ -1,9 +1,11 @@
 package de.dermatrack.backend.diary.api.controller;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.dermatrack.backend.diary.api.dto.DiaryEntryCreateRequest;
@@ -43,9 +46,13 @@ public interface IDiaryController {
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Found all Diary Entries", content = {
                                         @Content(mediaType = "application/json", schema = @Schema(implementation = DiaryEntryResponse.class)) }),
+                        @ApiResponse(responseCode = "400", description = "Invalid date range supplied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))) })
         @GetMapping("")
-        ResponseEntity<List<DiaryEntryResponse>> getAllDiaryEntries(Principal principal);
+        ResponseEntity<List<DiaryEntryResponse>> getAllDiaryEntries(
+                        Principal principal,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate);
 
         /**
          * GET - Get diary entry by ID

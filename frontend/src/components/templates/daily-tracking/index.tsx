@@ -54,30 +54,62 @@ const DEFAULT_SLIDER_PROPS = {
   width: '100%',
 } as const
 
+const DATE_QUERY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+const createInitialValuesForDate = (date: string) => ({
+  ...createInitialDailyTrackingValues(),
+  date,
+})
+
 const DailyTrackingTemplate = () => {
   const router = useRouter()
   const { setTitle } = usePageTitle()
   const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const today = formatDateInput(new Date())
 
   useEffect(() => {
     setTitle('Daily Tracking')
   }, [setTitle])
-  const [selectedDate, setSelectedDate] = useState<string>('')
-  const initialValues = createInitialDailyTrackingValues()
+  const [selectedDate, setSelectedDate] = useState<string>(today)
   const [baselineFormValues, setBaselineFormValues] =
-    useState<IDailyTrackingFormValues>(initialValues)
-  const [formValues, setFormValues] =
-    useState<IDailyTrackingFormValues>(initialValues)
+    useState<IDailyTrackingFormValues>(() => createInitialValuesForDate(today))
+  const [formValues, setFormValues] = useState<IDailyTrackingFormValues>(() =>
+    createInitialValuesForDate(today)
+  )
   const [images, setImages] = useState<File[]>([])
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
+    const requestedDate = new URLSearchParams(window.location.search).get(
+      'date'
+    )
+
+    if (!requestedDate || !DATE_QUERY_PATTERN.test(requestedDate)) {
+      return
+    }
+
+    if (isFutureDailyTrackingDate(requestedDate)) {
+      setError('Date must not be in the future.')
+      return
+    }
+
+    setSelectedDate(requestedDate)
+    setBaselineFormValues(createInitialValuesForDate(requestedDate))
+    setFormValues(createInitialValuesForDate(requestedDate))
+  }, [])
+
+  useEffect(() => {
     if (!selectedDate) return
+    let active = true
 
     const loadEntry = async () => {
       const result = await getDiaryEntryByDate(selectedDate)
+
+      if (!active) {
+        return
+      }
 
       if (!result.success) {
         setError(result.error)
@@ -107,6 +139,10 @@ const DailyTrackingTemplate = () => {
     }
 
     loadEntry()
+
+    return () => {
+      active = false
+    }
   }, [selectedDate])
 
   const { date, notes } = formValues

@@ -35,6 +35,11 @@ export type TGetDiaryEntryResult<T> =
   | IGetDiaryEntrySuccess<T>
   | IGetDiaryEntryFailure
 
+export interface IGetDiaryEntriesParams {
+  fromDate?: string
+  toDate?: string
+}
+
 const getApiErrorMessage = (body: IApiErrorLike | null): string | null => {
   if (!body) {
     return null
@@ -110,6 +115,60 @@ export const createDiaryEntry = async (
   }
 }
 
+export const buildDiaryEntriesApiPath = (
+  params: IGetDiaryEntriesParams = {}
+): string => {
+  const query = new URLSearchParams()
+  const trimmedFromDate = params.fromDate?.trim()
+  const trimmedToDate = params.toDate?.trim()
+
+  if (trimmedFromDate) {
+    query.set('fromDate', trimmedFromDate)
+  }
+
+  if (trimmedToDate) {
+    query.set('toDate', trimmedToDate)
+  }
+
+  const queryString = query.toString()
+  return queryString ? `/api/diary?${queryString}` : '/api/diary'
+}
+
+export const getDiaryEntries = async <T = unknown>(
+  params?: IGetDiaryEntriesParams,
+  fetchImpl: TDiaryFetch = fetch
+): Promise<TGetDiaryEntryResult<T[]>> => {
+  try {
+    const response = await sessionAwareFetch(
+      buildDiaryEntriesApiPath(params),
+      {
+        method: 'GET',
+        cache: 'no-store',
+      },
+      { fetchImpl }
+    )
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: await getDiarySubmissionErrorMessage(response),
+      }
+    }
+
+    const data = (await response.json()) as T[]
+
+    return {
+      success: true,
+      data,
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: getDiaryRuntimeErrorMessage(error),
+    }
+  }
+}
+
 export const getDiaryEntryByDate = async <T = unknown>(
   date: string,
   fetchImpl: TDiaryFetch = fetch
@@ -119,8 +178,9 @@ export const getDiaryEntryByDate = async <T = unknown>(
       return { success: true, data: null }
     }
 
+    const query = new URLSearchParams({ date })
     const response = await sessionAwareFetch(
-      `/api/diary/by-date?date=${date}`,
+      `/api/diary/by-date?${query.toString()}`,
       {
         method: 'GET',
       },

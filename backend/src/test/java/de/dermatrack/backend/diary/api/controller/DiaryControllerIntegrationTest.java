@@ -120,6 +120,39 @@ class DiaryControllerIntegrationTest {
         }
 
         @Test
+        @DisplayName("GET /api/diary should return entries filtered by date range")
+        void getAllDiaryEntries_WithDateRange_ShouldReturnMatchingEntries() throws Exception {
+                diaryEntryRepository.save(buildEntity(testUser, LocalDate.of(2026, 3, 31), 6, 5, "dust"));
+                diaryEntryRepository.save(testEntry);
+                diaryEntryRepository.save(buildEntity(testUser, LocalDate.of(2026, 4, 24), 5, 2, "none"));
+                diaryEntryRepository.save(buildEntity(testUser, LocalDate.of(2026, 5, 1), 8, 7, "pollen"));
+
+                mockMvc.perform(get("/api/diary")
+                                .param("fromDate", "2026-04-01")
+                                .param("toDate", "2026-04-30")
+                                .with(user("testuser")))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(2))
+                                .andExpect(jsonPath("$[0].entryDate").value("2026-04-23"))
+                                .andExpect(jsonPath("$[1].entryDate").value("2026-04-24"));
+        }
+
+        @Test
+        @DisplayName("GET /api/diary should reject incomplete or reversed date ranges")
+        void getAllDiaryEntries_WithInvalidDateRange_ShouldReturn400() throws Exception {
+                mockMvc.perform(get("/api/diary")
+                                .param("fromDate", "2026-04-30")
+                                .param("toDate", "2026-04-01")
+                                .with(user("testuser")))
+                                .andExpect(status().isBadRequest());
+
+                mockMvc.perform(get("/api/diary")
+                                .param("fromDate", "2026-04-01")
+                                .with(user("testuser")))
+                                .andExpect(status().isBadRequest());
+        }
+
+        @Test
         @DisplayName("GET /api/diary should only return entries for authenticated user")
         void getAllDiaryEntries_ShouldFilterByOwner() throws Exception {
                 AppUser otherUser = new AppUser();

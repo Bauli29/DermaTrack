@@ -19,6 +19,7 @@ const isProtectedRoute = (pathname: string): boolean => {
   return (
     pathname === '/' ||
     pathname.startsWith('/tracking') ||
+    pathname.startsWith('/timeline') ||
     pathname.startsWith('/statistics')
   )
 }

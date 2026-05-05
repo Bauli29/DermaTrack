@@ -80,6 +80,12 @@ public class DiaryService {
     }
 
     @Transactional(readOnly = true)
+    public List<DiaryEntry> findAllByUserIdAndDateRange(UUID userId, LocalDate fromDate, LocalDate toDate) {
+        log.trace("Service: Finding diary entries for user: {} between {} and {}", userId, fromDate, toDate);
+        return IDiaryEntryRepository.findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, toDate);
+    }
+
+    @Transactional(readOnly = true)
     public DiaryEntry findByIdAndUserId(UUID id, UUID userId) {
         log.trace("Service: Finding diary entry by id: {} and user: {}", id, userId);
         return IDiaryEntryRepository.findByIdAndUser_Id(id, userId)
@@ -90,12 +96,8 @@ public class DiaryService {
         LocalDate entryDate = diaryEntry.getEntryDate();
         return IDiaryEntryRepository
                 .findByUser_IdAndEntryDate(userId, entryDate)
-                .map(existing -> {
-                    return updateForUser(existing.getId(), userId, diaryEntry);
-                })
-                .orElseGet(() -> {
-                    return IDiaryEntryRepository.save(diaryEntry);
-                });
+                .map(existing -> updateForUser(existing.getId(), userId, diaryEntry))
+                .orElseGet(() -> IDiaryEntryRepository.save(diaryEntry));
     }
 
     public DiaryEntry updateForUser(UUID id, UUID userId, DiaryEntry diaryEntry) {

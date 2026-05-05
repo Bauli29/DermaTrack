@@ -2,7 +2,12 @@
 
 //import { expect, jest } from '@jest/globals'
 import type { TDiaryEntryInput } from '@/validation/diary'
-import { createDiaryEntry } from '../index'
+import {
+  buildDiaryEntriesApiPath,
+  createDiaryEntry,
+  getDiaryEntries,
+  getDiaryEntryByDate,
+} from '../index'
 
 const createMockResponse = ({
   status,
@@ -66,6 +71,73 @@ describe('diary service', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     })
+  })
+
+  it('builds diary list api paths with optional date range filters', () => {
+    expect(buildDiaryEntriesApiPath()).toBe('/api/diary')
+    expect(
+      buildDiaryEntriesApiPath({
+        fromDate: '2026-04-01',
+        toDate: '2026-04-30',
+      })
+    ).toBe('/api/diary?fromDate=2026-04-01&toDate=2026-04-30')
+  })
+
+  it('fetches diary entries with date range filters', async () => {
+    const entries = [{ id: 'entry-1', entryDate: '2026-04-23' }]
+    const fetchImpl = jest.fn().mockResolvedValue(
+      createMockResponse({
+        status: 200,
+        contentType: 'application/json',
+        jsonBody: entries,
+      })
+    )
+
+    await expect(
+      getDiaryEntries(
+        {
+          fromDate: '2026-04-01',
+          toDate: '2026-04-30',
+        },
+        fetchImpl
+      )
+    ).resolves.toEqual({
+      success: true,
+      data: entries,
+    })
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      '/api/diary?fromDate=2026-04-01&toDate=2026-04-30',
+      {
+        method: 'GET',
+        cache: 'no-store',
+      }
+    )
+  })
+
+  it('fetches a diary entry by encoded date', async () => {
+    const entry = { id: 'entry-1', entryDate: '2026-04-23' }
+    const fetchImpl = jest.fn().mockResolvedValue(
+      createMockResponse({
+        status: 200,
+        contentType: 'application/json',
+        jsonBody: entry,
+      })
+    )
+
+    await expect(getDiaryEntryByDate('2026-04-23', fetchImpl)).resolves.toEqual(
+      {
+        success: true,
+        data: entry,
+      }
+    )
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      '/api/diary/by-date?date=2026-04-23',
+      {
+        method: 'GET',
+      }
+    )
   })
 
   it('uses PUT when updating an existing diary entry', async () => {

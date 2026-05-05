@@ -53,11 +53,22 @@ public class DiaryController implements IDiaryController {
     }
 
     @Override
-    public ResponseEntity<List<DiaryEntryResponse>> getAllDiaryEntries(Principal principal) {
+    public ResponseEntity<List<DiaryEntryResponse>> getAllDiaryEntries(
+            Principal principal,
+            LocalDate fromDate,
+            LocalDate toDate) {
         log.trace("Controller: Getting all diary entries");
 
         AppUser currentUser = resolveCurrentUser(principal);
-        List<DiaryEntry> entries = diaryService.findAllByUserId(currentUser.getId());
+        List<DiaryEntry> entries;
+
+        if (fromDate == null && toDate == null) {
+            entries = diaryService.findAllByUserId(currentUser.getId());
+        } else if (fromDate == null || toDate == null || fromDate.isAfter(toDate)) {
+            return ResponseEntity.badRequest().build();
+        } else {
+            entries = diaryService.findAllByUserIdAndDateRange(currentUser.getId(), fromDate, toDate);
+        }
 
         return ResponseEntity.ok(diaryEntryMapper.toResponseList(entries));
     }

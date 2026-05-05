@@ -14,9 +14,11 @@ import {
  */
 export const GET = async (request: NextRequest): Promise<Response> => {
   try {
+    const searchParams = request.nextUrl.searchParams.toString()
     const response = await proxyDiaryRequest(request, {
       method: 'GET',
       cache: 'no-store',
+      searchParams,
     })
     return forwardDiaryResponse(response, 'Failed to fetch diary entries')
   } catch {
