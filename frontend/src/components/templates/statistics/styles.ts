@@ -1,5 +1,32 @@
 'use client'
-import styled from 'styled-components'
+import styled, { type DefaultTheme } from 'styled-components'
+
+type TFactorImpactTone = 'higher' | 'lower' | 'neutral'
+
+const getFactorDeltaColor = (
+  tone: TFactorImpactTone,
+  theme: DefaultTheme
+): string => {
+  switch (tone) {
+    case 'higher':
+      return theme.colors.error
+    case 'lower':
+      return theme.colors.success
+    case 'neutral':
+      return theme.colors.textSecondary
+  }
+}
+
+const getFactorDeltaBorderColor = (
+  tone: TFactorImpactTone,
+  theme: DefaultTheme
+): string => {
+  if (tone === 'neutral') {
+    return theme.colors.border
+  }
+
+  return getFactorDeltaColor(tone, theme)
+}
 
 export const PageWrapper = styled.main`
   width: 100%;
@@ -81,7 +108,7 @@ export const DateControls = styled.div`
 
 export const PeriodControls = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
   gap: 8px;
 
   button {
@@ -177,6 +204,18 @@ export const ErrorAction = styled.div`
   }
 `
 
+export const WarningBanner = styled.div`
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid ${({ theme }) => theme.colors.warning};
+  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.surface};
+  box-shadow: 0 2px 8px ${({ theme }) => theme.colors.shadow};
+`
+
 export const ChartStack = styled.div`
   display: grid;
   gap: 12px;
@@ -217,6 +256,21 @@ export const ChartTitleGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
+`
+
+export const ChartHeaderActions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+
+  button {
+    min-width: 72px;
+  }
+
+  @media (min-width: 640px) {
+    justify-content: flex-end;
+  }
 `
 
 export const RangeBadge = styled.span`
@@ -315,4 +369,183 @@ export const StatePanel = styled.section`
   border: 1px solid ${({ theme }) => theme.colors.borderLight};
   border-radius: 8px;
   background: ${({ theme }) => theme.colors.card};
+`
+
+export const InsightsPanel = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.surface};
+  box-shadow: 0 2px 8px ${({ theme }) => theme.colors.shadow};
+
+  @media (min-width: 480px) {
+    padding: 16px;
+  }
+`
+
+export const InsightsHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+`
+
+export const InsightsHeaderActions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+
+  @media (min-width: 640px) {
+    justify-content: flex-end;
+  }
+`
+
+export const InsightsFilters = styled.div`
+  display: grid;
+  gap: 8px;
+
+  @media (min-width: 560px) {
+    grid-template-columns: repeat(2, minmax(0, 220px));
+  }
+`
+
+export const FilterControl = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`
+
+export const FilterLabel = styled.label`
+  color: ${({ theme }) => theme.colors.textMuted};
+  font-size: 0.75rem;
+  text-transform: uppercase;
+`
+
+export const WeightingNote = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.card};
+`
+
+export const WeightList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`
+
+export const WeightItem = styled.span`
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.surface};
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: 0.78rem;
+  line-height: 1.2;
+`
+
+export const FactorSummary = styled.div`
+  display: grid;
+  gap: 8px;
+
+  @media (min-width: 420px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`
+
+export const FactorGrid = styled.div`
+  display: grid;
+  gap: 10px;
+
+  @media (min-width: 680px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`
+
+export const FactorCard = styled.article`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.card};
+`
+
+export const FactorCardHeader = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+`
+
+export const FactorTitleGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+`
+
+export const FactorCategory = styled.span`
+  color: ${({ theme }) => theme.colors.textMuted};
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+`
+
+export const FactorName = styled.span`
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+`
+
+export const FactorDelta = styled.span<{ $tone: TFactorImpactTone }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 32px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid
+    ${({ $tone, theme }) => getFactorDeltaBorderColor($tone, theme)};
+  color: ${({ $tone, theme }) => getFactorDeltaColor($tone, theme)};
+  background: ${({ theme }) => theme.colors.surface};
+  font-size: 0.86rem;
+  font-weight: 700;
+`
+
+export const FactorMetricGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+`
+
+export const FactorMetric = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.surface};
 `

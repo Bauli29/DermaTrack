@@ -23,7 +23,10 @@ import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 import de.dermatrack.backend.statistics.mapper.StatisticsBarChartMapper;
 import de.dermatrack.backend.statistics.mapper.StatisticsLineChartMapper;
 import de.dermatrack.backend.statistics.model.common.StatisticsPeriod;
+import de.dermatrack.backend.statistics.model.factors.FactorImpactStatisticsModel;
 import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
+import de.dermatrack.backend.statistics.service.ICorrelationCalculator;
+import de.dermatrack.backend.statistics.service.IWeightedSymptomCalculator;
 import de.dermatrack.backend.statistics.service.impl.StatisticsService;
 import de.dermatrack.backend.statistics.support.StatisticsTestDataFactory;
 
@@ -40,11 +43,17 @@ class StatisticsServiceTest {
     @Mock
     private StatisticsBarChartMapper statisticsBarChartMapper;
 
+    @Mock
+    private IWeightedSymptomCalculator weightedSymptomCalculator;
+
+    @Mock
+    private ICorrelationCalculator correlationCalculator;
+
     @InjectMocks
     private StatisticsService statisticsService;
 
     @Test
-    @DisplayName("getSymptomTrendLine() should fetch owner entries in 7-day window and map result")
+    @DisplayName("getSymptomTrendLine() should fetch owner entries in selected 7-day window and map result")
     void getSymptomTrendLine_ShouldQueryRangeAndMap() {
         UUID userId = UUID.randomUUID();
         LocalDate endDate = LocalDate.of(2026, 4, 25);
@@ -62,6 +71,7 @@ class StatisticsServiceTest {
 
         SymptomTrendChartModel result = statisticsService.getSymptomTrendLine(
                 userId,
+                null,
                 endDate,
                 StatisticsPeriod.LAST_7_DAYS);
 
@@ -71,7 +81,7 @@ class StatisticsServiceTest {
     }
 
     @Test
-    @DisplayName("getSymptomTrendBar() should fetch owner entries in 7-day window and map result")
+    @DisplayName("getSymptomTrendBar() should fetch owner entries in selected 7-day window and map result")
     void getSymptomTrendBar_ShouldQueryRangeAndMap() {
         UUID userId = UUID.randomUUID();
         LocalDate endDate = LocalDate.of(2026, 4, 25);
@@ -89,6 +99,7 @@ class StatisticsServiceTest {
 
         SymptomTrendChartModel result = statisticsService.getSymptomTrendBar(
                 userId,
+                null,
                 endDate,
                 StatisticsPeriod.LAST_7_DAYS);
 
@@ -118,6 +129,7 @@ class StatisticsServiceTest {
 
         SymptomTrendChartModel result = statisticsService.getSymptomTrendLine(
                 userId,
+                null,
                 null,
                 StatisticsPeriod.LAST_7_DAYS);
         LocalDate afterCall = LocalDate.now();
@@ -153,11 +165,122 @@ class StatisticsServiceTest {
 
         SymptomTrendChartModel result = statisticsService.getSymptomTrendLine(
                 userId,
+                null,
                 endDate,
                 StatisticsPeriod.LAST_30_DAYS);
 
         assertThat(result).isSameAs(expected);
         verify(diaryEntryRepository).findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, endDate);
         verify(statisticsLineChartMapper).toSymptomTrendChart(entries, fromDate, endDate);
+    }
+
+    @Test
+    @DisplayName("getSymptomTrendLine() should default omitted period to 30 days")
+    void getSymptomTrendLine_WithNullPeriod_ShouldQueryThirtyDayRange() {
+        UUID userId = UUID.randomUUID();
+        LocalDate endDate = LocalDate.of(2026, 4, 25);
+        LocalDate fromDate = endDate.minusDays(29);
+        List<DiaryEntry> entries = List.of();
+        SymptomTrendChartModel expected = new SymptomTrendChartModel();
+
+        when(diaryEntryRepository.findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, endDate))
+                .thenReturn(entries);
+        when(statisticsLineChartMapper.toSymptomTrendChart(entries, fromDate, endDate)).thenReturn(expected);
+
+        SymptomTrendChartModel result = statisticsService.getSymptomTrendLine(
+                userId,
+                null,
+                endDate,
+                null);
+
+        assertThat(result).isSameAs(expected);
+        verify(diaryEntryRepository).findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, endDate);
+        verify(statisticsLineChartMapper).toSymptomTrendChart(entries, fromDate, endDate);
+    }
+
+    @Test
+    @DisplayName("getSymptomTrendLine() should use custom fromDate when supplied")
+    void getSymptomTrendLine_WithFromDate_ShouldQueryCustomRange() {
+        UUID userId = UUID.randomUUID();
+        LocalDate fromDate = LocalDate.of(2026, 4, 10);
+        LocalDate endDate = LocalDate.of(2026, 4, 25);
+        List<DiaryEntry> entries = List.of();
+        SymptomTrendChartModel expected = new SymptomTrendChartModel();
+
+        when(diaryEntryRepository.findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, endDate))
+                .thenReturn(entries);
+        when(statisticsLineChartMapper.toSymptomTrendChart(entries, fromDate, endDate)).thenReturn(expected);
+
+        SymptomTrendChartModel result = statisticsService.getSymptomTrendLine(
+                userId,
+                fromDate,
+                endDate,
+                StatisticsPeriod.LAST_30_DAYS);
+
+        assertThat(result).isSameAs(expected);
+        verify(diaryEntryRepository).findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, endDate);
+        verify(statisticsLineChartMapper).toSymptomTrendChart(entries, fromDate, endDate);
+    }
+
+    @Test
+    @DisplayName("getFactorImpacts() should calculate factor deltas and correlations for selected period")
+    void getFactorImpacts_ShouldCalculateFactorImpactStatistics() {
+        UUID userId = UUID.randomUUID();
+        LocalDate endDate = LocalDate.of(2026, 4, 25);
+        LocalDate fromDate = endDate.minusDays(29);
+
+        DiaryEntry nutsEntry = StatisticsTestDataFactory.buildEntryForBarChart(
+                LocalDate.of(2026, 4, 24),
+                8,
+                7,
+                6,
+                true,
+                false,
+                false);
+        nutsEntry.setNutritionNuts("high");
+
+        DiaryEntry noNutsEntry = StatisticsTestDataFactory.buildEntryForBarChart(
+                LocalDate.of(2026, 4, 25),
+                2,
+                1,
+                1,
+                false,
+                false,
+                false);
+        noNutsEntry.setNutritionNuts("none");
+
+        List<DiaryEntry> entries = List.of(nutsEntry, noNutsEntry);
+
+        when(diaryEntryRepository.findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, endDate))
+                .thenReturn(entries);
+        when(weightedSymptomCalculator.calculateSymptomWeight(nutsEntry)).thenReturn(8.0);
+        when(weightedSymptomCalculator.calculateSymptomWeight(noNutsEntry)).thenReturn(2.0);
+        when(correlationCalculator.calculatePearsonCorrelation(any(), eq(List.of(8.0, 2.0)))).thenReturn(0.75);
+
+        FactorImpactStatisticsModel result = statisticsService.getFactorImpacts(
+                userId,
+                null,
+                endDate,
+                StatisticsPeriod.LAST_30_DAYS);
+
+        assertThat(result.getDateRange().getFrom()).isEqualTo(fromDate);
+        assertThat(result.getDateRange().getTo()).isEqualTo(endDate);
+        assertThat(result.getTotalEntries()).isEqualTo(2);
+        assertThat(result.getAverageWeightedSymptomScore()).isEqualTo(5.0);
+        assertThat(result.getDataQuality().getDataPointCount()).isEqualTo(2);
+        assertThat(result.getDataQuality().getMinimumRecommendedDataPoints()).isEqualTo(7);
+        assertThat(result.getDataQuality().isInsufficientData()).isTrue();
+        assertThat(result.getFactors())
+                .filteredOn(factor -> factor.getKey().equals("nutrition.nuts"))
+                .singleElement()
+                .satisfies(factor -> {
+                    assertThat(factor.getLabel()).isEqualTo("Nuts");
+                    assertThat(factor.getCategory()).isEqualTo("Nutrition");
+                    assertThat(factor.getOccurrenceCount()).isEqualTo(1);
+                    assertThat(factor.getOccurrenceRate()).isEqualTo(50.0);
+                    assertThat(factor.getAverageWeightedSymptomScore()).isEqualTo(8.0);
+                    assertThat(factor.getWeightedSymptomDelta()).isEqualTo(3.0);
+                    assertThat(factor.getPearsonCorrelation()).isEqualTo(0.75);
+                });
     }
 }

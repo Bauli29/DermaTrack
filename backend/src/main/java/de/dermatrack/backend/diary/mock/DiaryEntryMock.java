@@ -16,14 +16,16 @@ import net.datafaker.Faker;
 @RequiredArgsConstructor
 public class DiaryEntryMock {
 
+    private static final int MOCK_ENTRY_DAYS_PER_USER = 365;
+
     private final IDiaryEntryRepository diaryEntryRepository;
     private final Faker faker = new Faker();
 
     public void createEntriesForAllUsers(List<AppUser> users) {
 
-        // Create 30 random entries per user
+        // Create enough local data to make the one-year statistics view useful.
         for (AppUser user : users) {
-            for (int i = 0; i < 30; i++) {
+            for (int i = 0; i < MOCK_ENTRY_DAYS_PER_USER; i++) {
                 createRandomEntry(user, i);
             }
         }

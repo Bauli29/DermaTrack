@@ -9,7 +9,9 @@ import lombok.Getter;
 public enum StatisticsPeriod {
     LAST_7_DAYS("7d", 7),
     LAST_30_DAYS("30d", 30),
-    LAST_90_DAYS("90d", 90);
+    LAST_90_DAYS("90d", 90),
+    LAST_6_MONTHS("6m", 180),
+    LAST_1_YEAR("1y", 365);
 
     private final String queryValue;
     private final int days;
@@ -21,7 +23,7 @@ public enum StatisticsPeriod {
 
     public static StatisticsPeriod fromQueryValue(String queryValue) {
         if (queryValue == null || queryValue.isBlank()) {
-            return LAST_7_DAYS;
+            return LAST_30_DAYS;
         }
 
         String normalizedQueryValue = queryValue.trim().toLowerCase(Locale.ROOT);
@@ -30,6 +32,6 @@ public enum StatisticsPeriod {
                 .filter(period -> period.queryValue.equals(normalizedQueryValue))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "Unsupported statistics period. Supported values: 7d, 30d, 90d"));
+                        "Unsupported statistics period. Supported values: 7d, 30d, 90d, 6m, 1y"));
     }
 }

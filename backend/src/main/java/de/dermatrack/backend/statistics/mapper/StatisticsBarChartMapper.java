@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import de.dermatrack.backend.diary.model.DiaryEntry;
 import de.dermatrack.backend.statistics.model.common.HighchartsSeriesModel;
+import de.dermatrack.backend.statistics.model.common.StatisticsDataQuality;
 import de.dermatrack.backend.statistics.model.common.StatisticsDateRangeModel;
 import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,8 @@ public class StatisticsBarChartMapper {
                 "column",
                 categories,
                 series,
-                new StatisticsDateRangeModel(fromDate, toDate));
+                new StatisticsDateRangeModel(fromDate, toDate),
+                StatisticsDataQuality.fromEntries(entries));
     }
 
     private Double intToDouble(Integer value) {

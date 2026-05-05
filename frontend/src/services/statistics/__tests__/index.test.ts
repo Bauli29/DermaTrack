@@ -1,5 +1,6 @@
 import {
   buildStatisticsApiPath,
+  fetchFactorImpacts,
   fetchPsycheSymptomsChart,
   fetchSymptomsChart,
 } from '../index'
@@ -47,6 +48,11 @@ const sampleLineChart = {
     from: '2026-04-23',
     to: '2026-04-29',
   },
+  dataQuality: {
+    dataPointCount: 7,
+    minimumRecommendedDataPoints: 7,
+    insufficientData: false,
+  },
 }
 
 const sampleColumnChart = {
@@ -59,6 +65,7 @@ const sampleColumnChart = {
     },
   ],
   dateRange: sampleLineChart.dateRange,
+  dataQuality: sampleLineChart.dataQuality,
 }
 
 const sampleSparseLineChart = {
@@ -71,6 +78,27 @@ const sampleSparseLineChart = {
     },
   ],
   dateRange: sampleLineChart.dateRange,
+  dataQuality: sampleLineChart.dataQuality,
+}
+
+const sampleFactorImpacts = {
+  dateRange: sampleLineChart.dateRange,
+  totalEntries: 7,
+  averageWeightedSymptomScore: 4.2,
+  dataQuality: sampleLineChart.dataQuality,
+  factors: [
+    {
+      key: 'nutrition.nuts',
+      label: 'Nuts',
+      category: 'Nutrition',
+      totalEntries: 7,
+      occurrenceCount: 3,
+      occurrenceRate: 42.9,
+      averageWeightedSymptomScore: 6.1,
+      weightedSymptomDelta: 1.9,
+      pearsonCorrelation: 0.54,
+    },
+  ],
 }
 
 describe('statistics service', () => {
@@ -89,10 +117,13 @@ describe('statistics service', () => {
     ).toBe('/api/statistics/symptoms?endDate=2026-04-29')
     expect(
       buildStatisticsApiPath('/api/statistics/symptoms', {
+        fromDate: '2026-04-01',
         endDate: '2026-04-29',
-        period: '30d',
+        period: '1y',
       })
-    ).toBe('/api/statistics/symptoms?endDate=2026-04-29&period=30d')
+    ).toBe(
+      '/api/statistics/symptoms?fromDate=2026-04-01&endDate=2026-04-29&period=1y'
+    )
   })
 
   it('loads the psyche and symptoms chart from the frontend api route', async () => {
@@ -143,6 +174,37 @@ describe('statistics service', () => {
       method: 'GET',
       cache: 'no-store',
     })
+  })
+
+  it('loads factor impact statistics and validates the response shape', async () => {
+    const fetchImpl = jest.fn().mockResolvedValue(
+      createMockResponse({
+        status: 200,
+        contentType: 'application/json',
+        jsonBody: sampleFactorImpacts,
+      })
+    )
+
+    await expect(
+      fetchFactorImpacts(
+        {
+          endDate: '2026-04-29',
+          period: '90d',
+        },
+        fetchImpl
+      )
+    ).resolves.toEqual({
+      success: true,
+      data: sampleFactorImpacts,
+    })
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      '/api/statistics/factor-impacts?endDate=2026-04-29&period=90d',
+      {
+        method: 'GET',
+        cache: 'no-store',
+      }
+    )
   })
 
   it('accepts sparse statistics responses with null gaps', async () => {

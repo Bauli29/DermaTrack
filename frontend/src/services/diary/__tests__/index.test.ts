@@ -2,7 +2,7 @@
 
 //import { expect, jest } from '@jest/globals'
 import type { TDiaryEntryInput } from '@/validation/diary'
-import { createDiaryEntry } from '../index'
+import { createDiaryEntry, fetchDiaryEntries } from '../index'
 
 const createMockResponse = ({
   status,
@@ -65,6 +65,57 @@ describe('diary service', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+    })
+  })
+
+  it('loads diary entries from the frontend api route', async () => {
+    const entries = [
+      {
+        id: 'entry-1',
+        userId: 'user-1',
+        createdAt: '2026-04-27T10:00:00Z',
+        entryDate: '2026-04-27',
+        tracking: {
+          psyche: { stressLevel: 3 },
+          contactFactors: {},
+          nutrition: {},
+          careProducts: {},
+          health: {},
+          symptoms: { itchiness: 5 },
+        },
+        notes: null,
+      },
+    ]
+    const fetchImpl = jest.fn().mockResolvedValue(
+      createMockResponse({
+        status: 200,
+        contentType: 'application/json',
+        jsonBody: entries,
+      })
+    )
+
+    await expect(fetchDiaryEntries(fetchImpl)).resolves.toEqual({
+      success: true,
+      data: entries,
+    })
+    expect(fetchImpl).toHaveBeenCalledWith('/api/diary', {
+      method: 'GET',
+      cache: 'no-store',
+    })
+  })
+
+  it('returns a contract error for malformed diary entry lists', async () => {
+    const fetchImpl = jest.fn().mockResolvedValue(
+      createMockResponse({
+        status: 200,
+        contentType: 'application/json',
+        jsonBody: [{ id: 'entry-1' }],
+      })
+    )
+
+    await expect(fetchDiaryEntries(fetchImpl)).resolves.toEqual({
+      success: false,
+      error: 'Invalid diary response received.',
     })
   })
 

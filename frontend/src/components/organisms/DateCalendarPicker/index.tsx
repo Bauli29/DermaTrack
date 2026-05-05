@@ -1,13 +1,50 @@
 'use client'
 
 import { useMemo } from 'react'
-import DatePicker from 'react-datepicker'
+import DatePicker, {
+  type ReactDatePickerCustomHeaderProps,
+} from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
 import { formatDateInput } from '@/lib/date'
 
 import * as SC from './styles'
 import type { IDateCalendarPickerProps } from './types'
+
+const monthYearFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+  year: 'numeric',
+})
+
+const renderCalendarHeader = ({
+  decreaseMonth,
+  increaseMonth,
+  monthDate,
+  nextMonthButtonDisabled,
+  prevMonthButtonDisabled,
+}: ReactDatePickerCustomHeaderProps) => (
+  <SC.CalendarHeader>
+    <SC.CalendarNavigationButton
+      type='button'
+      onClick={decreaseMonth}
+      disabled={prevMonthButtonDisabled}
+      aria-label='Previous month'
+    >
+      <span aria-hidden='true'>&lt;</span>
+    </SC.CalendarNavigationButton>
+    <SC.CalendarCurrentMonth>
+      {monthYearFormatter.format(monthDate)}
+    </SC.CalendarCurrentMonth>
+    <SC.CalendarNavigationButton
+      type='button'
+      onClick={increaseMonth}
+      disabled={nextMonthButtonDisabled}
+      aria-label='Next month'
+    >
+      <span aria-hidden='true'>&gt;</span>
+    </SC.CalendarNavigationButton>
+  </SC.CalendarHeader>
+)
 
 const parseDateInputValue = (value?: string | null): Date | null => {
   if (typeof value !== 'string' || value.trim() === '') {
@@ -81,6 +118,7 @@ const DateCalendarPicker = ({
         popperClassName='date-calendar-picker__popper'
         popperPlacement='bottom-start'
         showPopperArrow={false}
+        renderCustomHeader={renderCalendarHeader}
         ariaInvalid={ariaInvalid ? 'true' : undefined}
         ariaDescribedBy={ariaDescribedBy}
       />

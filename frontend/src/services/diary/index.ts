@@ -1,5 +1,7 @@
 import type { TDiaryEntryInput } from '@/validation/diary'
+import { DailyTrackingPayloadSchema } from '@/validation/diary'
 import { sessionAwareFetch } from '@/lib/session-aware-fetch'
+import { z } from 'zod'
 
 interface IApiErrorLike {
   error?: string
@@ -34,6 +36,23 @@ export interface IGetDiaryEntryFailure {
 export type TGetDiaryEntryResult<T> =
   | IGetDiaryEntrySuccess<T>
   | IGetDiaryEntryFailure
+
+export const DiaryEntryResponseSchema = z
+  .object({
+    id: z.string().min(1),
+    userId: z.string().min(1).optional(),
+    createdAt: z.string().optional(),
+    entryDate: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, 'Entry date must be in YYYY-MM-DD format'),
+    tracking: DailyTrackingPayloadSchema,
+    notes: z.string().nullable().optional(),
+  })
+  .passthrough()
+
+export const DiaryEntryListResponseSchema = z.array(DiaryEntryResponseSchema)
+
+export type TDiaryEntryResponse = z.infer<typeof DiaryEntryResponseSchema>
 
 const getApiErrorMessage = (body: IApiErrorLike | null): string | null => {
   if (!body) {
@@ -74,6 +93,50 @@ const getDiaryRuntimeErrorMessage = (error: unknown): string =>
   error instanceof Error && error.message.trim().length > 0
     ? error.message
     : 'Failed to save entry. Please try again.'
+
+const INVALID_DIARY_RESPONSE_MESSAGE = 'Invalid diary response received.'
+
+export const fetchDiaryEntries = async (
+  fetchImpl: TDiaryFetch = fetch
+): Promise<TGetDiaryEntryResult<TDiaryEntryResponse[]>> => {
+  try {
+    const response = await sessionAwareFetch(
+      '/api/diary',
+      {
+        method: 'GET',
+        cache: 'no-store',
+      },
+      { fetchImpl }
+    )
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: await getDiarySubmissionErrorMessage(response),
+      }
+    }
+
+    const body = await response.json().catch(() => null)
+    const entries = DiaryEntryListResponseSchema.parse(body)
+
+    return {
+      success: true,
+      data: entries,
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: INVALID_DIARY_RESPONSE_MESSAGE,
+      }
+    }
+
+    return {
+      success: false,
+      error: getDiaryRuntimeErrorMessage(error),
+    }
+  }
+}
 
 export const createDiaryEntry = async (
   payload: TDiaryEntryInput & { id?: string },

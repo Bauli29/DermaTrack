@@ -4,12 +4,14 @@ import type {
   Options,
   SeriesColumnOptions,
   SeriesLineOptions,
+  SeriesPieOptions,
 } from 'highcharts'
 
 import type { ITheme } from '@/lib/themes'
 import type {
   TStatisticsChart,
   TStatisticsPeriod,
+  TFactorImpactStatistics,
 } from '@/services/statistics/types'
 
 const createLegendItemStyle = (theme: ITheme): CSSObject => ({
@@ -30,6 +32,17 @@ export interface IStatisticsPeriodOption {
   label: string
 }
 
+export interface IStatisticsExportData {
+  psycheSymptoms: TStatisticsChart
+  symptoms: TStatisticsChart
+  factorImpacts: TFactorImpactStatistics
+}
+
+export interface IFactorDistributionPoint {
+  name: string
+  y: number
+}
+
 const MAX_DENSE_AXIS_TICKS = 10
 const MAX_SPARSE_AXIS_TICKS = 8
 const SCORE_AXIS_VISIBLE_MIN = -1
@@ -37,6 +50,8 @@ const SCORE_AXIS_MAX = 10
 const SCORE_AXIS_PADDING_TICK = -1
 const SCORE_AXIS_VISIBLE_TICKS = [0, 2, 4, 6, 8, 10]
 const SCORE_AXIS_TICKS = [SCORE_AXIS_PADDING_TICK, ...SCORE_AXIS_VISIBLE_TICKS]
+const CHART_EXPORT_SOURCE_WIDTH = 960
+const CHART_EXPORT_SOURCE_HEIGHT = 540
 
 const formatScoreAxisLabel = function (
   this: AxisLabelsFormatterContextObject
@@ -68,13 +83,21 @@ export const STATISTICS_PERIOD_OPTIONS: IStatisticsPeriodOption[] = [
   },
   {
     value: '90d',
-    label: '90 days',
+    label: '3 months',
+  },
+  {
+    value: '6m',
+    label: '6 months',
+  },
+  {
+    value: '1y',
+    label: '1 year',
   },
 ]
 
 export const getStatisticsPeriodLabel = (period: TStatisticsPeriod): string =>
   STATISTICS_PERIOD_OPTIONS.find(option => option.value === period)?.label ??
-  '7 days'
+  '30 days'
 
 export const getStatisticsSeriesColors = (
   chartType: TStatisticsChart['chartType'],
@@ -107,6 +130,28 @@ const buildSeriesOptions = (chart: TStatisticsChart): Options['series'] =>
           type: 'column',
         } satisfies SeriesColumnOptions)
   })
+
+export const buildStatisticsExportFilename = (
+  section: string,
+  from: string,
+  to: string
+): string => `dermatrack-${section}-${from}-to-${to}`
+
+const buildChartExportOptions = (
+  filename: string,
+  theme: ITheme
+): Options['exporting'] => ({
+  enabled: false,
+  fallbackToExportServer: false,
+  filename,
+  sourceHeight: CHART_EXPORT_SOURCE_HEIGHT,
+  sourceWidth: CHART_EXPORT_SOURCE_WIDTH,
+  chartOptions: {
+    chart: {
+      backgroundColor: theme.colors.surface,
+    },
+  },
+})
 
 export const formatStatisticsDate = (value: string): string => {
   const date = new Date(`${value}T00:00:00`)
@@ -146,6 +191,157 @@ export const formatStatisticsScore = (value: number | null): string => {
   return new Intl.NumberFormat('en-GB', {
     maximumFractionDigits: 1,
   }).format(value)
+}
+
+export const formatStatisticsSignedScore = (value: number | null): string => {
+  if (value === null) {
+    return 'N/A'
+  }
+
+  const formatted = formatStatisticsScore(Math.abs(value))
+  if (value > 0) {
+    return `+${formatted}`
+  }
+
+  if (value < 0) {
+    return `-${formatted}`
+  }
+
+  return '0'
+}
+
+export const formatStatisticsPercent = (value: number): string =>
+  `${new Intl.NumberFormat('en-GB', {
+    maximumFractionDigits: 1,
+  }).format(value)}%`
+
+export const formatStatisticsCorrelation = (value: number | null): string => {
+  if (value === null) {
+    return 'N/A'
+  }
+
+  return new Intl.NumberFormat('en-GB', {
+    maximumFractionDigits: 2,
+  }).format(value)
+}
+
+export const getFactorImpactTone = (
+  delta: number | null
+): 'higher' | 'lower' | 'neutral' => {
+  if (delta === null || Math.abs(delta) < 0.1) {
+    return 'neutral'
+  }
+
+  return delta > 0 ? 'higher' : 'lower'
+}
+
+const formatCsvValue = (value: string | number | null): string => {
+  if (value === null) {
+    return ''
+  }
+
+  const rawValue = String(value)
+  if (
+    rawValue.includes(',') ||
+    rawValue.includes('"') ||
+    rawValue.includes('\n')
+  ) {
+    return `"${rawValue.replaceAll('"', '""')}"`
+  }
+
+  return rawValue
+}
+
+const appendChartRows = (
+  rows: (string | number | null)[][],
+  section: string,
+  chart: TStatisticsChart
+) => {
+  chart.series.forEach(series => {
+    series.data.forEach((value, index) => {
+      rows.push([
+        section,
+        chart.categories[index] ?? null,
+        series.name,
+        value,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ])
+    })
+  })
+}
+
+export const buildStatisticsExportCsv = (
+  statistics: IStatisticsExportData
+): string => {
+  const rows: (string | number | null)[][] = [
+    [
+      'section',
+      'date',
+      'series_or_factor',
+      'value',
+      'category',
+      'occurrence_count',
+      'total_entries',
+      'occurrence_rate_percent',
+      'average_weighted_symptom_score',
+      'weighted_symptom_delta',
+      'pearson_correlation',
+      'date_range',
+    ],
+  ]
+  const factorDateRange = `${statistics.factorImpacts.dateRange.from} - ${statistics.factorImpacts.dateRange.to}`
+
+  appendChartRows(rows, 'psyche_symptoms', statistics.psycheSymptoms)
+  appendChartRows(rows, 'symptoms', statistics.symptoms)
+
+  statistics.factorImpacts.factors.forEach(factor => {
+    rows.push([
+      'factor_impacts',
+      null,
+      factor.label,
+      null,
+      factor.category,
+      factor.occurrenceCount,
+      factor.totalEntries,
+      factor.occurrenceRate,
+      factor.averageWeightedSymptomScore,
+      factor.weightedSymptomDelta,
+      factor.pearsonCorrelation,
+      factorDateRange,
+    ])
+  })
+
+  return rows.map(row => row.map(formatCsvValue).join(',')).join('\r\n')
+}
+
+export const buildFactorDistributionData = (
+  factorImpacts: TFactorImpactStatistics
+): IFactorDistributionPoint[] => {
+  const categoryTotals = new Map<string, number>()
+
+  factorImpacts.factors.forEach(factor => {
+    if (factor.occurrenceCount <= 0) {
+      return
+    }
+
+    categoryTotals.set(
+      factor.category,
+      (categoryTotals.get(factor.category) ?? 0) + factor.occurrenceCount
+    )
+  })
+
+  return Array.from(categoryTotals.entries())
+    .map(([name, y]) => ({ name, y }))
+    .sort(
+      (left, right) => right.y - left.y || left.name.localeCompare(right.name)
+    )
 }
 
 export const buildStatisticsAxisTickIndices = (
@@ -219,6 +415,12 @@ export const hasRenderableStatisticsChart = (
   chart.series.length > 0 &&
   chart.series.some(series => series.data.some(value => value !== null))
 
+export const hasRenderableFactorDistribution = (
+  factorImpacts: TFactorImpactStatistics
+): boolean =>
+  factorImpacts.totalEntries > 0 &&
+  factorImpacts.factors.some(factor => factor.occurrenceCount > 0)
+
 export const buildStatisticsChartOptions = (
   chart: TStatisticsChart,
   theme: ITheme
@@ -231,17 +433,33 @@ export const buildStatisticsChartOptions = (
     backgroundColor: 'transparent',
     height: null,
     spacing: [8, 8, 8, 0],
+    panning: {
+      enabled: true,
+      type: 'x',
+    },
+    panKey: 'shift',
     style: {
       fontFamily:
         '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
+    },
+    zooming: {
+      type: 'x',
     },
   },
   colors: getStatisticsSeriesColors(chart.chartType, theme),
   credits: {
     enabled: false,
   },
+  exporting: buildChartExportOptions(
+    buildStatisticsExportFilename(
+      chart.chartType === 'line' ? 'psyche-symptoms' : 'symptoms',
+      chart.dateRange.from,
+      chart.dateRange.to
+    ),
+    theme
+  ),
   legend: {
-    enabled: false,
+    enabled: true,
     align: 'left',
     verticalAlign: 'top',
     itemDistance: 12,
@@ -326,3 +544,87 @@ export const buildStatisticsChartOptions = (
   },
   series: buildSeriesOptions(chart),
 })
+
+export const buildFactorDistributionChartOptions = (
+  factorImpacts: TFactorImpactStatistics,
+  theme: ITheme
+): Options => {
+  const data = buildFactorDistributionData(factorImpacts)
+
+  return {
+    accessibility: {
+      enabled: false,
+    },
+    chart: {
+      type: 'pie',
+      backgroundColor: 'transparent',
+      height: null,
+      spacing: [8, 8, 8, 0],
+      style: {
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
+      },
+    },
+    colors: [
+      theme.colors.primary,
+      theme.colors.attention,
+      theme.colors.success,
+      theme.colors.info,
+      theme.colors.secondary,
+      theme.colors.warning,
+      theme.colors.critical,
+      theme.colors.error,
+    ],
+    credits: {
+      enabled: false,
+    },
+    exporting: buildChartExportOptions(
+      buildStatisticsExportFilename(
+        'factor-distribution',
+        factorImpacts.dateRange.from,
+        factorImpacts.dateRange.to
+      ),
+      theme
+    ),
+    legend: {
+      enabled: true,
+      align: 'left',
+      verticalAlign: 'top',
+      itemDistance: 12,
+      itemStyle: createLegendItemStyle(theme),
+    },
+    title: {
+      text: undefined,
+    },
+    tooltip: {
+      pointFormat: '<b>{point.y}</b> occurrences ({point.percentage:.1f}%)',
+    },
+    plotOptions: {
+      pie: {
+        allowPointSelect: true,
+        borderColor: theme.colors.surface,
+        borderWidth: 2,
+        cursor: 'pointer',
+        dataLabels: {
+          enabled: true,
+          distance: 12,
+          format: '{point.name}: {point.percentage:.1f}%',
+          style: {
+            color: theme.colors.textSecondary,
+            fontSize: '11px',
+            fontWeight: '500',
+            textOutline: 'none',
+          },
+        },
+        showInLegend: true,
+      },
+    },
+    series: [
+      {
+        type: 'pie',
+        name: 'Factor occurrences',
+        data,
+      } satisfies SeriesPieOptions,
+    ],
+  }
+}

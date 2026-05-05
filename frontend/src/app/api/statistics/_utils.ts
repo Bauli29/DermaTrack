@@ -12,11 +12,11 @@ import { AUTH_COOKIE_NAMES } from '@/constants/auth'
 const BACKEND_STATISTICS_BASE_PATH = '/api/statistics'
 const END_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
-const PeriodParamSchema = z.enum(['7d', '30d', '90d'])
+const PeriodParamSchema = z.enum(['7d', '30d', '90d', '6m', '1y'])
 
-const EndDateParamSchema = z
+const DateParamSchema = z
   .string()
-  .regex(END_DATE_PATTERN, 'endDate must use YYYY-MM-DD format')
+  .regex(END_DATE_PATTERN, 'date must use YYYY-MM-DD format')
   .refine(value => {
     const [yearText, monthText, dayText] = value.split('-')
     const year = Number(yearText)
@@ -39,9 +39,9 @@ const EndDateParamSchema = z
       date.getMonth() === month - 1 &&
       date.getDate() === day
     )
-  }, 'endDate must be a valid calendar date')
+  }, 'date must be a valid calendar date')
 
-type TStatisticsEndpoint = 'psyche-symptoms' | 'symptoms'
+type TStatisticsEndpoint = 'psyche-symptoms' | 'symptoms' | 'factor-impacts'
 type TStatisticsPeriod = z.infer<typeof PeriodParamSchema>
 
 const buildStatisticsHeaders = (accessToken?: string): HeadersInit =>
@@ -73,7 +73,18 @@ const readValidatedEndDate = (request: NextRequest): string | undefined => {
     return undefined
   }
 
-  return validateRequestOrThrow(EndDateParamSchema, trimmedEndDate)
+  return validateRequestOrThrow(DateParamSchema, trimmedEndDate)
+}
+
+const readValidatedFromDate = (request: NextRequest): string | undefined => {
+  const rawFromDate = request.nextUrl.searchParams.get('fromDate')
+  const trimmedFromDate = rawFromDate?.trim()
+
+  if (!trimmedFromDate) {
+    return undefined
+  }
+
+  return validateRequestOrThrow(DateParamSchema, trimmedFromDate)
 }
 
 const readValidatedPeriod = (
@@ -91,10 +102,15 @@ const readValidatedPeriod = (
 
 export const buildStatisticsBackendPath = (
   endpoint: TStatisticsEndpoint,
+  fromDate?: string,
   endDate?: string,
   period?: TStatisticsPeriod
 ): string => {
   const query = new URLSearchParams()
+
+  if (fromDate) {
+    query.set('fromDate', fromDate)
+  }
 
   if (endDate) {
     query.set('endDate', endDate)
@@ -129,14 +145,18 @@ export const proxyStatisticsRequest = async (
   request: NextRequest,
   endpoint: TStatisticsEndpoint
 ): Promise<Response> => {
+  const fromDate = readValidatedFromDate(request)
   const endDate = readValidatedEndDate(request)
   const period = readValidatedPeriod(request)
 
-  return secureFetch(buildStatisticsBackendPath(endpoint, endDate, period), {
-    method: 'GET',
-    cache: 'no-store',
-    headers: buildStatisticsHeaders(getStatisticsAccessToken(request)),
-  })
+  return secureFetch(
+    buildStatisticsBackendPath(endpoint, fromDate, endDate, period),
+    {
+      method: 'GET',
+      cache: 'no-store',
+      headers: buildStatisticsHeaders(getStatisticsAccessToken(request)),
+    }
+  )
 }
 
 export const createStatisticsRequestErrorResponse = (

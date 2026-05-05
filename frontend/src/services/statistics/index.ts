@@ -4,8 +4,10 @@ import { sessionAwareFetch } from '@/lib/session-aware-fetch'
 
 import {
   ColumnStatisticsChartSchema,
+  FactorImpactStatisticsSchema,
   LineStatisticsChartSchema,
   type TColumnStatisticsChart,
+  type TFactorImpactStatistics,
   type TLineStatisticsChart,
   type TStatisticsPeriod,
 } from './types'
@@ -18,6 +20,7 @@ interface IApiErrorLike {
 type TStatisticsFetch = (input: string, init?: RequestInit) => Promise<Response>
 
 export interface IStatisticsRequestParams {
+  fromDate?: string
   endDate?: string
   period?: TStatisticsPeriod
 }
@@ -39,6 +42,7 @@ export type TStatisticsRequestResult<TData> =
 export const STATISTICS_API_PATHS = {
   psycheSymptoms: '/api/statistics/psyche-symptoms',
   symptoms: '/api/statistics/symptoms',
+  factorImpacts: '/api/statistics/factor-impacts',
 } as const
 
 const INVALID_STATISTICS_RESPONSE_MESSAGE =
@@ -89,7 +93,12 @@ export const buildStatisticsApiPath = (
   params: IStatisticsRequestParams = {}
 ): string => {
   const query = new URLSearchParams()
+  const trimmedFromDate = params.fromDate?.trim()
   const trimmedEndDate = params.endDate?.trim()
+
+  if (trimmedFromDate) {
+    query.set('fromDate', trimmedFromDate)
+  }
 
   if (trimmedEndDate) {
     query.set('endDate', trimmedEndDate)
@@ -166,6 +175,17 @@ export const fetchSymptomsChart = async (
   fetchStatisticsChart(
     STATISTICS_API_PATHS.symptoms,
     ColumnStatisticsChartSchema,
+    params,
+    fetchImpl
+  )
+
+export const fetchFactorImpacts = async (
+  params?: IStatisticsRequestParams,
+  fetchImpl?: TStatisticsFetch
+): Promise<TStatisticsRequestResult<TFactorImpactStatistics>> =>
+  fetchStatisticsChart(
+    STATISTICS_API_PATHS.factorImpacts,
+    FactorImpactStatisticsSchema,
     params,
     fetchImpl
   )

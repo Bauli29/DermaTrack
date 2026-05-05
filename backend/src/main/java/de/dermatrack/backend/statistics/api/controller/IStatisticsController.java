@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.dermatrack.backend.exception.ErrorResponse;
+import de.dermatrack.backend.statistics.model.factors.FactorImpactStatisticsModel;
 import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,7 +42,10 @@ public interface IStatisticsController {
             @Parameter(description = "Inclusive end date in YYYY-MM-DD format. Defaults to today when omitted.")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @Parameter(description = "Statistics period. Supported values: 7d, 30d, 90d. Defaults to 7d when omitted.")
+            @Parameter(description = "Inclusive custom start date in YYYY-MM-DD format. When supplied, it overrides period.")
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @Parameter(description = "Statistics period. Supported values: 7d, 30d, 90d, 6m, 1y. Defaults to 30d when omitted.")
             @RequestParam(required = false) String period);
 
     @Operation(summary = "Get symptom statistics for the authenticated user")
@@ -58,6 +62,29 @@ public interface IStatisticsController {
             @Parameter(description = "Inclusive end date in YYYY-MM-DD format. Defaults to today when omitted.")
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @Parameter(description = "Statistics period. Supported values: 7d, 30d, 90d. Defaults to 7d when omitted.")
+            @Parameter(description = "Inclusive custom start date in YYYY-MM-DD format. When supplied, it overrides period.")
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @Parameter(description = "Statistics period. Supported values: 7d, 30d, 90d, 6m, 1y. Defaults to 30d when omitted.")
+            @RequestParam(required = false) String period);
+
+    @Operation(summary = "Get factor impact statistics for the authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Factor impact statistics returned", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = FactorImpactStatisticsModel.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid endDate or period supplied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Authenticated user not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))) })
+    @GetMapping("/factor-impacts")
+    ResponseEntity<FactorImpactStatisticsModel> getFactorImpacts(
+            Principal principal,
+            @Parameter(description = "Inclusive end date in YYYY-MM-DD format. Defaults to today when omitted.")
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @Parameter(description = "Inclusive custom start date in YYYY-MM-DD format. When supplied, it overrides period.")
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @Parameter(description = "Statistics period. Supported values: 7d, 30d, 90d, 6m, 1y. Defaults to 30d when omitted.")
             @RequestParam(required = false) String period);
 }

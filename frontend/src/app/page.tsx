@@ -1,18 +1,5 @@
-'use client'
-import { useEffect } from 'react'
+import DashboardTemplate from '@/components/templates/dashboard'
 
-import { usePageTitle } from '@/hooks/use-page-title'
-
-const Home = () => {
-  const { setTitle, setBackLink, setParentTitle } = usePageTitle()
-
-  useEffect(() => {
-    setTitle('Dashboard')
-    setBackLink(null)
-    setParentTitle(null)
-  }, [setTitle, setBackLink, setParentTitle])
-
-  return <h1>Hello World</h1>
-}
+const Home = () => <DashboardTemplate />
 
 export default Home

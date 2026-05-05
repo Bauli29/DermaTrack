@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Button from '@/components/atoms/Button'
 import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
+import Select from '@/components/atoms/Select'
 import Text from '@/components/atoms/Text'
 
 import DateCalendarPicker from '@/components/organisms/DateCalendarPicker'
@@ -15,19 +16,28 @@ import { formatDateInput } from '@/lib/date'
 import { usePageTitle } from '@/hooks/use-page-title'
 
 import {
+  fetchFactorImpacts,
   fetchPsycheSymptomsChart,
   fetchSymptomsChart,
 } from '@/services/statistics'
 import type {
   TColumnStatisticsChart,
+  TFactorImpactStatistics,
   TLineStatisticsChart,
   TStatisticsPeriod,
 } from '@/services/statistics/types'
 
 import * as SC from './styles'
+import type { IFactorDistributionChartCardProps } from './factor-distribution-chart-card'
 import type { IStatisticsChartCardProps } from './statistics-chart-card'
 import {
+  buildStatisticsExportCsv,
+  formatStatisticsCorrelation,
+  formatStatisticsPercent,
   formatStatisticsRange,
+  formatStatisticsScore,
+  formatStatisticsSignedScore,
+  getFactorImpactTone,
   getStatisticsPeriodLabel,
   STATISTICS_PERIOD_OPTIONS,
 } from './utils'
@@ -48,17 +58,77 @@ const StatisticsChartCard = dynamic<IStatisticsChartCardProps>(
   }
 )
 
+const FactorDistributionChartCard = dynamic<IFactorDistributionChartCardProps>(
+  () => import('./factor-distribution-chart-card'),
+  {
+    ssr: false,
+    loading: () => (
+      <SC.ChartCard>
+        <SC.StatePanel>
+          <Text size='small' color='textSecondary' noSpacing>
+            Loading chart...
+          </Text>
+        </SC.StatePanel>
+      </SC.ChartCard>
+    ),
+  }
+)
+
 interface IStatisticsViewState {
   psycheSymptoms: TLineStatisticsChart
   symptoms: TColumnStatisticsChart
+  factorImpacts: TFactorImpactStatistics
+}
+
+const WEIGHTED_SYMPTOM_WEIGHTS = [
+  'Itchiness 20%',
+  'Dryness 10%',
+  'Inflammation 30%',
+  'Scratching 10%',
+  'Weeping skin 15%',
+  'Skin cracks 15%',
+]
+
+type TFactorCategoryFilter = 'all' | 'Contact' | 'Nutrition' | 'Care' | 'Health'
+type TFactorSignalFilter = 'all' | 'higher' | 'lower' | 'neutral'
+type TStatisticsPeriodMode = TStatisticsPeriod | 'custom'
+
+const FACTOR_CATEGORY_FILTER_OPTIONS = [
+  { value: 'all', label: 'All categories' },
+  { value: 'Contact', label: 'Contact' },
+  { value: 'Nutrition', label: 'Nutrition' },
+  { value: 'Care', label: 'Care' },
+  { value: 'Health', label: 'Health' },
+] as const
+
+const FACTOR_SIGNAL_FILTER_OPTIONS = [
+  { value: 'all', label: 'All signals' },
+  { value: 'higher', label: 'Higher score' },
+  { value: 'lower', label: 'Lower score' },
+  { value: 'neutral', label: 'Neutral' },
+] as const
+
+const getDefaultCustomStartDate = (): string => {
+  const date = new Date()
+  date.setDate(date.getDate() - 29)
+  return formatDateInput(date)
 }
 
 const StatisticsTemplate = () => {
   const { setTitle } = usePageTitle()
   const today = useMemo(() => formatDateInput(new Date()), [])
+  const defaultCustomStartDate = useMemo(() => getDefaultCustomStartDate(), [])
 
   const [selectedEndDate, setSelectedEndDate] = useState<string>(today)
-  const [selectedPeriod, setSelectedPeriod] = useState<TStatisticsPeriod>('7d')
+  const [selectedPeriodMode, setSelectedPeriodMode] =
+    useState<TStatisticsPeriodMode>('30d')
+  const [customStartDate, setCustomStartDate] = useState<string>(
+    defaultCustomStartDate
+  )
+  const [factorCategoryFilter, setFactorCategoryFilter] =
+    useState<TFactorCategoryFilter>('all')
+  const [factorSignalFilter, setFactorSignalFilter] =
+    useState<TFactorSignalFilter>('all')
   const [statistics, setStatistics] = useState<IStatisticsViewState | null>(
     null
   )
@@ -71,33 +141,55 @@ const StatisticsTemplate = () => {
   }, [setTitle])
 
   useEffect(() => {
+    if (customStartDate > selectedEndDate) {
+      setCustomStartDate(selectedEndDate)
+    }
+  }, [customStartDate, selectedEndDate])
+
+  useEffect(() => {
     let active = true
 
     const loadStatistics = async () => {
       setIsLoading(true)
       setError(null)
       setStatistics(null)
-      const requestParams = {
-        endDate: selectedEndDate,
-        period: selectedPeriod,
-      }
+      const effectiveCustomStartDate =
+        customStartDate > selectedEndDate ? selectedEndDate : customStartDate
+      const requestParams =
+        selectedPeriodMode === 'custom'
+          ? {
+              fromDate: effectiveCustomStartDate,
+              endDate: selectedEndDate,
+            }
+          : {
+              endDate: selectedEndDate,
+              period: selectedPeriodMode,
+            }
 
-      const [psycheResult, symptomsResult] = await Promise.all([
-        fetchPsycheSymptomsChart(requestParams),
-        fetchSymptomsChart(requestParams),
-      ])
+      const [psycheResult, symptomsResult, factorImpactsResult] =
+        await Promise.all([
+          fetchPsycheSymptomsChart(requestParams),
+          fetchSymptomsChart(requestParams),
+          fetchFactorImpacts(requestParams),
+        ])
 
       if (!active) {
         return
       }
 
-      if (!psycheResult.success || !symptomsResult.success) {
+      if (
+        !psycheResult.success ||
+        !symptomsResult.success ||
+        !factorImpactsResult.success
+      ) {
         let failureMessage = 'Failed to load statistics.'
 
         if (!psycheResult.success) {
           failureMessage = psycheResult.error
         } else if (!symptomsResult.success) {
           failureMessage = symptomsResult.error
+        } else if (!factorImpactsResult.success) {
+          failureMessage = factorImpactsResult.error
         }
 
         setStatistics(null)
@@ -109,6 +201,7 @@ const StatisticsTemplate = () => {
       setStatistics({
         psycheSymptoms: psycheResult.data,
         symptoms: symptomsResult.data,
+        factorImpacts: factorImpactsResult.data,
       })
       setIsLoading(false)
     }
@@ -118,11 +211,59 @@ const StatisticsTemplate = () => {
     return () => {
       active = false
     }
-  }, [selectedEndDate, selectedPeriod, reloadKey])
+  }, [customStartDate, selectedEndDate, selectedPeriodMode, reloadKey])
 
   const activeRange = statistics?.psycheSymptoms.dateRange
-  const selectedPeriodLabel = getStatisticsPeriodLabel(selectedPeriod)
+  const topFactorImpacts = useMemo(() => {
+    if (!statistics) {
+      return []
+    }
+
+    return statistics.factorImpacts.factors
+      .filter(factor => factor.occurrenceCount > 0)
+      .filter(factor => {
+        if (factorCategoryFilter === 'all') {
+          return true
+        }
+
+        return factor.category === factorCategoryFilter
+      })
+      .filter(factor => {
+        if (factorSignalFilter === 'all') {
+          return true
+        }
+
+        return (
+          getFactorImpactTone(factor.weightedSymptomDelta) ===
+          factorSignalFilter
+        )
+      })
+      .slice(0, 6)
+  }, [factorCategoryFilter, factorSignalFilter, statistics])
+  const selectedPeriodLabel =
+    selectedPeriodMode === 'custom'
+      ? 'Custom range'
+      : getStatisticsPeriodLabel(selectedPeriodMode)
+  const dataQuality = statistics?.factorImpacts.dataQuality
   const retryStatisticsLoad = () => setReloadKey(current => current + 1)
+  const exportStatisticsCsv = () => {
+    if (!statistics) {
+      return
+    }
+
+    const csv = buildStatisticsExportCsv(statistics)
+    const csvBlob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const csvUrl = URL.createObjectURL(csvBlob)
+    const link = document.createElement('a')
+    const { from, to } = statistics.factorImpacts.dateRange
+
+    link.href = csvUrl
+    link.download = `dermatrack-statistics-${from}-to-${to}.csv`
+    document.body.append(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(csvUrl)
+  }
 
   return (
     <SC.PageWrapper>
@@ -169,7 +310,7 @@ const StatisticsTemplate = () => {
             </Text>
             <SC.PeriodControls role='group' aria-label='Statistics period'>
               {STATISTICS_PERIOD_OPTIONS.map(option => {
-                const isActivePeriod = selectedPeriod === option.value
+                const isActivePeriod = selectedPeriodMode === option.value
 
                 return (
                   <Button
@@ -177,15 +318,39 @@ const StatisticsTemplate = () => {
                     type='button'
                     variant={isActivePeriod ? 'primary' : 'ghost-outline'}
                     size='sm'
-                    onClick={() => setSelectedPeriod(option.value)}
+                    onClick={() => setSelectedPeriodMode(option.value)}
                     aria-pressed={isActivePeriod}
                   >
                     {option.label}
                   </Button>
                 )
               })}
+              <Button
+                type='button'
+                variant={
+                  selectedPeriodMode === 'custom' ? 'primary' : 'ghost-outline'
+                }
+                size='sm'
+                onClick={() => setSelectedPeriodMode('custom')}
+                aria-pressed={selectedPeriodMode === 'custom'}
+              >
+                Custom
+              </Button>
             </SC.PeriodControls>
           </SC.FilterGroup>
+
+          {selectedPeriodMode === 'custom' && (
+            <SC.FilterGroup>
+              <Text as='span' size='small' weight={600} noSpacing>
+                Start date
+              </Text>
+              <DateCalendarPicker
+                value={customStartDate}
+                maxDate={selectedEndDate}
+                onChange={setCustomStartDate}
+              />
+            </SC.FilterGroup>
+          )}
         </SC.FilterPanel>
 
         <SC.RangeSummary>
@@ -234,6 +399,17 @@ const StatisticsTemplate = () => {
         </SC.ErrorBanner>
       )}
 
+      {!error && dataQuality?.insufficientData && (
+        <SC.WarningBanner role='status'>
+          <Icon name='warning' color='warning' aria-hidden='true' />
+          <Text as='span' size='small' color='textSecondary' noSpacing>
+            Correlations may be less meaningful for this period because only{' '}
+            {dataQuality.dataPointCount} of the recommended{' '}
+            {dataQuality.minimumRecommendedDataPoints} data points are present.
+          </Text>
+        </SC.WarningBanner>
+      )}
+
       {isLoading && (
         <SC.StatePanel aria-live='polite'>
           <Text size='small' color='textSecondary' noSpacing>
@@ -262,6 +438,164 @@ const StatisticsTemplate = () => {
             title='Symptoms'
             description='Itchiness, dryness and inflammation.'
           />
+          <FactorDistributionChartCard
+            factorImpacts={statistics.factorImpacts}
+          />
+          <SC.InsightsPanel>
+            <SC.InsightsHeader>
+              <SC.ChartTitleGroup>
+                <Headline as='h3' variant='h4' noSpacing>
+                  Factor Insights
+                </Headline>
+                <Text size='small' color='textSecondary' noSpacing>
+                  Trigger comparison by weighted symptom score and Pearson
+                  correlation.
+                </Text>
+              </SC.ChartTitleGroup>
+              <SC.InsightsHeaderActions>
+                <SC.RangeBadge>
+                  {formatStatisticsRange(
+                    statistics.factorImpacts.dateRange.from,
+                    statistics.factorImpacts.dateRange.to
+                  )}
+                </SC.RangeBadge>
+                <Button
+                  type='button'
+                  variant='ghost-outline'
+                  size='sm'
+                  onClick={exportStatisticsCsv}
+                >
+                  <Icon name='download' color='textSecondary' />
+                  <Text as='span' size='small' color='textSecondary' noSpacing>
+                    Export CSV
+                  </Text>
+                </Button>
+              </SC.InsightsHeaderActions>
+            </SC.InsightsHeader>
+
+            <SC.InsightsFilters>
+              <SC.FilterControl>
+                <SC.FilterLabel htmlFor='factor-category-filter'>
+                  Category
+                </SC.FilterLabel>
+                <Select
+                  id='factor-category-filter'
+                  options={FACTOR_CATEGORY_FILTER_OPTIONS}
+                  value={factorCategoryFilter}
+                  onChange={event =>
+                    setFactorCategoryFilter(
+                      event.target.value as TFactorCategoryFilter
+                    )
+                  }
+                />
+              </SC.FilterControl>
+              <SC.FilterControl>
+                <SC.FilterLabel htmlFor='factor-signal-filter'>
+                  Signal
+                </SC.FilterLabel>
+                <Select
+                  id='factor-signal-filter'
+                  options={FACTOR_SIGNAL_FILTER_OPTIONS}
+                  value={factorSignalFilter}
+                  onChange={event =>
+                    setFactorSignalFilter(
+                      event.target.value as TFactorSignalFilter
+                    )
+                  }
+                />
+              </SC.FilterControl>
+            </SC.InsightsFilters>
+
+            <SC.WeightingNote>
+              <Text size='small' weight={600} noSpacing>
+                Weighted symptom score
+              </Text>
+              <SC.WeightList>
+                {WEIGHTED_SYMPTOM_WEIGHTS.map(weight => (
+                  <SC.WeightItem key={weight}>{weight}</SC.WeightItem>
+                ))}
+              </SC.WeightList>
+            </SC.WeightingNote>
+
+            <SC.FactorSummary>
+              <SC.SummaryPill>
+                <SC.SummaryLabel>Entries analyzed</SC.SummaryLabel>
+                <SC.SummaryValue>
+                  {statistics.factorImpacts.totalEntries}
+                </SC.SummaryValue>
+              </SC.SummaryPill>
+              <SC.SummaryPill>
+                <SC.SummaryLabel>Average symptom score</SC.SummaryLabel>
+                <SC.SummaryValue>
+                  {formatStatisticsScore(
+                    statistics.factorImpacts.averageWeightedSymptomScore
+                  )}
+                </SC.SummaryValue>
+              </SC.SummaryPill>
+            </SC.FactorSummary>
+
+            {topFactorImpacts.length === 0 ? (
+              <SC.StatePanel>
+                <Text size='small' color='textSecondary' noSpacing>
+                  No factor signals match the current selection.
+                </Text>
+              </SC.StatePanel>
+            ) : (
+              <SC.FactorGrid>
+                {topFactorImpacts.map(factor => {
+                  const tone = getFactorImpactTone(factor.weightedSymptomDelta)
+
+                  return (
+                    <SC.FactorCard key={factor.key}>
+                      <SC.FactorCardHeader>
+                        <SC.FactorTitleGroup>
+                          <SC.FactorCategory>
+                            {factor.category}
+                          </SC.FactorCategory>
+                          <SC.FactorName>{factor.label}</SC.FactorName>
+                        </SC.FactorTitleGroup>
+                        <SC.FactorDelta $tone={tone}>
+                          {formatStatisticsSignedScore(
+                            factor.weightedSymptomDelta
+                          )}
+                        </SC.FactorDelta>
+                      </SC.FactorCardHeader>
+                      <SC.FactorMetricGrid>
+                        <SC.FactorMetric>
+                          <SC.SummaryLabel>Avg score</SC.SummaryLabel>
+                          <SC.SummaryValue>
+                            {formatStatisticsScore(
+                              factor.averageWeightedSymptomScore
+                            )}
+                          </SC.SummaryValue>
+                        </SC.FactorMetric>
+                        <SC.FactorMetric>
+                          <SC.SummaryLabel>Occurrence</SC.SummaryLabel>
+                          <SC.SummaryValue>
+                            {factor.occurrenceCount}/{factor.totalEntries}
+                          </SC.SummaryValue>
+                        </SC.FactorMetric>
+                        <SC.FactorMetric>
+                          <SC.SummaryLabel>Share</SC.SummaryLabel>
+                          <SC.SummaryValue>
+                            {formatStatisticsPercent(factor.occurrenceRate)}
+                          </SC.SummaryValue>
+                        </SC.FactorMetric>
+                        <SC.FactorMetric>
+                          <SC.SummaryLabel>Correlation</SC.SummaryLabel>
+                          <SC.SummaryValue>
+                            {formatStatisticsCorrelation(
+                              factor.pearsonCorrelation
+                            )}
+                          </SC.SummaryValue>
+                        </SC.FactorMetric>
+                      </SC.FactorMetricGrid>
+                    </SC.FactorCard>
+                  )
+                })}
+              </SC.FactorGrid>
+            )}
+          </SC.InsightsPanel>
         </SC.ChartStack>
       )}
     </SC.PageWrapper>

@@ -14,17 +14,14 @@ import Text from '@/components/atoms/Text'
 
 import { useTheme } from '@/hooks/use-theme'
 
-import type { TStatisticsChart } from '@/services/statistics/types'
+import type { TFactorImpactStatistics } from '@/services/statistics/types'
 
 import * as SC from './styles'
 import {
-  buildStatisticsSeriesSnapshots,
-  buildStatisticsChartOptions,
+  buildFactorDistributionChartOptions,
   buildStatisticsExportFilename,
-  formatStatisticsDate,
   formatStatisticsRange,
-  formatStatisticsScore,
-  hasRenderableStatisticsChart,
+  hasRenderableFactorDistribution,
 } from './utils'
 
 const HighchartsChart = Chart as unknown as ComponentType<{
@@ -44,47 +41,20 @@ type TExportableHighchartsChart = HighchartsReactRefObject['chart'] & {
   }
 }
 
-export interface IStatisticsChartCardProps {
-  chart: TStatisticsChart
-  title: string
-  description: string
+export interface IFactorDistributionChartCardProps {
+  factorImpacts: TFactorImpactStatistics
 }
 
-const StatisticsChartCard = ({
-  chart,
-  title,
-  description,
-}: IStatisticsChartCardProps) => {
+const FactorDistributionChartCard = ({
+  factorImpacts,
+}: IFactorDistributionChartCardProps) => {
   const { theme } = useTheme()
   const chartSurfaceRef = useRef<HTMLDivElement | null>(null)
   const chartRef = useRef<HighchartsReactRefObject | null>(null)
   const options = useMemo(
-    () => buildStatisticsChartOptions(chart, theme),
-    [chart, theme]
+    () => buildFactorDistributionChartOptions(factorImpacts, theme),
+    [factorImpacts, theme]
   )
-  const seriesSnapshots = useMemo(
-    () => buildStatisticsSeriesSnapshots(chart, theme),
-    [chart, theme]
-  )
-
-  const exportChart = (type: TChartExportType) => {
-    const chartInstance = chartRef.current?.chart as
-      | TExportableHighchartsChart
-      | undefined
-
-    if (!chartInstance?.exporting) {
-      return
-    }
-
-    void chartInstance.exporting.exportChart({
-      filename: buildStatisticsExportFilename(
-        chart.chartType === 'line' ? 'psyche-symptoms' : 'symptoms',
-        chart.dateRange.from,
-        chart.dateRange.to
-      ),
-      type,
-    })
-  }
 
   useEffect(() => {
     const surface = chartSurfaceRef.current
@@ -124,24 +94,23 @@ const StatisticsChartCard = ({
     }
   }, [options])
 
-  if (!hasRenderableStatisticsChart(chart)) {
-    return (
-      <SC.ChartCard>
-        <SC.ChartTitleGroup>
-          <Headline variant='h4' noSpacing>
-            {title}
-          </Headline>
-          <Text size='small' color='textSecondary' maxLines={2} noSpacing>
-            {description}
-          </Text>
-        </SC.ChartTitleGroup>
-        <SC.StatePanel>
-          <Text size='small' color='textSecondary' noSpacing>
-            No chart data is available for the selected window.
-          </Text>
-        </SC.StatePanel>
-      </SC.ChartCard>
-    )
+  const exportChart = (type: TChartExportType) => {
+    const chartInstance = chartRef.current?.chart as
+      | TExportableHighchartsChart
+      | undefined
+
+    if (!chartInstance?.exporting) {
+      return
+    }
+
+    void chartInstance.exporting.exportChart({
+      filename: buildStatisticsExportFilename(
+        'factor-distribution',
+        factorImpacts.dateRange.from,
+        factorImpacts.dateRange.to
+      ),
+      type,
+    })
   }
 
   return (
@@ -149,23 +118,27 @@ const StatisticsChartCard = ({
       <SC.ChartHeader>
         <SC.ChartTitleGroup>
           <Headline variant='h4' noSpacing>
-            {title}
+            Factor Distribution
           </Headline>
           <Text size='small' color='textSecondary' maxLines={2} noSpacing>
-            {description}
+            Occurrence share by factor category.
           </Text>
         </SC.ChartTitleGroup>
         <SC.ChartHeaderActions>
           <SC.RangeBadge>
-            {formatStatisticsRange(chart.dateRange.from, chart.dateRange.to)}
+            {formatStatisticsRange(
+              factorImpacts.dateRange.from,
+              factorImpacts.dateRange.to
+            )}
           </SC.RangeBadge>
           <Button
             type='button'
             variant='ghost-outline'
             size='sm'
             onClick={() => exportChart('image/png')}
-            aria-label={`Export ${title} chart as PNG`}
-            title={`Export ${title} chart as PNG`}
+            disabled={!hasRenderableFactorDistribution(factorImpacts)}
+            aria-label='Export factor distribution chart as PNG'
+            title='Export factor distribution chart as PNG'
           >
             <Icon name='image' color='textSecondary' aria-hidden='true' />
             <Text as='span' size='small' color='textSecondary' noSpacing>
@@ -177,8 +150,9 @@ const StatisticsChartCard = ({
             variant='ghost-outline'
             size='sm'
             onClick={() => exportChart('application/pdf')}
-            aria-label={`Export ${title} chart as PDF`}
-            title={`Export ${title} chart as PDF`}
+            disabled={!hasRenderableFactorDistribution(factorImpacts)}
+            aria-label='Export factor distribution chart as PDF'
+            title='Export factor distribution chart as PDF'
           >
             <Icon
               name='picture_as_pdf'
@@ -191,44 +165,29 @@ const StatisticsChartCard = ({
           </Button>
         </SC.ChartHeaderActions>
       </SC.ChartHeader>
-      <SC.SeriesSnapshot
-        role='list'
-        aria-label={`${title} latest recorded values`}
-      >
-        {seriesSnapshots.map(snapshot => {
-          const score = formatStatisticsScore(snapshot.value)
-          const date = snapshot.date
-            ? formatStatisticsDate(snapshot.date)
-            : 'No recorded date'
 
-          return (
-            <SC.SeriesChip
-              key={snapshot.name}
-              role='listitem'
-              aria-label={`${snapshot.name}: ${score}, ${date}`}
-              title={`${snapshot.name}: ${score}, ${date}`}
-            >
-              <SC.SeriesSwatch $color={snapshot.color} aria-hidden='true' />
-              <SC.SeriesName>{snapshot.name}</SC.SeriesName>
-              <SC.SeriesValue>{score}</SC.SeriesValue>
-            </SC.SeriesChip>
-          )
-        })}
-      </SC.SeriesSnapshot>
-      <SC.ChartSurface ref={chartSurfaceRef}>
-        <HighchartsChart
-          ref={chartRef}
-          options={options}
-          containerProps={{
-            style: {
-              width: '100%',
-              height: '100%',
-            },
-          }}
-        />
-      </SC.ChartSurface>
+      {hasRenderableFactorDistribution(factorImpacts) ? (
+        <SC.ChartSurface ref={chartSurfaceRef}>
+          <HighchartsChart
+            ref={chartRef}
+            options={options}
+            containerProps={{
+              style: {
+                width: '100%',
+                height: '100%',
+              },
+            }}
+          />
+        </SC.ChartSurface>
+      ) : (
+        <SC.StatePanel>
+          <Text size='small' color='textSecondary' noSpacing>
+            No factor distribution is available for the selected window.
+          </Text>
+        </SC.StatePanel>
+      )}
     </SC.ChartCard>
   )
 }
 
-export default StatisticsChartCard
+export default FactorDistributionChartCard
