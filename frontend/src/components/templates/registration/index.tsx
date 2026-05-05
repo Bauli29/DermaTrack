@@ -113,7 +113,6 @@ const RegistrationTemplate = () => {
           USERNAME_HELPER_TEXT
         )}
         validation={usernameValidation}
-        margin='1rem 0 0 0'
       />
 
       <SC.NameRow>
@@ -124,7 +123,6 @@ const RegistrationTemplate = () => {
           value={firstName}
           onChange={e => setFirstName(e.target.value)}
           validation={firstName.length > 0 ? 'success' : 'none'}
-          margin='1rem 0 0 0'
         />
         <Input
           label='Last Name (optional)'
@@ -133,7 +131,6 @@ const RegistrationTemplate = () => {
           value={lastName}
           onChange={e => setLastName(e.target.value)}
           validation={lastName.length > 0 ? 'success' : 'none'}
-          margin='1rem 0 0 0'
         />
       </SC.NameRow>
 
@@ -151,7 +148,6 @@ const RegistrationTemplate = () => {
         onBlur={() => setEmailValidation(validateEmail(email))}
         helperText={getValidationHelperText(emailValidation, EMAIL_HELPER_TEXT)}
         validation={emailValidation}
-        margin='0 0 1rem 0'
       />
 
       <Input
@@ -176,7 +172,6 @@ const RegistrationTemplate = () => {
           PASSWORD_HELPER_TEXT
         )}
         validation={passwordValidation}
-        margin='0 0 1rem 0'
       />
 
       <Input
@@ -200,11 +195,10 @@ const RegistrationTemplate = () => {
           CONFIRM_PASSWORD_HELPER_TEXT
         )}
         validation={confirmPasswordValidation}
-        margin='0 0 1rem 0'
       />
 
       {error && (
-        <Text as='p' color='error' role='alert' margin='0 0 1rem 0'>
+        <Text as='p' color='error' role='alert' margin='0'>
           {error}
         </Text>
       )}
@@ -234,6 +228,7 @@ const RegistrationTemplate = () => {
         variant='primary'
         size='md'
         type='submit'
+        fullWidth
         disabled={!isFormValid || isLoading}
       >
         {isLoading ? 'Creating account...' : 'Register'}

@@ -81,7 +81,6 @@ const LoginTemplate = () => {
           USERNAME_HELPER_TEXT
         )}
         validation={usernameValidation}
-        margin='1rem 0 1rem 0'
       />
 
       <Input
@@ -101,11 +100,10 @@ const LoginTemplate = () => {
           PASSWORD_HELPER_TEXT
         )}
         validation={passwordValidation}
-        margin='0 0 1rem 0'
       />
 
       {error && (
-        <Text as='p' color='error' role='alert' margin='0 0 1rem 0'>
+        <Text as='p' color='error' role='alert' margin='0'>
           {error}
         </Text>
       )}
@@ -114,12 +112,13 @@ const LoginTemplate = () => {
         variant='primary'
         size='md'
         type='submit'
+        fullWidth
         disabled={!isFormValid || isLoading}
       >
         {isLoading ? 'Logging in...' : 'Login'}
       </Button>
 
-      <Button variant='ghost' size='md' type='button'>
+      <Button variant='ghost' size='md' type='button' fullWidth>
         Forgot Password?
       </Button>
 
