@@ -265,8 +265,8 @@ describe('diary service', () => {
     await expect(
       createDiaryEntry(
         {
-          symptoms: 4,
-          stressLevel: 2,
+          entryDate: '2026-04-27',
+          tracking: { psyche: { stressLevel: 2 }, symptoms: { itchiness: 4 } },
         },
         fetchImpl
       )
@@ -300,7 +300,8 @@ describe('diary service', () => {
     await expect(
       createDiaryEntry(
         {
-          symptoms: 4,
+          entryDate: '2026-04-27',
+          tracking: { symptoms: { itchiness: 4 } },
         },
         fetchImpl
       )
@@ -340,7 +341,8 @@ describe('diary service', () => {
     await expect(
       createDiaryEntry(
         {
-          symptoms: 4,
+          entryDate: '2026-04-27',
+          tracking: { symptoms: { itchiness: 4 } },
         },
         fetchImpl
       )

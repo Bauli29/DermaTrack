@@ -29,7 +29,13 @@ export default [
 
   // Ignores
   {
-    ignores: ['node_modules/', '.next/', 'next-env.d.ts'],
+    ignores: [
+      'node_modules/',
+      '.next/',
+      'next-env.d.ts',
+      'playwright-report/',
+      'test-results/',
+    ],
   },
 
   // General rules for all files
