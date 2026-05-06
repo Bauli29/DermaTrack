@@ -115,7 +115,7 @@ export interface IApiErrorResponse {
 }
 
 const getApiErrorText = (response: IApiErrorResponse): string => {
-  if (response.error.trim().length > 0) {
+  if (typeof response.error === 'string' && response.error.trim().length > 0) {
     return response.error
   }
 

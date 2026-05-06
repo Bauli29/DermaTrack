@@ -39,10 +39,19 @@ describe('auth error helpers', () => {
       { error: '', message: 'Backend sent a message' },
       500
     )
+    // Runtime safety: error field missing entirely (e.g. unexpected backend shape)
+    const missingError = parseApiError(
+      {
+        error: undefined as unknown as string,
+        message: 'Only message present',
+      },
+      500
+    )
 
     expect(parsed.code).toBe(EAuthErrorCode.VALIDATION_ERROR)
     expect(parsed.message).toBe('Validation failed')
     expect(fallback.message).toBe('Backend sent a message')
+    expect(missingError.message).toBe('Only message present')
   })
 
   it('formats known error messages for UI', () => {
