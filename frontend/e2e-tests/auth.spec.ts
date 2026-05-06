@@ -5,11 +5,6 @@
  * page.route() interceptor. This means:
  *   - The Next.js frontend dev server must be running (handled by webServer in playwright.config.ts)
  *   - No real backend (Spring Boot) is needed
- *
- * This is the standard professional approach for frontend e2e tests: mock at
- * the API boundary so tests are fast, deterministic, and independent of the
- * backend. For full-stack integration tests you would run the entire stack
- * (e.g. via Docker Compose) and point at real endpoints.
  */
 
 import { expect, test } from '@playwright/test'
