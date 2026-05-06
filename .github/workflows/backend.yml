@@ -2,12 +2,12 @@ name: Backend CI/CD
 
 on:
   push:
-    branches: [main, dev]
+    branches: [ main, dev ]
     paths:
       - "backend/**"
       - ".github/workflows/backend.yml"
   pull_request:
-    branches: [main, dev]
+    branches: [ main, dev ]
     paths:
       - "backend/**"
       - ".github/workflows/backend.yml"
@@ -67,7 +67,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [ build ]
     defaults:
       run:
         working-directory: backend
@@ -86,9 +86,9 @@ jobs:
       - name: Run tests
         run: ./mvnw -B test
 
-      - name: Check coverage
+      - name: Check coverage and warn if < 80%
         if: always()
-        run: node ../scripts/ci/print-coverage.js backend
+        run: node ../scripts/ci/check-backend-coverage.js
 
       - name: Upload test reports
         if: always()
@@ -99,7 +99,7 @@ jobs:
 
   optional-push-deploy:
     runs-on: ubuntu-latest
-    needs: [build, test]
+    needs: [ build, test ]
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main' &&
       contains(github.event.head_commit.message, '[push]')) ||
       (github.event_name == 'workflow_dispatch' && inputs.run_optional_push ==
