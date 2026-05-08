@@ -80,7 +80,7 @@ class DiaryControllerIntegrationTest {
                                 .andExpect(jsonPath("$.id").exists())
                                 .andExpect(jsonPath("$.entryDate").value("2026-04-23"))
                                 .andExpect(jsonPath("$.tracking.psyche.stressLevel").value(7))
-                                .andExpect(jsonPath("$.tracking.health.otherAllergies").value("pollen"))
+                                .andExpect(jsonPath("$.tracking.health.otherAllergiesNotes").value("pollen"))
                                 .andExpect(jsonPath("$.tracking.symptoms.itchiness").value(4))
                                 .andExpect(jsonPath("$.createdAt").exists());
         }
@@ -186,7 +186,7 @@ class DiaryControllerIntegrationTest {
                                 .andExpect(jsonPath("$.entryDate").value("2026-04-25"))
                                 .andExpect(jsonPath("$.tracking.psyche.stressLevel").value(9))
                                 .andExpect(jsonPath("$.tracking.symptoms.itchiness").value(6))
-                                .andExpect(jsonPath("$.tracking.health.otherAllergies").value("dust"));
+                                .andExpect(jsonPath("$.tracking.health.otherAllergiesNotes").value("dust"));
         }
 
         @Test
@@ -356,23 +356,37 @@ class DiaryControllerIntegrationTest {
                 entry.setStressLevel(stressLevel);
                 entry.setSleep(6);
                 entry.setMentalStrain(5);
-                entry.setContactShower("yes");
-                entry.setContactClothing("cotton");
-                entry.setContactAnimal("none");
+                entry.setContactShower(true);
+                entry.setContactShowerNotes("yes");
+                entry.setContactClothing(true);
+                entry.setContactClothingNotes("cotton");
+                entry.setContactAnimal(false);
+                entry.setContactAnimalNotes("none");
                 entry.setCustomContactFactors(List.of("dust"));
-                entry.setNutritionNuts("no");
-                entry.setNutritionFruits("yes");
-                entry.setNutritionShellfish("no");
-                entry.setNutritionDairy("yes");
-                entry.setNutritionGluten("no");
+                entry.setNutritionNuts(false);
+                entry.setNutritionNutsNotes("no");
+                entry.setNutritionFruits(true);
+                entry.setNutritionFruitsNotes("yes");
+                entry.setNutritionShellfish(false);
+                entry.setNutritionShellfishNotes("no");
+                entry.setNutritionDairy(true);
+                entry.setNutritionDairyNotes("yes");
+                entry.setNutritionGluten(false);
+                entry.setNutritionGlutenNotes("no");
                 entry.setCustomNutritionFactors(List.of("coffee"));
-                entry.setCareSkinCare("basic");
-                entry.setCareHairProducts("none");
-                entry.setCareSoapShampoo("sensitive");
-                entry.setCareCosmetics("none");
+                entry.setCareSkinCare(true);
+                entry.setCareSkinCareNotes("basic");
+                entry.setCareHairProducts(false);
+                entry.setCareHairProductsNotes("none");
+                entry.setCareSoapShampoo(true);
+                entry.setCareSoapShampooNotes("sensitive");
+                entry.setCareCosmetics(false);
+                entry.setCareCosmeticsNotes("none");
                 entry.setCustomCareProducts(List.of("cream-a"));
-                entry.setHealthOtherAllergies(allergies);
-                entry.setHealthInfections("none");
+                entry.setHealthOtherAllergies(true);
+                entry.setHealthOtherAllergiesNotes(allergies);
+                entry.setHealthInfections(false);
+                entry.setHealthInfectionsNotes("none");
                 entry.setSymptomItchiness(itchiness);
                 entry.setSymptomScratch(true);
                 entry.setSymptomInflammation(3);
@@ -396,32 +410,46 @@ class DiaryControllerIntegrationTest {
                 psyche.put("mentalStrain", 5);
 
                 ObjectNode contactFactors = tracking.putObject("contactFactors");
-                contactFactors.put("shower", "yes");
-                contactFactors.put("clothing", "cotton");
-                contactFactors.put("animalContact", "none");
+                contactFactors.put("shower", true);
+                contactFactors.put("showerNotes", "yes");
+                contactFactors.put("clothing", true);
+                contactFactors.put("clothingNotes", "cotton");
+                contactFactors.put("animalContact", false);
+                contactFactors.put("animalContactNotes", "none");
                 ArrayNode customContactFactors = contactFactors.putArray("customContactFactors");
                 customContactFactors.add("dust");
 
                 ObjectNode nutrition = tracking.putObject("nutrition");
-                nutrition.put("nuts", "no");
-                nutrition.put("fruits", "yes");
-                nutrition.put("shellfish", "no");
-                nutrition.put("dairy", "yes");
-                nutrition.put("gluten", "no");
+                nutrition.put("nuts", false);
+                nutrition.put("nutsNotes", "no");
+                nutrition.put("fruits", true);
+                nutrition.put("fruitsNotes", "yes");
+                nutrition.put("shellfish", false);
+                nutrition.put("shellfishNotes", "no");
+                nutrition.put("dairy", true);
+                nutrition.put("dairyNotes", "yes");
+                nutrition.put("gluten", false);
+                nutrition.put("glutenNotes", "no");
                 ArrayNode customNutritionFactors = nutrition.putArray("customNutritionFactors");
                 customNutritionFactors.add("coffee");
 
                 ObjectNode careProducts = tracking.putObject("careProducts");
-                careProducts.put("skinCare", "basic");
-                careProducts.put("hairProducts", "none");
-                careProducts.put("soapShampoo", "sensitive");
-                careProducts.put("cosmetics", "none");
+                careProducts.put("skinCare", true);
+                careProducts.put("skinCareNotes", "basic");
+                careProducts.put("hairProducts", false);
+                careProducts.put("hairProductsNotes", "none");
+                careProducts.put("soapShampoo", true);
+                careProducts.put("soapShampooNotes", "sensitive");
+                careProducts.put("cosmetics", false);
+                careProducts.put("cosmeticsNotes", "none");
                 ArrayNode customCareProducts = careProducts.putArray("customCareProducts");
                 customCareProducts.add("cream-a");
 
                 ObjectNode health = tracking.putObject("health");
-                health.put("otherAllergies", allergies);
-                health.put("infections", "none");
+                health.put("otherAllergies", true);
+                health.put("otherAllergiesNotes", allergies);
+                health.put("infections", false);
+                health.put("infectionsNotes", "none");
 
                 ObjectNode symptoms = tracking.putObject("symptoms");
                 symptoms.put("itchiness", itchiness);

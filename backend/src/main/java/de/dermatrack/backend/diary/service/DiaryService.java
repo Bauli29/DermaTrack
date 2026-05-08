@@ -114,20 +114,31 @@ public class DiaryService {
         existingEntry.setCustomContactFactors(diaryEntry.getCustomContactFactors());
 
         existingEntry.setNutritionNuts(diaryEntry.getNutritionNuts());
+        existingEntry.setNutritionNutsNotes(diaryEntry.getNutritionNutsNotes());
         existingEntry.setNutritionFruits(diaryEntry.getNutritionFruits());
+        existingEntry.setNutritionFruitsNotes(diaryEntry.getNutritionFruitsNotes());
         existingEntry.setNutritionShellfish(diaryEntry.getNutritionShellfish());
+        existingEntry.setNutritionShellfishNotes(diaryEntry.getNutritionShellfishNotes());
         existingEntry.setNutritionDairy(diaryEntry.getNutritionDairy());
+        existingEntry.setNutritionDairyNotes(diaryEntry.getNutritionDairyNotes());
         existingEntry.setNutritionGluten(diaryEntry.getNutritionGluten());
+        existingEntry.setNutritionGlutenNotes(diaryEntry.getNutritionGlutenNotes());
         existingEntry.setCustomNutritionFactors(diaryEntry.getCustomNutritionFactors());
 
         existingEntry.setCareSkinCare(diaryEntry.getCareSkinCare());
+        existingEntry.setCareSkinCareNotes(diaryEntry.getCareSkinCareNotes());
         existingEntry.setCareHairProducts(diaryEntry.getCareHairProducts());
+        existingEntry.setCareHairProductsNotes(diaryEntry.getCareHairProductsNotes());
         existingEntry.setCareSoapShampoo(diaryEntry.getCareSoapShampoo());
+        existingEntry.setCareSoapShampooNotes(diaryEntry.getCareSoapShampooNotes());
         existingEntry.setCareCosmetics(diaryEntry.getCareCosmetics());
+        existingEntry.setCareCosmeticsNotes(diaryEntry.getCareCosmeticsNotes());
         existingEntry.setCustomCareProducts(diaryEntry.getCustomCareProducts());
 
         existingEntry.setHealthOtherAllergies(diaryEntry.getHealthOtherAllergies());
+        existingEntry.setHealthOtherAllergiesNotes(diaryEntry.getHealthOtherAllergiesNotes());
         existingEntry.setHealthInfections(diaryEntry.getHealthInfections());
+        existingEntry.setHealthInfectionsNotes(diaryEntry.getHealthInfectionsNotes());
 
         existingEntry.setSymptomItchiness(diaryEntry.getSymptomItchiness());
         existingEntry.setSymptomScratch(diaryEntry.getSymptomScratch());

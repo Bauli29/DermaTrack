@@ -64,31 +64,45 @@ public class DiaryEntryMapper {
 
         if (tracking.getContactFactors() != null) {
             entity.setContactShower(tracking.getContactFactors().getShower());
+            entity.setContactShowerNotes(tracking.getContactFactors().getShowerNotes());
             entity.setContactClothing(tracking.getContactFactors().getClothing());
+            entity.setContactClothingNotes(tracking.getContactFactors().getClothingNotes());
             entity.setContactAnimal(tracking.getContactFactors().getAnimalContact());
+            entity.setContactAnimalNotes(tracking.getContactFactors().getAnimalContactNotes());
             entity.setCustomContactFactors(toMutableList(tracking.getContactFactors().getCustomContactFactors()));
         }
 
         if (tracking.getNutrition() != null) {
             entity.setNutritionNuts(tracking.getNutrition().getNuts());
+            entity.setNutritionNutsNotes(tracking.getNutrition().getNutsNotes());
             entity.setNutritionFruits(tracking.getNutrition().getFruits());
+            entity.setNutritionFruitsNotes(tracking.getNutrition().getFruitsNotes());
             entity.setNutritionShellfish(tracking.getNutrition().getShellfish());
+            entity.setNutritionShellfishNotes(tracking.getNutrition().getShellfishNotes());
             entity.setNutritionDairy(tracking.getNutrition().getDairy());
+            entity.setNutritionDairyNotes(tracking.getNutrition().getDairyNotes());
             entity.setNutritionGluten(tracking.getNutrition().getGluten());
+            entity.setNutritionGlutenNotes(tracking.getNutrition().getGlutenNotes());
             entity.setCustomNutritionFactors(toMutableList(tracking.getNutrition().getCustomNutritionFactors()));
         }
 
         if (tracking.getCareProducts() != null) {
             entity.setCareSkinCare(tracking.getCareProducts().getSkinCare());
+            entity.setCareSkinCareNotes(tracking.getCareProducts().getSkinCareNotes());
             entity.setCareHairProducts(tracking.getCareProducts().getHairProducts());
+            entity.setCareHairProductsNotes(tracking.getCareProducts().getHairProductsNotes());
             entity.setCareSoapShampoo(tracking.getCareProducts().getSoapShampoo());
+            entity.setCareSoapShampooNotes(tracking.getCareProducts().getSoapShampooNotes());
             entity.setCareCosmetics(tracking.getCareProducts().getCosmetics());
+            entity.setCareCosmeticsNotes(tracking.getCareProducts().getCosmeticsNotes());
             entity.setCustomCareProducts(toMutableList(tracking.getCareProducts().getCustomCareProducts()));
         }
 
         if (tracking.getHealth() != null) {
             entity.setHealthOtherAllergies(tracking.getHealth().getOtherAllergies());
+            entity.setHealthOtherAllergiesNotes(tracking.getHealth().getOtherAllergiesNotes());
             entity.setHealthInfections(tracking.getHealth().getInfections());
+            entity.setHealthInfectionsNotes(tracking.getHealth().getInfectionsNotes());
         }
 
         if (tracking.getSymptoms() != null) {
@@ -116,28 +130,42 @@ public class DiaryEntryMapper {
 
         tracking.setContactFactors(new ContactFactorsDto(
                 entity.getContactShower(),
+                entity.getContactShowerNotes(),
                 entity.getContactClothing(),
+                entity.getContactClothingNotes(),
                 entity.getContactAnimal(),
+                entity.getContactAnimalNotes(),
                 entity.getCustomContactFactors()));
 
         tracking.setNutrition(new NutritionDto(
                 entity.getNutritionNuts(),
+                entity.getNutritionNutsNotes(),
                 entity.getNutritionFruits(),
+                entity.getNutritionFruitsNotes(),
                 entity.getNutritionShellfish(),
+                entity.getNutritionShellfishNotes(),
                 entity.getNutritionDairy(),
+                entity.getNutritionDairyNotes(),
                 entity.getNutritionGluten(),
+                entity.getNutritionGlutenNotes(),
                 entity.getCustomNutritionFactors()));
 
         tracking.setCareProducts(new CareProductsDto(
                 entity.getCareSkinCare(),
+                entity.getCareSkinCareNotes(),
                 entity.getCareHairProducts(),
+                entity.getCareHairProductsNotes(),
                 entity.getCareSoapShampoo(),
+                entity.getCareSoapShampooNotes(),
                 entity.getCareCosmetics(),
+                entity.getCareCosmeticsNotes(),
                 entity.getCustomCareProducts()));
 
         tracking.setHealth(new HealthDto(
                 entity.getHealthOtherAllergies(),
-                entity.getHealthInfections()));
+                entity.getHealthOtherAllergiesNotes(),
+                entity.getHealthInfections(),
+                entity.getHealthInfectionsNotes()));
 
         tracking.setSymptoms(new SymptomsDto(
                 entity.getSymptomItchiness(),

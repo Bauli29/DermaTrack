@@ -40,10 +40,14 @@ class DiaryEntryMapperTest {
         assertThat(entity.getStressLevel()).isEqualTo(7);
         assertThat(entity.getSleep()).isEqualTo(6);
         assertThat(entity.getMentalStrain()).isEqualTo(5);
-        assertThat(entity.getContactShower()).isEqualTo("yes");
-        assertThat(entity.getNutritionFruits()).isEqualTo("yes");
-        assertThat(entity.getCareSkinCare()).isEqualTo("basic");
-        assertThat(entity.getHealthOtherAllergies()).isEqualTo("pollen");
+        assertThat(entity.getContactShower()).isEqualTo(true);
+        assertThat(entity.getContactShowerNotes()).isEqualTo("shower-note");
+        assertThat(entity.getContactClothingNotes()).isEqualTo("cotton");
+        assertThat(entity.getNutritionFruits()).isEqualTo(true);
+        assertThat(entity.getNutritionFruitsNotes()).isEqualTo("yes");
+        assertThat(entity.getCareSkinCare()).isEqualTo(true);
+        assertThat(entity.getCareSkinCareNotes()).isEqualTo("basic");
+        assertThat(entity.getHealthOtherAllergiesNotes()).isEqualTo("pollen");
         assertThat(entity.getSymptomItchiness()).isEqualTo(4);
         assertThat(entity.getSymptomSpreadPhotoUrls()).containsExactly("https://example.com/p1.jpg");
     }
@@ -62,23 +66,37 @@ class DiaryEntryMapperTest {
         entity.setStressLevel(8);
         entity.setSleep(7);
         entity.setMentalStrain(6);
-        entity.setContactShower("yes");
-        entity.setContactClothing("cotton");
-        entity.setContactAnimal("none");
+        entity.setContactShower(true);
+        entity.setContactShowerNotes("yes");
+        entity.setContactClothing(true);
+        entity.setContactClothingNotes("cotton");
+        entity.setContactAnimal(false);
+        entity.setContactAnimalNotes("none");
         entity.setCustomContactFactors(List.of("dust"));
-        entity.setNutritionNuts("no");
-        entity.setNutritionFruits("yes");
-        entity.setNutritionShellfish("no");
-        entity.setNutritionDairy("yes");
-        entity.setNutritionGluten("no");
+        entity.setNutritionNuts(false);
+        entity.setNutritionNutsNotes("no");
+        entity.setNutritionFruits(true);
+        entity.setNutritionFruitsNotes("yes");
+        entity.setNutritionShellfish(false);
+        entity.setNutritionShellfishNotes("no");
+        entity.setNutritionDairy(true);
+        entity.setNutritionDairyNotes("yes");
+        entity.setNutritionGluten(false);
+        entity.setNutritionGlutenNotes("no");
         entity.setCustomNutritionFactors(List.of("coffee"));
-        entity.setCareSkinCare("basic");
-        entity.setCareHairProducts("none");
-        entity.setCareSoapShampoo("sensitive");
-        entity.setCareCosmetics("none");
+        entity.setCareSkinCare(true);
+        entity.setCareSkinCareNotes("basic");
+        entity.setCareHairProducts(false);
+        entity.setCareHairProductsNotes("none");
+        entity.setCareSoapShampoo(true);
+        entity.setCareSoapShampooNotes("sensitive");
+        entity.setCareCosmetics(false);
+        entity.setCareCosmeticsNotes("none");
         entity.setCustomCareProducts(List.of("cream-a"));
-        entity.setHealthOtherAllergies("pollen");
-        entity.setHealthInfections("none");
+        entity.setHealthOtherAllergies(true);
+        entity.setHealthOtherAllergiesNotes("pollen");
+        entity.setHealthInfections(false);
+        entity.setHealthInfectionsNotes("none");
         entity.setSymptomItchiness(5);
         entity.setSymptomScratch(true);
         entity.setSymptomInflammation(4);
@@ -97,7 +115,7 @@ class DiaryEntryMapperTest {
         assertThat(response.getTracking().getContactFactors().getCustomContactFactors()).containsExactly("dust");
         assertThat(response.getTracking().getNutrition().getCustomNutritionFactors()).containsExactly("coffee");
         assertThat(response.getTracking().getCareProducts().getCustomCareProducts()).containsExactly("cream-a");
-        assertThat(response.getTracking().getHealth().getOtherAllergies()).isEqualTo("pollen");
+        assertThat(response.getTracking().getHealth().getOtherAllergiesNotes()).isEqualTo("pollen");
         assertThat(response.getTracking().getSymptoms().getSpreadPhotoUrls())
                 .containsExactly("https://example.com/p1.jpg");
     }
@@ -105,10 +123,13 @@ class DiaryEntryMapperTest {
     private DailyTrackingPayloadDto buildTracking(int stressLevel, int itchiness, String allergies) {
         DailyTrackingPayloadDto tracking = new DailyTrackingPayloadDto();
         tracking.setPsyche(new PsycheDto(stressLevel, 6, 5));
-        tracking.setContactFactors(new ContactFactorsDto("yes", "cotton", "none", List.of("dust")));
-        tracking.setNutrition(new NutritionDto("no", "yes", "no", "yes", "no", List.of("coffee")));
-        tracking.setCareProducts(new CareProductsDto("basic", "none", "sensitive", "none", List.of("cream-a")));
-        tracking.setHealth(new HealthDto(allergies, "none"));
+        tracking.setContactFactors(
+                new ContactFactorsDto(true, "shower-note", true, "cotton", false, "none", List.of("dust")));
+        tracking.setNutrition(
+                new NutritionDto(false, "no", true, "yes", false, "no", true, "yes", false, "no", List.of("coffee")));
+        tracking.setCareProducts(new CareProductsDto(true, "basic", false, "none", true, "sensitive", false, "none",
+                List.of("cream-a")));
+        tracking.setHealth(new HealthDto(true, allergies, false, "none"));
         tracking.setSymptoms(new SymptomsDto(itchiness, true, 3, 2, false, false,
                 List.of("https://example.com/p1.jpg")));
         return tracking;

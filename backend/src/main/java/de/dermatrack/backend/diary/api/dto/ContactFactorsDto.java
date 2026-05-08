@@ -13,8 +13,11 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ContactFactorsDto {
 
-    private String shower;
-    private String clothing;
-    private String animalContact;
+    private Boolean shower;
+    private String showerNotes;
+    private Boolean clothing;
+    private String clothingNotes;
+    private Boolean animalContact;
+    private String animalContactNotes;
     private List<String> customContactFactors;
 }

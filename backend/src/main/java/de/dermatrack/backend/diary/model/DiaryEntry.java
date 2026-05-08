@@ -87,13 +87,22 @@ public class DiaryEntry {
     private Integer mentalStrain;
 
     @Column(name = "contact_shower")
-    private String contactShower;
+    private Boolean contactShower;
+
+    @Column(name = "contact_shower_notes")
+    private String contactShowerNotes;
 
     @Column(name = "contact_clothing")
-    private String contactClothing;
+    private Boolean contactClothing;
+
+    @Column(name = "contact_clothing_notes")
+    private String contactClothingNotes;
 
     @Column(name = "contact_animal")
-    private String contactAnimal;
+    private Boolean contactAnimal;
+
+    @Column(name = "contact_animal_notes")
+    private String contactAnimalNotes;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "diary_entry_custom_contact", joinColumns = @JoinColumn(name = "diary_entry_id"))
@@ -101,19 +110,34 @@ public class DiaryEntry {
     private List<String> customContactFactors = new ArrayList<>();
 
     @Column(name = "nutrition_nuts")
-    private String nutritionNuts;
+    private Boolean nutritionNuts;
+
+    @Column(name = "nutrition_nuts_notes")
+    private String nutritionNutsNotes;
 
     @Column(name = "nutrition_fruits")
-    private String nutritionFruits;
+    private Boolean nutritionFruits;
+
+    @Column(name = "nutrition_fruits_notes")
+    private String nutritionFruitsNotes;
 
     @Column(name = "nutrition_shellfish")
-    private String nutritionShellfish;
+    private Boolean nutritionShellfish;
+
+    @Column(name = "nutrition_shellfish_notes")
+    private String nutritionShellfishNotes;
 
     @Column(name = "nutrition_dairy")
-    private String nutritionDairy;
+    private Boolean nutritionDairy;
+
+    @Column(name = "nutrition_dairy_notes")
+    private String nutritionDairyNotes;
 
     @Column(name = "nutrition_gluten")
-    private String nutritionGluten;
+    private Boolean nutritionGluten;
+
+    @Column(name = "nutrition_gluten_notes")
+    private String nutritionGlutenNotes;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "diary_entry_custom_nutrition", joinColumns = @JoinColumn(name = "diary_entry_id"))
@@ -121,16 +145,28 @@ public class DiaryEntry {
     private List<String> customNutritionFactors = new ArrayList<>();
 
     @Column(name = "care_skin_care")
-    private String careSkinCare;
+    private Boolean careSkinCare;
+
+    @Column(name = "care_skin_care_notes")
+    private String careSkinCareNotes;
 
     @Column(name = "care_hair_products")
-    private String careHairProducts;
+    private Boolean careHairProducts;
+
+    @Column(name = "care_hair_products_notes")
+    private String careHairProductsNotes;
 
     @Column(name = "care_soapShampoo")
-    private String careSoapShampoo;
+    private Boolean careSoapShampoo;
+
+    @Column(name = "care_soapShampoo_notes")
+    private String careSoapShampooNotes;
 
     @Column(name = "care_cosmetics")
-    private String careCosmetics;
+    private Boolean careCosmetics;
+
+    @Column(name = "care_cosmetics_notes")
+    private String careCosmeticsNotes;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "diary_entry_custom_care", joinColumns = @JoinColumn(name = "diary_entry_id"))
@@ -138,10 +174,16 @@ public class DiaryEntry {
     private List<String> customCareProducts = new ArrayList<>();
 
     @Column(name = "health_other_allergies")
-    private String healthOtherAllergies;
+    private Boolean healthOtherAllergies;
+
+    @Column(name = "health_other_allergies_notes")
+    private String healthOtherAllergiesNotes;
 
     @Column(name = "health_infections")
-    private String healthInfections;
+    private Boolean healthInfections;
+
+    @Column(name = "health_infections_notes")
+    private String healthInfectionsNotes;
 
     @Column(name = "symptom_itchiness")
     @Min(value = 0, message = "Itchiness rating must be 0 or higher")

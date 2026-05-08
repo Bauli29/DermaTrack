@@ -13,9 +13,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CareProductsDto {
 
-    private String skinCare;
-    private String hairProducts;
-    private String soapShampoo;
-    private String cosmetics;
+    private Boolean skinCare;
+    private String skinCareNotes;
+    private Boolean hairProducts;
+    private String hairProductsNotes;
+    private Boolean soapShampoo;
+    private String soapShampooNotes;
+    private Boolean cosmetics;
+    private String cosmeticsNotes;
     private List<String> customCareProducts;
 }

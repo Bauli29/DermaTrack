@@ -11,6 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class HealthDto {
 
-    private String otherAllergies;
-    private String infections;
+    private Boolean otherAllergies;
+    private String otherAllergiesNotes;
+    private Boolean infections;
+    private String infectionsNotes;
 }

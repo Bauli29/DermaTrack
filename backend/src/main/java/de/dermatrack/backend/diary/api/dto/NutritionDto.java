@@ -13,10 +13,15 @@ import lombok.Setter;
 @AllArgsConstructor
 public class NutritionDto {
 
-    private String nuts;
-    private String fruits;
-    private String shellfish;
-    private String dairy;
-    private String gluten;
+    private Boolean nuts;
+    private String nutsNotes;
+    private Boolean fruits;
+    private String fruitsNotes;
+    private Boolean shellfish;
+    private String shellfishNotes;
+    private Boolean dairy;
+    private String dairyNotes;
+    private Boolean gluten;
+    private String glutenNotes;
     private List<String> customNutritionFactors;
 }

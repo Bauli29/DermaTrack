@@ -40,26 +40,40 @@ public class DiaryEntryMock {
         entry.setSleep(faker.number().numberBetween(0, 10));
         entry.setMentalStrain(faker.number().numberBetween(0, 10));
 
-        entry.setContactShower(faker.options().option("hot", "warm", "cold"));
-        entry.setContactClothing(faker.options().option("wool", "tight", "synthetic", "none"));
-        entry.setContactAnimal(faker.options().option("none", "cat", "dog", "bird"));
+        entry.setContactShower(faker.bool().bool());
+        entry.setContactShowerNotes(faker.options().option("hot", "warm", "cold"));
+        entry.setContactClothing(faker.bool().bool());
+        entry.setContactClothingNotes(faker.options().option("wool", "tight", "synthetic", "none"));
+        entry.setContactAnimal(faker.bool().bool());
+        entry.setContactAnimalNotes(faker.options().option("none", "cat", "dog", "bird"));
         entry.setCustomContactFactors(Arrays.asList("dust", "cleaning-agent"));
 
-        entry.setNutritionNuts(faker.options().option("none", "low", "medium", "high"));
-        entry.setNutritionFruits(faker.options().option("none", "low", "medium", "high"));
-        entry.setNutritionShellfish(faker.options().option("none", "low", "medium", "high"));
-        entry.setNutritionDairy(faker.options().option("none", "low", "medium", "high"));
-        entry.setNutritionGluten(faker.options().option("none", "low", "medium", "high"));
+        entry.setNutritionNuts(faker.bool().bool());
+        entry.setNutritionNutsNotes(faker.options().option("none", "low", "medium", "high"));
+        entry.setNutritionFruits(faker.bool().bool());
+        entry.setNutritionFruitsNotes(faker.options().option("none", "low", "medium", "high"));
+        entry.setNutritionShellfish(faker.bool().bool());
+        entry.setNutritionShellfishNotes(faker.options().option("none", "low", "medium", "high"));
+        entry.setNutritionDairy(faker.bool().bool());
+        entry.setNutritionDairyNotes(faker.options().option("none", "low", "medium", "high"));
+        entry.setNutritionGluten(faker.bool().bool());
+        entry.setNutritionGlutenNotes(faker.options().option("none", "low", "medium", "high"));
         entry.setCustomNutritionFactors(Arrays.asList("chocolate", "spicy-food"));
 
-        entry.setCareSkinCare(faker.options().option("none", "mild", "intense"));
-        entry.setCareHairProducts(faker.options().option("none", "mild", "intense"));
-        entry.setCareSoapShampoo(faker.options().option("none", "mild", "intense"));
-        entry.setCareCosmetics(faker.options().option("none", "mild", "intense"));
+        entry.setCareSkinCare(faker.bool().bool());
+        entry.setCareSkinCareNotes(faker.options().option("none", "mild", "intense"));
+        entry.setCareHairProducts(faker.bool().bool());
+        entry.setCareHairProductsNotes(faker.options().option("none", "mild", "intense"));
+        entry.setCareSoapShampoo(faker.bool().bool());
+        entry.setCareSoapShampooNotes(faker.options().option("none", "mild", "intense"));
+        entry.setCareCosmetics(faker.bool().bool());
+        entry.setCareCosmeticsNotes(faker.options().option("none", "mild", "intense"));
         entry.setCustomCareProducts(Arrays.asList("Balea Med Shampoo", "Eucerin Lotion"));
 
-        entry.setHealthOtherAllergies(faker.options().option("none", "pollen", "dust mites"));
-        entry.setHealthInfections(faker.options().option("none", "cold", "flu"));
+        entry.setHealthOtherAllergies(faker.bool().bool());
+        entry.setHealthOtherAllergiesNotes(faker.options().option("none", "pollen", "dust mites"));
+        entry.setHealthInfections(faker.bool().bool());
+        entry.setHealthInfectionsNotes(faker.options().option("none", "cold", "flu"));
 
         entry.setSymptomItchiness(faker.number().numberBetween(0, 10));
         entry.setSymptomScratch(faker.bool().bool());
