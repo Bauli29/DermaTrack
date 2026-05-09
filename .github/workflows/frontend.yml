@@ -220,7 +220,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate coverage
-        run: pnpm test -- --coverage
+        run: pnpm test
 
       - name: Analyze frontend with SonarCloud
         uses: SonarSource/sonarqube-scan-action@v7
