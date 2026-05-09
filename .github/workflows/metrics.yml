@@ -1,0 +1,62 @@
+name: Metrics Reports
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/metrics.yml"
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/metrics.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: metrics-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-ck:
+    name: Backend CK metrics
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "25"
+          cache: "maven"
+
+      - name: Build CK tool
+        run: |
+          git clone https://github.com/mauricioaniche/ck tools/ck
+          cd tools/ck
+          ./mvnw -DskipTests clean package
+
+      - name: Run CK and write CSVs
+        run: |
+          mkdir -p reports/ck/backend
+          JAR=$(ls tools/ck/target/*jar-with-dependencies.jar | head -n1)
+          if [ -z "$JAR" ]; then
+            echo "CK jar not found" && exit 1
+          fi
+          java -jar "$JAR" backend true 0 false reports/ck/backend
+
+      - name: Upload CK metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: ck-backend-metrics
+          path: reports/ck/backend/

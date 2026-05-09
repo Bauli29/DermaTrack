@@ -134,5 +134,6 @@
   // --- YAML Configuration ---
   "yaml.format.enable": true,
   "yaml.format.singleQuote": false,
-  "yaml.format.bracketSpacing": true
+  "yaml.format.bracketSpacing": true,
+  "commentTranslate.hover.enabled": true
 }

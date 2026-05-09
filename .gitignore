@@ -4,6 +4,14 @@
 .pnp.*
 package-lock.json
 
+# SonarQube and build artifacts
+/backend/target/
+/frontend/coverage/
+/.scannerwork/
+/reports/
+**/target/
+**/coverage/
+
 # Compiled class file
 *.class
 
