@@ -226,8 +226,9 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v7
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORGANIZATION: "dermatrack"
         with:
           projectBaseDir: frontend
           args: >
             -Dsonar.projectKey=dermatrack_frontend
-            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.organization=${SONAR_ORGANIZATION}

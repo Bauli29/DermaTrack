@@ -146,9 +146,9 @@ jobs:
       - name: Build and analyze backend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: >
-          ./mvnw -B verify
-          org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
-          -Dsonar.token=${SONAR_TOKEN}
-          -Dsonar.projectKey=dermatrack_backend
-          -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+          SONAR_ORGANIZATION: "dermatrack"
+        run: |
+          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.token=${SONAR_TOKEN} \
+            -Dsonar.projectKey=dermatrack_backend \
+            -Dsonar.organization=${SONAR_ORGANIZATION}
