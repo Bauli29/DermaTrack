@@ -167,6 +167,26 @@ public class GlobalExceptionHandler {
         }
 
         /**
+         * Handle insufficient data for correlation calculation
+         */
+        @ExceptionHandler(NotEnoughDataForCorrelationException.class)
+        public ResponseEntity<ErrorResponse> handleNotEnoughDataForCorrelationException(
+                        NotEnoughDataForCorrelationException ex,
+                        WebRequest request) {
+                log.warn("Insufficient data for correlation: {}", ex.getMessage());
+
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                                .error("Unprocessable Entity")
+                                .message(ex.getMessage())
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .build();
+
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorResponse);
+        }
+
+        /**
          * Handle duplicate username or email during registration
          */
         @ExceptionHandler({ UsernameAlreadyExistsException.class, EmailAlreadyExistsException.class

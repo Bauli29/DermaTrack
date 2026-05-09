@@ -51,4 +51,16 @@ public class StatisticsController implements IStatisticsController {
         return appUserRepository.findByUsername(principal.getName())
                 .orElseThrow(() -> new ResourceNotFoundException("AppUser", "username", principal.getName()));
     }
+
+    @Override
+    public ResponseEntity<SymptomTrendChartModel> getCorrelation(Principal principal, LocalDate endDate, String period,
+            String mainCategory) {
+        AppUser currentUser = resolveCurrentUser(principal);
+        return ResponseEntity.ok(
+                statisticsService.getCorrelationTrendBar(
+                        currentUser.getId(),
+                        endDate,
+                        StatisticsPeriod.fromQueryValue(period),
+                        mainCategory));
+    }
 }

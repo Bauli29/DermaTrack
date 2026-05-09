@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import de.dermatrack.backend.diary.model.DiaryEntry;
 import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 import de.dermatrack.backend.statistics.mapper.StatisticsBarChartMapper;
+import de.dermatrack.backend.statistics.mapper.StatisticsCorrelationBarChartMapper;
 import de.dermatrack.backend.statistics.mapper.StatisticsLineChartMapper;
 import de.dermatrack.backend.statistics.model.common.StatisticsPeriod;
+import de.dermatrack.backend.statistics.model.common.StatisticsMainCategory;
 import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
 import de.dermatrack.backend.statistics.service.IStatisticsService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class StatisticsService implements IStatisticsService {
     private final IDiaryEntryRepository diaryEntryRepository;
     private final StatisticsLineChartMapper statisticsLineChartMapper;
     private final StatisticsBarChartMapper statisticsBarChartMapper;
+    private final StatisticsCorrelationBarChartMapper statisticsCorrelationBarChartMapper;
 
     @Override
     public SymptomTrendChartModel getSymptomTrendLine(UUID userId, LocalDate endDate, StatisticsPeriod period) {
@@ -33,6 +36,15 @@ public class StatisticsService implements IStatisticsService {
     @Override
     public SymptomTrendChartModel getSymptomTrendBar(UUID userId, LocalDate endDate, StatisticsPeriod period) {
         return getTrend(userId, endDate, period, statisticsBarChartMapper::toSymptomTrendChart);
+    }
+
+    @Override
+    public SymptomTrendChartModel getCorrelationTrendBar(UUID userId, LocalDate endDate, StatisticsPeriod period,
+            String mainCategory) {
+        StatisticsMainCategory resolvedMainCategory = StatisticsMainCategory.fromQueryValue(mainCategory);
+        return getTrend(userId, endDate, period,
+                (entries, fromDate, toDate) -> statisticsCorrelationBarChartMapper.toSymptomTrendChart(entries,
+                        fromDate, toDate, resolvedMainCategory));
     }
 
     private SymptomTrendChartModel getTrend(
@@ -54,5 +66,4 @@ public class StatisticsService implements IStatisticsService {
     private interface TrendChartMapper {
         SymptomTrendChartModel map(List<DiaryEntry> entries, LocalDate fromDate, LocalDate toDate);
     }
-
 }

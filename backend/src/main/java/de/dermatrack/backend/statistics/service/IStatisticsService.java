@@ -11,4 +11,7 @@ public interface IStatisticsService {
     SymptomTrendChartModel getSymptomTrendLine(UUID userId, LocalDate endDate, StatisticsPeriod period);
 
     SymptomTrendChartModel getSymptomTrendBar(UUID userId, LocalDate endDate, StatisticsPeriod period);
+
+    SymptomTrendChartModel getCorrelationTrendBar(UUID userId, LocalDate endDate, StatisticsPeriod period,
+            String mainCategory);
 }
