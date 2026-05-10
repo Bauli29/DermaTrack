@@ -1,4 +1,4 @@
-package de.dermatrack.backend.statistics.model.common;
+package de.dermatrack.backend.statistics.model.correlation;
 
 import java.util.List;
 import java.util.Locale;
@@ -52,9 +52,7 @@ public enum StatisticsMainCategory {
         String normalizedQueryValue = normalize(queryValue);
 
         for (StatisticsMainCategory category : values()) {
-            if (normalize(category.queryValue).equals(normalizedQueryValue)
-                    || normalize(category.displayName).equals(normalizedQueryValue)
-                    || normalize(category.name()).equals(normalizedQueryValue)) {
+            if (normalize(category.queryValue).equals(normalizedQueryValue)) {
                 return category;
             }
         }

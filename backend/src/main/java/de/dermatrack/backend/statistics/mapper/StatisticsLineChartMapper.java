@@ -9,9 +9,9 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import de.dermatrack.backend.diary.model.DiaryEntry;
+import de.dermatrack.backend.statistics.model.common.HighchartsModel;
 import de.dermatrack.backend.statistics.model.common.HighchartsSeriesModel;
 import de.dermatrack.backend.statistics.model.common.StatisticsDateRangeModel;
-import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
 import de.dermatrack.backend.statistics.service.IWeightedSymptomCalculator;
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +21,7 @@ public class StatisticsLineChartMapper {
 
     private final IWeightedSymptomCalculator weightedSymptomCalculator;
 
-    public SymptomTrendChartModel toSymptomTrendChart(List<DiaryEntry> entries, LocalDate fromDate,
+    public HighchartsModel toHighchartsModel(List<DiaryEntry> entries, LocalDate fromDate,
             LocalDate toDate) {
         Map<LocalDate, DiaryEntry> entriesByDate = new HashMap<>();
         for (DiaryEntry entry : entries) {
@@ -53,7 +53,7 @@ public class StatisticsLineChartMapper {
                 new HighchartsSeriesModel("Sleep", inflammation),
                 new HighchartsSeriesModel("Weighted Symptoms", weightedSymptoms));
 
-        return new SymptomTrendChartModel(
+        return new HighchartsModel(
                 "line",
                 categories,
                 series,

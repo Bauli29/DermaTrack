@@ -9,7 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import de.dermatrack.backend.diary.model.DiaryEntry;
-import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
+import de.dermatrack.backend.statistics.model.common.HighchartsModel;
 import de.dermatrack.backend.statistics.support.StatisticsTestDataFactory;
 
 @DisplayName("StatisticsBarChartMapper Unit Tests")
@@ -18,7 +18,7 @@ class StatisticsBarChartMapperTest {
     private final StatisticsBarChartMapper mapper = new StatisticsBarChartMapper();
 
     @Test
-    @DisplayName("toSymptomTrendChart() should create 7-day column chart with symptom series")
+    @DisplayName("toHighchartsModel() should create 7-day column chart with symptom series")
     void toSymptomTrendChart_ShouldBuildSevenDayColumnSeries() {
         LocalDate endDate = LocalDate.of(2026, 4, 25);
         LocalDate fromDate = endDate.minusDays(6);
@@ -26,7 +26,7 @@ class StatisticsBarChartMapperTest {
         DiaryEntry firstDay = StatisticsTestDataFactory.buildEntryForBarChart(fromDate, 4, 2, 3, true, false, false);
         DiaryEntry thirdDay = StatisticsTestDataFactory.buildEntryForBarChart(fromDate.plusDays(2), 8, 4, 6, true, true, false);
 
-        SymptomTrendChartModel chart = mapper.toSymptomTrendChart(List.of(firstDay, thirdDay), fromDate, endDate);
+        HighchartsModel chart = mapper.toHighchartsModel(List.of(firstDay, thirdDay), fromDate, endDate);
 
         assertThat(chart.getChartType()).isEqualTo("column");
         assertThat(chart.getCategories()).hasSize(7);

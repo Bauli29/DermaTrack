@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 
 import de.dermatrack.backend.diary.model.DiaryEntry;
 import de.dermatrack.backend.exception.NotEnoughDataForCorrelationException;
+import de.dermatrack.backend.statistics.model.common.HighchartsModel;
 import de.dermatrack.backend.statistics.model.common.HighchartsSeriesModel;
 import de.dermatrack.backend.statistics.model.common.StatisticsDateRangeModel;
-import de.dermatrack.backend.statistics.model.common.StatisticsMainCategory;
-import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
+import de.dermatrack.backend.statistics.model.correlation.StatisticsMainCategory;
 import de.dermatrack.backend.statistics.service.ICorrelationCalculator;
 import de.dermatrack.backend.statistics.service.IWeightedSymptomCalculator;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class StatisticsCorrelationBarChartMapper {
     private final ICorrelationCalculator correlationCalculator;
     private final IWeightedSymptomCalculator weightedSymptomCalculator;
 
-    public SymptomTrendChartModel toSymptomTrendChart(List<DiaryEntry> entries, LocalDate fromDate,
+    public HighchartsModel toHighchartsModel(List<DiaryEntry> entries, LocalDate fromDate,
             LocalDate toDate, StatisticsMainCategory mainCategory) {
         List<DiaryEntry> safeEntries = entries == null ? List.of() : entries;
         validateEnoughData(safeEntries, fromDate, toDate);
@@ -52,7 +52,7 @@ public class StatisticsCorrelationBarChartMapper {
         List<HighchartsSeriesModel> series = List.of(
                 new HighchartsSeriesModel("Correlation", correlationValues));
 
-        return new SymptomTrendChartModel(
+        return new HighchartsModel(
                 "column",
                 categories,
                 series,

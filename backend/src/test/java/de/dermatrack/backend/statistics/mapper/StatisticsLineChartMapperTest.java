@@ -9,7 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import de.dermatrack.backend.diary.model.DiaryEntry;
-import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
+import de.dermatrack.backend.statistics.model.common.HighchartsModel;
 import de.dermatrack.backend.statistics.service.impl.WeightedSymptomCalculator;
 import de.dermatrack.backend.statistics.support.StatisticsTestDataFactory;
 
@@ -19,7 +19,7 @@ class StatisticsLineChartMapperTest {
     private final StatisticsLineChartMapper mapper = new StatisticsLineChartMapper(new WeightedSymptomCalculator());
 
     @Test
-    @DisplayName("toSymptomTrendChart() should create 7-day line chart with gaps for missing days")
+    @DisplayName("toHighchartsModel() should create 7-day line chart with gaps for missing days")
     void toSymptomTrendChart_ShouldBuildSevenDaySeriesWithNullGaps() {
         LocalDate endDate = LocalDate.of(2026, 4, 25);
         LocalDate fromDate = endDate.minusDays(6);
@@ -27,7 +27,7 @@ class StatisticsLineChartMapperTest {
         DiaryEntry firstDay = StatisticsTestDataFactory.buildEntryForLineChart(fromDate, 4, 2, 3);
         DiaryEntry thirdDay = StatisticsTestDataFactory.buildEntryForLineChart(fromDate.plusDays(2), 8, 4, 6);
 
-        SymptomTrendChartModel chart = mapper.toSymptomTrendChart(List.of(firstDay, thirdDay), fromDate, endDate);
+        HighchartsModel chart = mapper.toHighchartsModel(List.of(firstDay, thirdDay), fromDate, endDate);
 
         assertThat(chart.getChartType()).isEqualTo("line");
         assertThat(chart.getCategories()).hasSize(7);

@@ -9,15 +9,15 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import de.dermatrack.backend.diary.model.DiaryEntry;
+import de.dermatrack.backend.statistics.model.common.HighchartsModel;
 import de.dermatrack.backend.statistics.model.common.HighchartsSeriesModel;
 import de.dermatrack.backend.statistics.model.common.StatisticsDateRangeModel;
-import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class StatisticsBarChartMapper {
-        public SymptomTrendChartModel toSymptomTrendChart(List<DiaryEntry> entries, LocalDate fromDate,
+        public HighchartsModel toHighchartsModel(List<DiaryEntry> entries, LocalDate fromDate,
             LocalDate toDate) {
         Map<LocalDate, DiaryEntry> entriesByDate = new HashMap<>();
         for (DiaryEntry entry : entries) {
@@ -47,7 +47,7 @@ public class StatisticsBarChartMapper {
                 new HighchartsSeriesModel("Inflammation", inflammation)
             );
 
-        return new SymptomTrendChartModel(
+        return new HighchartsModel(
                 "column",
                 categories,
                 series,

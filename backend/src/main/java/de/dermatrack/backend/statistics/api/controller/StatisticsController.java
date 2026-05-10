@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import de.dermatrack.backend.auth.model.AppUser;
 import de.dermatrack.backend.auth.repository.IAppUserRepository;
 import de.dermatrack.backend.exception.ResourceNotFoundException;
+import de.dermatrack.backend.statistics.model.common.HighchartsModel;
 import de.dermatrack.backend.statistics.model.common.StatisticsPeriod;
-import de.dermatrack.backend.statistics.model.line.SymptomTrendChartModel;
 import de.dermatrack.backend.statistics.service.IStatisticsService;
 import lombok.RequiredArgsConstructor;
 
@@ -22,7 +22,7 @@ public class StatisticsController implements IStatisticsController {
     private final IAppUserRepository appUserRepository;
 
     @Override
-    public ResponseEntity<SymptomTrendChartModel> getPsycheAndSymptoms(
+    public ResponseEntity<HighchartsModel> getPsycheAndSymptoms(
             Principal principal,
             LocalDate endDate,
             String period) {
@@ -35,7 +35,7 @@ public class StatisticsController implements IStatisticsController {
     }
 
     @Override
-    public ResponseEntity<SymptomTrendChartModel> getSymptoms(
+    public ResponseEntity<HighchartsModel> getSymptoms(
             Principal principal,
             LocalDate endDate,
             String period) {
@@ -53,7 +53,7 @@ public class StatisticsController implements IStatisticsController {
     }
 
     @Override
-    public ResponseEntity<SymptomTrendChartModel> getCorrelation(Principal principal, LocalDate endDate, String period,
+    public ResponseEntity<HighchartsModel> getCorrelation(Principal principal, LocalDate endDate, String period,
             String mainCategory) {
         AppUser currentUser = resolveCurrentUser(principal);
         return ResponseEntity.ok(

@@ -1,9 +1,7 @@
-package de.dermatrack.backend.statistics.model.line;
+package de.dermatrack.backend.statistics.model.common;
 
 import java.util.List;
 
-import de.dermatrack.backend.statistics.model.common.HighchartsSeriesModel;
-import de.dermatrack.backend.statistics.model.common.StatisticsDateRangeModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SymptomTrendChartModel {
+public class HighchartsModel {
 
     private String chartType;
     private List<String> categories;
