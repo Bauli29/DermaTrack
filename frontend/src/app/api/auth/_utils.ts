@@ -3,15 +3,12 @@ import { z } from 'zod'
 
 import { insecureFetch } from '@/lib/backend-client'
 
-import { AUTH_COOKIE_NAMES } from '@/constants/auth'
-
 import { createAuthError, EAuthErrorCode } from '@/types/errors'
 
-import {
-  normalizeBackendError,
-  readAuthTokens,
-  type IAuthApiErrorResponse,
-} from './backend-error-utils'
+import { AUTH_COOKIE_NAMES } from '@/constants/auth'
+
+import type { IAuthApiErrorResponse } from './backend-error-utils'
+import { normalizeBackendError, readAuthTokens } from './backend-error-utils'
 import {
   LoginRequestSchema,
   RefreshRequestSchema,

@@ -1,11 +1,12 @@
 package de.dermatrack.backend.exception;
 
-import lombok.Builder;
-import lombok.Data;
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.time.OffsetDateTime;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.Builder;
+import lombok.Data;
 
 @Data
 @Builder

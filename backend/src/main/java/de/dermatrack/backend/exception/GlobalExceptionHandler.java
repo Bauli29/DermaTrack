@@ -5,10 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import de.dermatrack.backend.exception.auth.EmailAlreadyExistsException;
-import de.dermatrack.backend.exception.auth.InvalidCredentialsException;
-import de.dermatrack.backend.exception.auth.InvalidRefreshTokenException;
-import de.dermatrack.backend.exception.auth.UsernameAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -22,6 +18,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import de.dermatrack.backend.exception.auth.EmailAlreadyExistsException;
+import de.dermatrack.backend.exception.auth.InvalidCredentialsException;
+import de.dermatrack.backend.exception.auth.InvalidRefreshTokenException;
+import de.dermatrack.backend.exception.auth.UsernameAlreadyExistsException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
