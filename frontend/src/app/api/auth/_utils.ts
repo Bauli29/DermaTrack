@@ -7,7 +7,6 @@ import { createAuthError, EAuthErrorCode } from '@/types/errors'
 
 import { AUTH_COOKIE_NAMES } from '@/constants/auth'
 
-import type { IAuthApiErrorResponse } from './backend-error-utils'
 import { normalizeBackendError, readAuthTokens } from './backend-error-utils'
 import {
   LoginRequestSchema,
@@ -25,6 +24,7 @@ import {
   isAccessTokenExpired,
 } from './token-utils'
 
+import type { IAuthApiErrorResponse } from './backend-error-utils'
 const BACKEND_AUTH_BASE_PATH = '/api/auth'
 
 export type { IAuthApiErrorResponse }
