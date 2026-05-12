@@ -109,13 +109,10 @@ export const invalidBackendAuthResponse = (
   return response
 }
 
-export const unauthenticatedSessionResponse = (): NextResponse => {
-  const response = NextResponse.json(createUnauthenticatedSessionResponse(), {
+export const unauthenticatedSessionResponse = (): NextResponse =>
+  NextResponse.json(createUnauthenticatedSessionResponse(), {
     status: 401,
   })
-  clearAuthCookies(response)
-  return response
-}
 
 export const readJsonBody = async <T>(request: Request): Promise<T | null> => {
   try {

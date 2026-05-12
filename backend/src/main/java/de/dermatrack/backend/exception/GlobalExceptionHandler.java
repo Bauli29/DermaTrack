@@ -206,16 +206,38 @@ public class GlobalExceptionHandler {
         }
 
         /**
-         * Handle invalid credentials or refresh tokens
+         * Handle invalid credentials (login failure)
          */
-        @ExceptionHandler({ InvalidCredentialsException.class, InvalidRefreshTokenException.class })
-        public ResponseEntity<ErrorResponse> handleUnauthorizedException(RuntimeException ex, WebRequest request) {
-                log.warn("Unauthorized: {}", ex.getMessage());
+        @ExceptionHandler(InvalidCredentialsException.class)
+        public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException ex,
+                        WebRequest request) {
+                log.warn("Invalid credentials: {}", ex.getMessage());
 
                 ErrorResponse errorResponse = ErrorResponse.builder()
                                 .timestamp(OffsetDateTime.now())
                                 .status(HttpStatus.UNAUTHORIZED.value())
                                 .error("Unauthorized")
+                                .errorCode("INVALID_CREDENTIALS")
+                                .message(ex.getMessage())
+                                .path(request.getDescription(false).replace("uri=", ""))
+                                .build();
+
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
+
+        /**
+         * Handle invalid or expired refresh tokens
+         */
+        @ExceptionHandler(InvalidRefreshTokenException.class)
+        public ResponseEntity<ErrorResponse> handleInvalidRefreshTokenException(InvalidRefreshTokenException ex,
+                        WebRequest request) {
+                log.warn("Invalid refresh token: {}", ex.getMessage());
+
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                                .timestamp(OffsetDateTime.now())
+                                .status(HttpStatus.UNAUTHORIZED.value())
+                                .error("Unauthorized")
+                                .errorCode("INVALID_REFRESH_TOKEN")
                                 .message(ex.getMessage())
                                 .path(request.getDescription(false).replace("uri=", ""))
                                 .build();

@@ -1,6 +1,10 @@
 package de.dermatrack.backend.config;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
 import de.dermatrack.backend.auth.jwt.JwtFilter;
+import de.dermatrack.backend.exception.ErrorResponse;
 
 @EnableMethodSecurity
 @Configuration
@@ -48,7 +53,21 @@ public class SecurityConfig {
                     auth.anyRequest().authenticated();
                 })
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((request, response, authException) -> response.sendError(401)))
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(401);
+                            response.setContentType("application/json");
+                            ErrorResponse errorResponse = ErrorResponse.builder()
+                                    .timestamp(OffsetDateTime.now())
+                                    .status(401)
+                                    .error("Unauthorized")
+                                    .errorCode("ACCESS_TOKEN_EXPIRED")
+                                    .message("Access token is missing or expired")
+                                    .path(request.getRequestURI())
+                                    .build();
+                            ObjectMapper mapper = new ObjectMapper();
+                            mapper.registerModule(new JavaTimeModule());
+                            response.getWriter().write(mapper.writeValueAsString(errorResponse));
+                        }))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(headers -> {
                     applyCommonSecurityHeaders(headers);

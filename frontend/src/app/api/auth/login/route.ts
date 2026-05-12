@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
 
-import { EAuthErrorCode } from '@/types/errors'
-
 import {
   callBackendAuth,
   createAuthenticatedSessionResponse,
@@ -29,16 +27,6 @@ export const POST = async (request: Request): Promise<NextResponse> => {
   })
 
   if (!backendResponse.ok) {
-    if (backendResponse.status === 401) {
-      return NextResponse.json(
-        {
-          error: 'Invalid credentials',
-          code: EAuthErrorCode.INVALID_CREDENTIALS,
-          statusCode: 401,
-        },
-        { status: 401 }
-      )
-    }
     return forwardBackendResponse(backendResponse)
   }
 

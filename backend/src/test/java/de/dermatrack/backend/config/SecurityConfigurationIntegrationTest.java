@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.DisplayName;
@@ -66,14 +67,16 @@ class SecurityConfigurationIntegrationTest {
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"x\",\"password\":\"y\"}"))
-                .andExpect(status().isUnauthorized()); // 401 from InvalidCredentialsException, not 403
+                .andExpect(status().isUnauthorized()) // 401 from InvalidCredentialsException, not 403
+                .andExpect(jsonPath("$.errorCode").value("INVALID_CREDENTIALS"));
     }
 
     @Test
     @DisplayName("Protected endpoints should return 401 without token")
     void protectedEndpoints_shouldRequireAuth() throws Exception {
         mockMvc.perform(get("/api/diary"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.errorCode").value("ACCESS_TOKEN_EXPIRED"));
     }
 
     @Test

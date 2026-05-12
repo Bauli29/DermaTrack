@@ -11,9 +11,16 @@ export interface IAuthApiErrorResponse {
 
 interface IBackendErrorBody {
   error?: string
+  errorCode?: string
   message?: string
   details?: unknown
   statusCode?: number
+}
+
+const BACKEND_ERROR_CODE_MAP: { readonly [key: string]: EAuthErrorCode } = {
+  INVALID_CREDENTIALS: EAuthErrorCode.INVALID_CREDENTIALS,
+  INVALID_REFRESH_TOKEN: EAuthErrorCode.SESSION_EXPIRED,
+  ACCESS_TOKEN_EXPIRED: EAuthErrorCode.SESSION_EXPIRED,
 }
 
 const getBackendErrorMessage = (
@@ -70,6 +77,21 @@ export const normalizeBackendError = async (
     .catch(() => null)) as IBackendErrorBody | null
   const safeBody = body ?? {}
   const errorMessage = getBackendErrorMessage(safeBody, defaultError.message)
+
+  const backendErrorCode =
+    typeof safeBody.errorCode === 'string'
+      ? BACKEND_ERROR_CODE_MAP[safeBody.errorCode]
+      : undefined
+
+  if (backendErrorCode) {
+    return {
+      error: errorMessage,
+      code: backendErrorCode,
+      statusCode: response.status,
+      details: getStringDetails(safeBody.details),
+    }
+  }
+
   const backendError = parseApiError(
     {
       error: errorMessage,

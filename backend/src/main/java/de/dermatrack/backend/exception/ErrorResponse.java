@@ -14,6 +14,7 @@ public class ErrorResponse {
     private OffsetDateTime timestamp;
     private int status;
     private String error;
+    private String errorCode;
     private String message;
     private String path;
     private String traceId;

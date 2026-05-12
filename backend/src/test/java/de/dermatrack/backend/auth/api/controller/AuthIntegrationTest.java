@@ -132,7 +132,8 @@ class AuthIntegrationTest {
                                                 "username", "wrongpwuser",
                                                 "password", "wrongpassword!!"))))
                                 .andExpect(status().isUnauthorized())
-                                .andExpect(jsonPath("$.error").value("Unauthorized"));
+                                .andExpect(jsonPath("$.error").value("Unauthorized"))
+                                .andExpect(jsonPath("$.errorCode").value("INVALID_CREDENTIALS"));
         }
 
         @Test
@@ -143,7 +144,8 @@ class AuthIntegrationTest {
                                                 "username", "nonexistent",
                                                 "password", "securepassword1"))))
                                 .andExpect(status().isUnauthorized())
-                                .andExpect(jsonPath("$.error").value("Unauthorized"));
+                                .andExpect(jsonPath("$.error").value("Unauthorized"))
+                                .andExpect(jsonPath("$.errorCode").value("INVALID_CREDENTIALS"));
         }
 
         @Test
@@ -182,7 +184,8 @@ class AuthIntegrationTest {
                                 .content(objectMapper.writeValueAsString(Map.of(
                                                 "refreshToken", "invalid-token"))))
                                 .andExpect(status().isUnauthorized())
-                                .andExpect(jsonPath("$.error").value("Unauthorized"));
+                                .andExpect(jsonPath("$.error").value("Unauthorized"))
+                                .andExpect(jsonPath("$.errorCode").value("INVALID_REFRESH_TOKEN"));
         }
 
         @Test
@@ -213,7 +216,8 @@ class AuthIntegrationTest {
         @Test
         void logout_shouldReturn401_whenNotAuthenticated() throws Exception {
                 mockMvc.perform(post("/api/auth/logout"))
-                                .andExpect(status().isUnauthorized());
+                                .andExpect(status().isUnauthorized())
+                                .andExpect(jsonPath("$.errorCode").value("ACCESS_TOKEN_EXPIRED"));
         }
 
         @Test
