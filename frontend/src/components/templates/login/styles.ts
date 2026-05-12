@@ -1,7 +1,7 @@
 'use client'
 
 export {
-  AuthPageWrapper as LoginPageWrapper,
+  ContentPageWrapper as LoginPageWrapper,
   Label,
   SignInPrompt,
 } from '../shared/styles'

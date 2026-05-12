@@ -2,7 +2,7 @@
 import styled from 'styled-components'
 
 export {
-  AuthPageWrapper as RegistrationPageWrapper,
+  ContentPageWrapper as RegistrationPageWrapper,
   Label,
   SignInPrompt,
 } from '../shared/styles'

@@ -1,40 +1,17 @@
 'use client'
 import styled from 'styled-components'
 
-// Wrapper for the template page. Designed mobile-first with generous spacing
-export const PageWrapper = styled.div`
-  width: 100%;
-  min-height: 100dvh;
-  padding: 16px;
-  background: ${({ theme }) => theme.colors.background};
-  color: ${({ theme }) => theme.colors.text};
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`
-
-// Card-like surface for the form
-export const Card = styled.div`
-  background: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.borderLight};
-  border-radius: 14px;
-  box-shadow: 0 2px 10px ${({ theme }) => theme.colors.shadow};
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-`
-
 export const Section = styled.section`
   display: flex;
   flex-direction: column;
   gap: 10px;
 
-  padding: 12px;
-  border-radius: 12px;
+  padding: 4px 0;
 
-  background: ${({ theme }) => theme.colors.sectionBg};
-  border: 1px solid ${({ theme }) => theme.colors.sectionBorder};
+  & + & {
+    padding-top: 14px;
+    border-top: 1px solid ${({ theme }) => theme.colors.borderLight};
+  }
 `
 
 export const SectionTitle = styled.div`
@@ -48,29 +25,33 @@ export const SubsectionContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 12px;
+  padding: 8px 0;
 
-  border-left: 3px solid ${({ theme }) => theme.colors.subsectionBorderAccent};
-  border-radius: 10px;
-
-  background: ${({ theme }) => theme.colors.subsectionBg};
+  &:not(:first-child) {
+    border-top: 1px dashed ${({ theme }) => theme.colors.borderLight};
+    padding-top: 12px;
+  }
 `
 
 export const FieldRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 0;
+`
 
-  padding: 8px;
-  border-radius: 10px;
-  background: ${({ theme }) => theme.colors.surface};
-  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+export const SliderWithMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 4px;
+  gap: 2px;
+`
 
-  @media (min-width: 520px) {
-    grid-template-columns: 12ch 1fr 3ch;
-    align-items: center;
-    column-gap: 12px;
-  }
+export const SliderFieldHelperText = styled.span`
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.textMuted};
+  margin-top: 2px;
 `
 
 export const SliderValue = styled.span`
@@ -117,10 +98,6 @@ export const ImagePreviewGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-
-  @media (min-width: 480px) {
-    grid-template-columns: repeat(4, 1fr);
-  }
 `
 
 export const ImagePreviewItem = styled.div`
@@ -187,12 +164,8 @@ export const FileInputLabel = styled.label`
 
 export const Actions = styled.div`
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
-
-  @media (min-width: 440px) {
-    grid-template-columns: 1fr 1fr;
-  }
 `
 
 export const ErrorText = styled.span`

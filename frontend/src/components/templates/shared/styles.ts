@@ -10,7 +10,7 @@ export const PageWrapper = styled.div`
   gap: 16px;
 `
 
-export const AuthPageWrapper = styled.div`
+export const ContentPageWrapper = styled.div`
   width: 100%;
   min-height: calc(100dvh - 128px);
   padding: 1rem;

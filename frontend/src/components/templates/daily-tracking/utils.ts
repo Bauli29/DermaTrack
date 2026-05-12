@@ -1,8 +1,7 @@
 import { formatDateInput } from '@/lib/date'
-import {
-  validateRequest,
-  type TValidationResult,
-} from '@/lib/validation-helper'
+import { validateRequest } from '@/lib/validation-helper'
+
+import { DiaryEntrySchema } from '@/validation/diary'
 
 import {
   ACCEPTED_IMAGE_TYPES,
@@ -10,8 +9,8 @@ import {
   MAX_IMAGES,
 } from '@/constants/uploads'
 
-import { DiaryEntrySchema, type TDiaryEntryInput } from '@/validation/diary'
-
+import type { TValidationResult } from '@/lib/validation-helper'
+import type { TDiaryEntryInput } from '@/validation/diary'
 export interface IDailyTrackingFormValues {
   id?: string
   date: string
@@ -73,6 +72,7 @@ export type THealthFactor = 'other allergies' | 'infection'
 export interface IDailyTrackingSliderFieldDefinition {
   key: TDailyTrackingSliderFieldKey
   label: string
+  helperText: string
 }
 
 interface IDailyTrackingValidationOptions {
@@ -103,16 +103,41 @@ export type TDailyTrackingSubmissionResult =
 
 export const PSYCHE_FACTOR_DEFINITIONS: readonly IDailyTrackingSliderFieldDefinition[] =
   [
-    { key: 'stressLevel', label: 'Stress Severity' },
-    { key: 'sleep', label: 'Sleep Quality' },
-    { key: 'mentalHealth', label: 'Mental Wellbeing' },
+    {
+      key: 'stressLevel',
+      label: 'Stress Severity',
+      helperText: '0 = no stress · 10 = extremely stressed (higher = worse)',
+    },
+    {
+      key: 'sleep',
+      label: 'Sleep Quality',
+      helperText: '0 = worst sleep · 10 = best sleep (higher = better)',
+    },
+    {
+      key: 'mentalHealth',
+      label: 'Mental Wellbeing',
+      helperText: '0 = very poor mood · 10 = excellent mood (higher = better)',
+    },
   ]
 
 export const SYMPTOM_FIELD_DEFINITIONS: readonly IDailyTrackingSliderFieldDefinition[] =
   [
-    { key: 'itchiness', label: 'Itchiness' },
-    { key: 'inflammation', label: 'Inflammation' },
-    { key: 'dryness', label: 'Dryness' },
+    {
+      key: 'itchiness',
+      label: 'Itchiness',
+      helperText: '0 = no itchiness · 10 = extremely itchy (higher = worse)',
+    },
+    {
+      key: 'inflammation',
+      label: 'Inflammation',
+      helperText:
+        '0 = no inflammation · 10 = severely inflamed (higher = worse)',
+    },
+    {
+      key: 'dryness',
+      label: 'Dryness',
+      helperText: '0 = no dryness · 10 = extremely dry skin (higher = worse)',
+    },
   ]
 
 export const SYMPTOM_CHECKBOX_OPTIONS = [
