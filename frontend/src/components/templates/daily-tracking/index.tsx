@@ -17,7 +17,7 @@ import { createDiaryEntry } from '@/services/diary'
 
 import { getDiaryEntryByDate } from '@/services/diary'
 
-import { mapDiaryResponseToForm } from './utils'
+import { mapDiaryResponseToForm } from '@/components/templates/daily-tracking/utils'
 
 import {
   ACCEPTED_IMAGE_TYPES,
@@ -45,7 +45,7 @@ import {
   CARE_FACTOR_OPTIONS,
   NUTRITION_FACTOR_OPTIONS,
   HEALTH_FACTOR_OPTIONS,
-} from './utils'
+} from '@/components/templates/daily-tracking/utils'
 
 const DEFAULT_SLIDER_PROPS = {
   min: 0,
@@ -60,6 +60,17 @@ const createInitialValuesForDate = (date: string) => ({
   ...createInitialDailyTrackingValues(),
   date,
 })
+
+const getDetailValidation = (
+  isSelected: boolean,
+  detail?: string
+): 'none' | 'success' | 'error' => {
+  if (!isSelected) {
+    return 'none'
+  }
+
+  return detail?.trim().length ? 'success' : 'error'
+}
 
 const DailyTrackingTemplate = () => {
   const router = useRouter()
@@ -153,8 +164,9 @@ const DailyTrackingTemplate = () => {
     baselineFormValues
   )
   const selectedSymptoms = SYMPTOM_CHECKBOX_OPTIONS.filter(
-    option => formValues[option.value]
-  ).map(option => option.value)
+    (option: (typeof SYMPTOM_CHECKBOX_OPTIONS)[number]) =>
+      formValues[option.value]
+  ).map((option: (typeof SYMPTOM_CHECKBOX_OPTIONS)[number]) => option.value)
 
   const clearScheduledRedirect = useCallback(() => {
     if (redirectTimeoutRef.current === null) {
@@ -184,7 +196,7 @@ const DailyTrackingTemplate = () => {
     value: IDailyTrackingFormValues[TKey]
   ) => {
     clearSuccessState()
-    setFormValues(prev => ({
+    setFormValues((prev: IDailyTrackingFormValues) => ({
       ...prev,
       [key]: value,
     }))
@@ -223,7 +235,7 @@ const DailyTrackingTemplate = () => {
   }
 
   const handleSymptomChange = (values: string[]) => {
-    setFormValues(prev => ({
+    setFormValues((prev: IDailyTrackingFormValues) => ({
       ...prev,
       scratch: values.includes('scratch'),
       weepingSkin: values.includes('weepingSkin'),
@@ -338,25 +350,36 @@ const DailyTrackingTemplate = () => {
             </Text>
             <CompoundCheckboxes
               name='contact-factors'
-              options={CONTACT_FACTOR_OPTIONS.map(option => ({
-                value: option.value,
-                label: option.label,
-                detailInput: {
-                  label: `Details about ${option.label}`,
-                  placeholder: `Describe your ${option.label.toLowerCase()} contact...`,
-                  value: formValues.contactFactorDetails[option.value] ?? '',
-                  onChange: (value: string) => {
-                    setFormValues(prev => ({
-                      ...prev,
-                      contactFactorDetails: {
-                        ...prev.contactFactorDetails,
-                        [option.value]: value,
+              options={CONTACT_FACTOR_OPTIONS.map(
+                (option: (typeof CONTACT_FACTOR_OPTIONS)[number]) => {
+                  const isSelected = formValues.contactFactors.includes(
+                    option.value
+                  )
+                  const detail = formValues.contactFactorDetails[option.value]
+                  const validation = getDetailValidation(isSelected, detail)
+
+                  return {
+                    value: option.value,
+                    label: option.label,
+                    detailInput: {
+                      label: `Details about ${option.label}`,
+                      placeholder: `Describe your ${option.label.toLowerCase()} contact...`,
+                      value: detail ?? '',
+                      validation,
+                      onChange: (value: string) => {
+                        setFormValues((prev: IDailyTrackingFormValues) => ({
+                          ...prev,
+                          contactFactorDetails: {
+                            ...prev.contactFactorDetails,
+                            [option.value]: value,
+                          },
+                        }))
+                        clearSuccessState()
                       },
-                    }))
-                    clearSuccessState()
-                  },
-                },
-              }))}
+                    },
+                  }
+                }
+              )}
               values={formValues.contactFactors}
               onChange={(values: string[]) => {
                 updateFormValue('contactFactors', values)
@@ -370,25 +393,36 @@ const DailyTrackingTemplate = () => {
             </Text>
             <CompoundCheckboxes
               name='nutrition-factors'
-              options={NUTRITION_FACTOR_OPTIONS.map(option => ({
-                value: option.value,
-                label: option.label,
-                detailInput: {
-                  label: `Details about ${option.label}`,
-                  placeholder: `Describe your ${option.label.toLowerCase()} nutrition...`,
-                  value: formValues.nutritionFactorDetails[option.value] ?? '',
-                  onChange: (value: string) => {
-                    setFormValues(prev => ({
-                      ...prev,
-                      nutritionFactorDetails: {
-                        ...prev.nutritionFactorDetails,
-                        [option.value]: value,
+              options={NUTRITION_FACTOR_OPTIONS.map(
+                (option: (typeof NUTRITION_FACTOR_OPTIONS)[number]) => {
+                  const isSelected = formValues.nutritionFactors.includes(
+                    option.value
+                  )
+                  const detail = formValues.nutritionFactorDetails[option.value]
+                  const validation = getDetailValidation(isSelected, detail)
+
+                  return {
+                    value: option.value,
+                    label: option.label,
+                    detailInput: {
+                      label: `Details about ${option.label}`,
+                      placeholder: `Describe your ${option.label.toLowerCase()} nutrition...`,
+                      value: detail ?? '',
+                      validation,
+                      onChange: (value: string) => {
+                        setFormValues((prev: IDailyTrackingFormValues) => ({
+                          ...prev,
+                          nutritionFactorDetails: {
+                            ...prev.nutritionFactorDetails,
+                            [option.value]: value,
+                          },
+                        }))
+                        clearSuccessState()
                       },
-                    }))
-                    clearSuccessState()
-                  },
-                },
-              }))}
+                    },
+                  }
+                }
+              )}
               values={formValues.nutritionFactors}
               onChange={(values: string[]) => {
                 updateFormValue('nutritionFactors', values)
@@ -402,25 +436,36 @@ const DailyTrackingTemplate = () => {
             </Text>
             <CompoundCheckboxes
               name='care-factors'
-              options={CARE_FACTOR_OPTIONS.map(option => ({
-                value: option.value,
-                label: option.label,
-                detailInput: {
-                  label: `Details about ${option.label}`,
-                  placeholder: `Describe your ${option.label.toLowerCase()} care product...`,
-                  value: formValues.careFactorDetails[option.value] ?? '',
-                  onChange: (value: string) => {
-                    setFormValues(prev => ({
-                      ...prev,
-                      careFactorDetails: {
-                        ...prev.careFactorDetails,
-                        [option.value]: value,
+              options={CARE_FACTOR_OPTIONS.map(
+                (option: (typeof CARE_FACTOR_OPTIONS)[number]) => {
+                  const isSelected = formValues.careFactors.includes(
+                    option.value
+                  )
+                  const detail = formValues.careFactorDetails[option.value]
+                  const validation = getDetailValidation(isSelected, detail)
+
+                  return {
+                    value: option.value,
+                    label: option.label,
+                    detailInput: {
+                      label: `Details about ${option.label}`,
+                      placeholder: `Describe your ${option.label.toLowerCase()} care product...`,
+                      value: detail ?? '',
+                      validation,
+                      onChange: (value: string) => {
+                        setFormValues((prev: IDailyTrackingFormValues) => ({
+                          ...prev,
+                          careFactorDetails: {
+                            ...prev.careFactorDetails,
+                            [option.value]: value,
+                          },
+                        }))
+                        clearSuccessState()
                       },
-                    }))
-                    clearSuccessState()
-                  },
-                },
-              }))}
+                    },
+                  }
+                }
+              )}
               values={formValues.careFactors}
               onChange={(values: string[]) => {
                 updateFormValue('careFactors', values)
@@ -434,25 +479,36 @@ const DailyTrackingTemplate = () => {
             </Text>
             <CompoundCheckboxes
               name='health-factors'
-              options={HEALTH_FACTOR_OPTIONS.map(option => ({
-                value: option.value,
-                label: option.label,
-                detailInput: {
-                  label: `Details about ${option.label}`,
-                  placeholder: `Describe your ${option.label.toLowerCase()} ...`,
-                  value: formValues.healthFactorDetails[option.value] ?? '',
-                  onChange: (value: string) => {
-                    setFormValues(prev => ({
-                      ...prev,
-                      healthFactorDetails: {
-                        ...prev.healthFactorDetails,
-                        [option.value]: value,
+              options={HEALTH_FACTOR_OPTIONS.map(
+                (option: (typeof HEALTH_FACTOR_OPTIONS)[number]) => {
+                  const isSelected = formValues.healthFactors.includes(
+                    option.value
+                  )
+                  const detail = formValues.healthFactorDetails[option.value]
+                  const validation = getDetailValidation(isSelected, detail)
+
+                  return {
+                    value: option.value,
+                    label: option.label,
+                    detailInput: {
+                      label: `Details about ${option.label}`,
+                      placeholder: `Describe your ${option.label.toLowerCase()} ...`,
+                      value: detail ?? '',
+                      validation,
+                      onChange: (value: string) => {
+                        setFormValues((prev: IDailyTrackingFormValues) => ({
+                          ...prev,
+                          healthFactorDetails: {
+                            ...prev.healthFactorDetails,
+                            [option.value]: value,
+                          },
+                        }))
+                        clearSuccessState()
                       },
-                    }))
-                    clearSuccessState()
-                  },
-                },
-              }))}
+                    },
+                  }
+                }
+              )}
               values={formValues.healthFactors}
               onChange={(values: string[]) => {
                 updateFormValue('healthFactors', values)

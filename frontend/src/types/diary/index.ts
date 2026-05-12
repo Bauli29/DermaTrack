@@ -23,33 +23,46 @@ export interface IPsyche {
 }
 
 export interface IContactFactors {
-  shower?: string
-  clothing?: string
-  animalContact?: string
+  shower?: boolean
+  showerNotes?: string
+  clothing?: boolean
+  clothingNotes?: string
+  animalContact?: boolean
+  animalContactNotes?: string
   customContactFactors?: string[]
 }
 
 export interface INutrition {
-  nuts?: string
-  fruits?: string
-  shellfish?: string
-  dairy?: string
-  gluten?: string
+  nuts?: boolean
+  nutsNotes?: string
+  fruits?: boolean
+  fruitsNotes?: string
+  shellfish?: boolean
+  shellfishNotes?: string
+  dairy?: boolean
+  dairyNotes?: string
+  gluten?: boolean
+  glutenNotes?: string
   customNutritionFactors?: string[]
 }
 
 export interface ICareProducts {
-  skinCare?: string
-  hairProducts?: string
-  soap?: string
-  Shampoo?: string
-  cosmetics?: string
+  skinCare?: boolean
+  skinCareNotes?: string
+  hairProducts?: boolean
+  hairProductsNotes?: string
+  soapShampoo?: boolean
+  soapShampooNotes?: string
+  cosmetics?: boolean
+  cosmeticsNotes?: string
   customCareProducts?: string[]
 }
 
 export interface IHealth {
-  otherAllergies?: string
-  infections?: number
+  otherAllergies?: boolean
+  otherAllergiesNotes?: string
+  infections?: boolean
+  infectionsNotes?: string
 }
 
 export interface ISymptoms {
