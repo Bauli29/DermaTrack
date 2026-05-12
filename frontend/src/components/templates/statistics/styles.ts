@@ -91,6 +91,27 @@ export const PeriodControls = styled.div`
   }
 `
 
+export const MainCategorySelect = styled.select`
+  height: 32px;
+  min-width: 160px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.surface};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: 0.92rem;
+  appearance: none;
+  outline: none;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04);
+  }
+
+  @media (min-width: 480px) {
+    min-width: 200px;
+  }
+`
+
 export const RangeSummary = styled.div`
   display: grid;
   gap: 8px;
@@ -315,4 +336,51 @@ export const StatePanel = styled.section`
   border: 1px solid ${({ theme }) => theme.colors.borderLight};
   border-radius: 8px;
   background: ${({ theme }) => theme.colors.card};
+`
+
+export const CorrelationCardWrapper = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.surface};
+  box-shadow: 0 2px 8px ${({ theme }) => theme.colors.shadow};
+
+  @media (min-width: 480px) {
+    padding: 16px;
+    gap: 16px;
+  }
+`
+
+export const CorrelationHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+`
+
+export const CorrelationCategoryControl = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 200px;
+
+  @media (min-width: 640px) {
+    align-items: flex-end;
+  }
 `

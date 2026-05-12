@@ -1,5 +1,6 @@
 import {
   buildStatisticsApiPath,
+  fetchCorrelationChart,
   fetchPsycheSymptomsChart,
   fetchSymptomsChart,
 } from '../index'
@@ -73,6 +74,18 @@ const sampleSparseLineChart = {
   dateRange: sampleLineChart.dateRange,
 }
 
+const sampleCorrelationChart = {
+  chartType: 'column' as const,
+  categories: ['Skin Care', 'Hair Products', 'Soap Shampoo', 'Cosmetics'],
+  series: [
+    {
+      name: 'Correlation',
+      data: [0.812, 0.645, -0.201, 0.133],
+    },
+  ],
+  dateRange: sampleLineChart.dateRange,
+}
+
 describe('statistics service', () => {
   afterEach(() => {
     jest.clearAllMocks()
@@ -93,6 +106,15 @@ describe('statistics service', () => {
         period: '30d',
       })
     ).toBe('/api/statistics/symptoms?endDate=2026-04-29&period=30d')
+    expect(
+      buildStatisticsApiPath('/api/statistics/correlation', {
+        endDate: '2026-04-29',
+        period: '30d',
+        mainCategory: 'care-products',
+      })
+    ).toBe(
+      '/api/statistics/correlation?endDate=2026-04-29&period=30d&mainCategory=care-products'
+    )
   })
 
   it('loads the psyche and symptoms chart from the frontend api route', async () => {
@@ -162,6 +184,38 @@ describe('statistics service', () => {
     })
   })
 
+  it('loads correlation chart with mainCategory and accepts non-date categories', async () => {
+    const fetchImpl = jest.fn().mockResolvedValue(
+      createMockResponse({
+        status: 200,
+        contentType: 'application/json',
+        jsonBody: sampleCorrelationChart,
+      })
+    )
+
+    await expect(
+      fetchCorrelationChart(
+        {
+          endDate: '2026-04-29',
+          period: '30d',
+          mainCategory: 'care-products',
+        },
+        fetchImpl
+      )
+    ).resolves.toEqual({
+      success: true,
+      data: sampleCorrelationChart,
+    })
+
+    expect(fetchImpl).toHaveBeenCalledWith(
+      '/api/statistics/correlation?endDate=2026-04-29&period=30d&mainCategory=care-products',
+      {
+        method: 'GET',
+        cache: 'no-store',
+      }
+    )
+  })
+
   it('returns parsed api error messages for failing statistics requests', async () => {
     const fetchImpl = jest.fn().mockResolvedValue(
       createMockResponse({
@@ -176,6 +230,7 @@ describe('statistics service', () => {
     ).resolves.toEqual({
       success: false,
       error: 'Validation failed',
+      status: 400,
     })
   })
 
@@ -251,6 +306,7 @@ describe('statistics service', () => {
     await expect(fetchSymptomsChart(undefined, textFetch)).resolves.toEqual({
       success: false,
       error: 'Backend unavailable',
+      status: 503,
     })
     await expect(fetchSymptomsChart(undefined, failingFetch)).resolves.toEqual({
       success: false,

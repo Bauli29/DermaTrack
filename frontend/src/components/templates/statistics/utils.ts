@@ -32,11 +32,15 @@ export interface IStatisticsPeriodOption {
 
 const MAX_DENSE_AXIS_TICKS = 10
 const MAX_SPARSE_AXIS_TICKS = 8
+const DATE_CATEGORY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 const SCORE_AXIS_VISIBLE_MIN = -1
 const SCORE_AXIS_MAX = 10
 const SCORE_AXIS_PADDING_TICK = -1
 const SCORE_AXIS_VISIBLE_TICKS = [0, 2, 4, 6, 8, 10]
 const SCORE_AXIS_TICKS = [SCORE_AXIS_PADDING_TICK, ...SCORE_AXIS_VISIBLE_TICKS]
+const CORRELATION_AXIS_MIN = -1
+const CORRELATION_AXIS_MAX = 1
+const CORRELATION_AXIS_TICKS = [-1, -0.5, 0, 0.5, 1]
 
 const formatScoreAxisLabel = function (
   this: AxisLabelsFormatterContextObject
@@ -222,107 +226,115 @@ export const hasRenderableStatisticsChart = (
 export const buildStatisticsChartOptions = (
   chart: TStatisticsChart,
   theme: ITheme
-): Options => ({
-  accessibility: {
-    enabled: false,
-  },
-  chart: {
-    type: chart.chartType,
-    backgroundColor: 'transparent',
-    height: null,
-    spacing: [8, 8, 8, 0],
-    style: {
-      fontFamily:
-        '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
+): Options => {
+  const isCorrelationChart =
+    chart.chartType === 'column' &&
+    chart.categories.some(category => !DATE_CATEGORY_PATTERN.test(category))
+
+  return {
+    accessibility: {
+      enabled: false,
     },
-  },
-  colors: getStatisticsSeriesColors(chart.chartType, theme),
-  credits: {
-    enabled: false,
-  },
-  legend: {
-    enabled: false,
-    align: 'left',
-    verticalAlign: 'top',
-    itemDistance: 12,
-    itemStyle: createLegendItemStyle(theme),
-  },
-  title: {
-    text: undefined,
-  },
-  xAxis: {
-    categories: chart.categories,
-    lineColor: theme.colors.border,
-    maxPadding: 0.04,
-    minPadding: 0.04,
-    tickColor: theme.colors.border,
-    tickPositions: buildStatisticsAxisTickIndices(chart.categories.length),
-    labels: {
-      enabled: true,
-      formatter: formatDateAxisLabel,
-      reserveSpace: true,
+    chart: {
+      type: chart.chartType,
+      backgroundColor: 'transparent',
+      height: null,
+      spacing: [8, 8, 8, 0],
       style: {
-        color: theme.colors.textSecondary,
-        fontSize: '11px',
-        lineHeight: '13px',
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
       },
     },
-  },
-  yAxis: {
-    min: SCORE_AXIS_VISIBLE_MIN,
-    max: SCORE_AXIS_MAX,
-    tickPositions: SCORE_AXIS_TICKS,
-    startOnTick: false,
-    endOnTick: true,
-    showFirstLabel: true,
-    showLastLabel: true,
-    gridLineColor: theme.colors.borderLight,
-    plotLines: [
-      {
-        value: 0,
-        color: theme.colors.border,
-        width: 1,
-        zIndex: 3,
-      },
-    ],
+    colors: getStatisticsSeriesColors(chart.chartType, theme),
+    credits: {
+      enabled: false,
+    },
+    legend: {
+      enabled: false,
+      align: 'left',
+      verticalAlign: 'top',
+      itemDistance: 12,
+      itemStyle: createLegendItemStyle(theme),
+    },
     title: {
-      text: 'Score',
-      style: {
-        color: theme.colors.textSecondary,
-        fontSize: '12px',
+      text: undefined,
+    },
+    xAxis: {
+      categories: chart.categories,
+      lineColor: theme.colors.border,
+      maxPadding: 0.04,
+      minPadding: 0.04,
+      tickColor: theme.colors.border,
+      tickPositions: buildStatisticsAxisTickIndices(chart.categories.length),
+      labels: {
+        enabled: true,
+        formatter: formatDateAxisLabel,
+        reserveSpace: true,
+        style: {
+          color: theme.colors.textSecondary,
+          fontSize: '11px',
+          lineHeight: '13px',
+        },
       },
     },
-    labels: {
-      formatter: formatScoreAxisLabel,
-      overflow: 'allow',
-      style: {
-        color: theme.colors.textSecondary,
+    yAxis: {
+      min: isCorrelationChart ? CORRELATION_AXIS_MIN : SCORE_AXIS_VISIBLE_MIN,
+      max: isCorrelationChart ? CORRELATION_AXIS_MAX : SCORE_AXIS_MAX,
+      tickPositions: isCorrelationChart
+        ? CORRELATION_AXIS_TICKS
+        : SCORE_AXIS_TICKS,
+      startOnTick: false,
+      endOnTick: true,
+      showFirstLabel: true,
+      showLastLabel: true,
+      gridLineColor: theme.colors.borderLight,
+      plotLines: [
+        {
+          value: 0,
+          color: theme.colors.border,
+          width: 1,
+          zIndex: 3,
+        },
+      ],
+      title: {
+        text: isCorrelationChart ? 'Correlation' : 'Score',
+        style: {
+          color: theme.colors.textSecondary,
+          fontSize: '12px',
+        },
+      },
+      labels: {
+        formatter: formatScoreAxisLabel,
+        overflow: 'allow',
+        style: {
+          color: theme.colors.textSecondary,
+        },
       },
     },
-  },
-  tooltip: {
-    shared: true,
-    valueDecimals: 1,
-  },
-  plotOptions: {
-    series: {
-      animation: false,
-      lineWidth: chart.chartType === 'line' ? 2.5 : undefined,
-      clip: false,
-      marker:
-        chart.chartType === 'line'
-          ? {
-              enabled: true,
-              radius: 3,
-            }
-          : undefined,
+    tooltip: {
+      shared: true,
+      valueDecimals: isCorrelationChart ? 3 : 1,
     },
-    column: {
-      borderRadius: 4,
-      groupPadding: 0.12,
-      minPointLength: 3,
-      pointPadding: 0.08,
+    plotOptions: {
+      series: {
+        animation: false,
+        lineWidth: chart.chartType === 'line' ? 2.5 : undefined,
+        clip: false,
+        marker:
+          chart.chartType === 'line'
+            ? {
+                enabled: true,
+                radius: 3,
+              }
+            : undefined,
+      },
+      column: {
+        borderRadius: 4,
+        groupPadding: 0.12,
+        minPointLength: 3,
+        pointPadding: 0.08,
+      },
     },
-  },
-  series: buildSeriesOptions(chart),
-})
+    series: buildSeriesOptions(chart),
+  }
+}

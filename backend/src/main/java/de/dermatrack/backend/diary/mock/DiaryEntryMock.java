@@ -21,9 +21,9 @@ public class DiaryEntryMock {
 
     public void createEntriesForAllUsers(List<AppUser> users) {
 
-        // Create 30 random entries per user
+        // Create 100 random entries per user (enough data for 90+ day correlations)
         for (AppUser user : users) {
-            for (int i = 0; i < 30; i++) {
+            for (int i = 0; i < 100; i++) {
                 createRandomEntry(user, i);
             }
         }
@@ -40,47 +40,66 @@ public class DiaryEntryMock {
         entry.setSleep(faker.number().numberBetween(0, 10));
         entry.setMentalStrain(faker.number().numberBetween(0, 10));
 
-        entry.setContactShower(faker.bool().bool());
-        entry.setContactShowerNotes(faker.options().option("hot", "warm", "cold"));
-        entry.setContactClothing(faker.bool().bool());
-        entry.setContactClothingNotes(faker.options().option("wool", "tight", "synthetic", "none"));
-        entry.setContactAnimal(faker.bool().bool());
-        entry.setContactAnimalNotes(faker.options().option("none", "cat", "dog", "bird"));
+        // Create correlated data: contact factors influence symptoms
+        boolean hasContactIssue = faker.number().numberBetween(0, 100) < 50; // 50% chance - strong correlation
+        entry.setContactShower(hasContactIssue);
+        entry.setContactShowerNotes(hasContactIssue ? faker.options().option("hot", "warm") : "cold");
+        entry.setContactClothing(hasContactIssue);
+        entry.setContactClothingNotes(hasContactIssue ? faker.options().option("wool", "tight", "synthetic") : "none");
+        entry.setContactAnimal(hasContactIssue && faker.bool().bool());
+        entry.setContactAnimalNotes(hasContactIssue ? faker.options().option("cat", "dog") : "none");
         entry.setCustomContactFactors(Arrays.asList("dust", "cleaning-agent"));
 
-        entry.setNutritionNuts(faker.bool().bool());
-        entry.setNutritionNutsNotes(faker.options().option("none", "low", "medium", "high"));
-        entry.setNutritionFruits(faker.bool().bool());
-        entry.setNutritionFruitsNotes(faker.options().option("none", "low", "medium", "high"));
-        entry.setNutritionShellfish(faker.bool().bool());
-        entry.setNutritionShellfishNotes(faker.options().option("none", "low", "medium", "high"));
-        entry.setNutritionDairy(faker.bool().bool());
-        entry.setNutritionDairyNotes(faker.options().option("none", "low", "medium", "high"));
-        entry.setNutritionGluten(faker.bool().bool());
-        entry.setNutritionGlutenNotes(faker.options().option("none", "low", "medium", "high"));
+        // Create correlated data: nutrition factors influence symptoms
+        boolean hasNutritionIssue = faker.number().numberBetween(0, 100) < 45; // 45% chance - strong correlation
+        entry.setNutritionNuts(hasNutritionIssue);
+        entry.setNutritionNutsNotes(hasNutritionIssue ? faker.options().option("low", "medium", "high") : "none");
+        entry.setNutritionFruits(hasNutritionIssue && faker.bool().bool());
+        entry.setNutritionFruitsNotes(hasNutritionIssue ? faker.options().option("low", "medium") : "none");
+        entry.setNutritionShellfish(hasNutritionIssue && faker.bool().bool());
+        entry.setNutritionShellfishNotes(hasNutritionIssue ? faker.options().option("medium", "high") : "none");
+        entry.setNutritionDairy(hasNutritionIssue && faker.bool().bool());
+        entry.setNutritionDairyNotes(hasNutritionIssue ? faker.options().option("low", "medium") : "none");
+        entry.setNutritionGluten(hasNutritionIssue && faker.bool().bool());
+        entry.setNutritionGlutenNotes(hasNutritionIssue ? faker.options().option("medium", "high") : "none");
         entry.setCustomNutritionFactors(Arrays.asList("chocolate", "spicy-food"));
 
-        entry.setCareSkinCare(faker.bool().bool());
-        entry.setCareSkinCareNotes(faker.options().option("none", "mild", "intense"));
-        entry.setCareHairProducts(faker.bool().bool());
-        entry.setCareHairProductsNotes(faker.options().option("none", "mild", "intense"));
-        entry.setCareSoapShampoo(faker.bool().bool());
-        entry.setCareSoapShampooNotes(faker.options().option("none", "mild", "intense"));
-        entry.setCareCosmetics(faker.bool().bool());
-        entry.setCareCosmeticsNotes(faker.options().option("none", "mild", "intense"));
+        // Create correlated data: care products influence symptoms
+        boolean hasCareProductIssue = faker.number().numberBetween(0, 100) < 50; // 50% chance - strong correlation
+        entry.setCareSkinCare(hasCareProductIssue);
+        entry.setCareSkinCareNotes(hasCareProductIssue ? faker.options().option("mild", "intense") : "none");
+        entry.setCareHairProducts(hasCareProductIssue);
+        entry.setCareHairProductsNotes(hasCareProductIssue ? faker.options().option("mild", "intense") : "none");
+        entry.setCareSoapShampoo(hasCareProductIssue && faker.bool().bool());
+        entry.setCareSoapShampooNotes(hasCareProductIssue ? faker.options().option("mild", "intense") : "none");
+        entry.setCareCosmetics(hasCareProductIssue && faker.bool().bool());
+        entry.setCareCosmeticsNotes(hasCareProductIssue ? faker.options().option("mild", "intense") : "none");
         entry.setCustomCareProducts(Arrays.asList("Balea Med Shampoo", "Eucerin Lotion"));
 
-        entry.setHealthOtherAllergies(faker.bool().bool());
-        entry.setHealthOtherAllergiesNotes(faker.options().option("none", "pollen", "dust mites"));
-        entry.setHealthInfections(faker.bool().bool());
-        entry.setHealthInfectionsNotes(faker.options().option("none", "cold", "flu"));
+        // Create correlated data: health factors influence symptoms
+        boolean hasHealthIssue = faker.number().numberBetween(0, 100) < 40; // 40% chance - strong correlation
+        entry.setHealthOtherAllergies(hasHealthIssue);
+        entry.setHealthOtherAllergiesNotes(hasHealthIssue ? faker.options().option("pollen", "dust mites") : "none");
+        entry.setHealthInfections(hasHealthIssue && faker.bool().bool());
+        entry.setHealthInfectionsNotes(hasHealthIssue ? faker.options().option("cold", "flu") : "none");
 
-        entry.setSymptomItchiness(faker.number().numberBetween(0, 10));
-        entry.setSymptomScratch(faker.bool().bool());
-        entry.setSymptomInflammation(faker.number().numberBetween(0, 10));
-        entry.setSymptomDryness(faker.number().numberBetween(0, 10));
-        entry.setSymptomWeepingSkin(faker.bool().bool());
-        entry.setSymptomSkinCracks(faker.bool().bool());
+        // Symptoms strongly correlate with factor presence: high symptoms when factors
+        // present, low otherwise
+        int activeFactors = (hasContactIssue ? 1 : 0) +
+                (hasNutritionIssue ? 1 : 0) +
+                (hasCareProductIssue ? 1 : 0) +
+                (hasHealthIssue ? 1 : 0);
+
+        // No factors: symptoms 0-2; 1-2 factors: 4-6; 3-4 factors: 7-10
+        int baseSymptom = activeFactors == 0 ? faker.number().numberBetween(0, 2)
+                : activeFactors <= 2 ? faker.number().numberBetween(4, 6) : faker.number().numberBetween(7, 10);
+
+        entry.setSymptomItchiness(baseSymptom);
+        entry.setSymptomScratch(activeFactors > 0);
+        entry.setSymptomInflammation(baseSymptom);
+        entry.setSymptomDryness(baseSymptom);
+        entry.setSymptomWeepingSkin(activeFactors > 2);
+        entry.setSymptomSkinCracks(activeFactors > 1);
         entry.setSymptomSpreadPhotoUrls(Arrays.asList(
                 "https://example.org/photo/area-1.jpg",
                 "https://example.org/photo/area-2.jpg"));

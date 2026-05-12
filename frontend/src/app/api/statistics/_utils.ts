@@ -41,8 +41,15 @@ const EndDateParamSchema = z
     )
   }, 'endDate must be a valid calendar date')
 
-type TStatisticsEndpoint = 'psyche-symptoms' | 'symptoms'
+type TStatisticsEndpoint = 'psyche-symptoms' | 'symptoms' | 'correlation'
 type TStatisticsPeriod = z.infer<typeof PeriodParamSchema>
+
+const MainCategoryParamSchema = z.enum([
+  'care-products',
+  'nutrition',
+  'contact-factors',
+  'health-factors',
+])
 
 const buildStatisticsHeaders = (accessToken?: string): HeadersInit =>
   accessToken ? { Authorization: `Bearer ${accessToken}` } : {}
@@ -89,10 +96,24 @@ const readValidatedPeriod = (
   return validateRequestOrThrow(PeriodParamSchema, trimmedPeriod)
 }
 
+const readValidatedMainCategory = (
+  request: NextRequest
+): string | undefined => {
+  const rawMainCategory = request.nextUrl.searchParams.get('mainCategory')
+  const trimmedMainCategory = rawMainCategory?.trim()
+
+  if (!trimmedMainCategory) {
+    return undefined
+  }
+
+  return validateRequestOrThrow(MainCategoryParamSchema, trimmedMainCategory)
+}
+
 export const buildStatisticsBackendPath = (
   endpoint: TStatisticsEndpoint,
   endDate?: string,
-  period?: TStatisticsPeriod
+  period?: TStatisticsPeriod,
+  mainCategory?: string
 ): string => {
   const query = new URLSearchParams()
 
@@ -102,6 +123,11 @@ export const buildStatisticsBackendPath = (
 
   if (period) {
     query.set('period', period)
+  }
+
+  // mainCategory is only applicable for correlation endpoint
+  if (mainCategory && endpoint === 'correlation') {
+    query.set('mainCategory', mainCategory)
   }
 
   const queryString = query.toString()
@@ -131,12 +157,17 @@ export const proxyStatisticsRequest = async (
 ): Promise<Response> => {
   const endDate = readValidatedEndDate(request)
   const period = readValidatedPeriod(request)
+  const mainCategory =
+    endpoint === 'correlation' ? readValidatedMainCategory(request) : undefined
 
-  return secureFetch(buildStatisticsBackendPath(endpoint, endDate, period), {
-    method: 'GET',
-    cache: 'no-store',
-    headers: buildStatisticsHeaders(getStatisticsAccessToken(request)),
-  })
+  return secureFetch(
+    buildStatisticsBackendPath(endpoint, endDate, period, mainCategory),
+    {
+      method: 'GET',
+      cache: 'no-store',
+      headers: buildStatisticsHeaders(getStatisticsAccessToken(request)),
+    }
+  )
 }
 
 export const createStatisticsRequestErrorResponse = (

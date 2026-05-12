@@ -15,23 +15,25 @@ import { formatDateInput } from '@/lib/date'
 import { usePageTitle } from '@/hooks/use-page-title'
 
 import {
+  fetchCorrelationChart,
   fetchPsycheSymptomsChart,
   fetchSymptomsChart,
 } from '@/services/statistics'
-import type {
-  TColumnStatisticsChart,
-  TLineStatisticsChart,
-  TStatisticsPeriod,
-} from '@/services/statistics/types'
 
 import * as SC from './styles'
-import type { IStatisticsChartCardProps } from './statistics-chart-card'
 import {
   formatStatisticsRange,
   getStatisticsPeriodLabel,
   STATISTICS_PERIOD_OPTIONS,
 } from './utils'
 
+import type {
+  TColumnStatisticsChart,
+  TLineStatisticsChart,
+  TStatisticsPeriod,
+} from '@/services/statistics/types'
+
+import type { IStatisticsChartCardProps } from './statistics-chart-card'
 const StatisticsChartCard = dynamic<IStatisticsChartCardProps>(
   () => import('./statistics-chart-card'),
   {
@@ -51,6 +53,7 @@ const StatisticsChartCard = dynamic<IStatisticsChartCardProps>(
 interface IStatisticsViewState {
   psycheSymptoms: TLineStatisticsChart
   symptoms: TColumnStatisticsChart
+  correlation: TColumnStatisticsChart
 }
 
 const StatisticsTemplate = () => {
@@ -59,11 +62,16 @@ const StatisticsTemplate = () => {
 
   const [selectedEndDate, setSelectedEndDate] = useState<string>(today)
   const [selectedPeriod, setSelectedPeriod] = useState<TStatisticsPeriod>('7d')
+  const [selectedMainCategory, setSelectedMainCategory] =
+    useState<string>('care-products')
   const [statistics, setStatistics] = useState<IStatisticsViewState | null>(
     null
   )
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [correlationNoData, setCorrelationNoData] = useState<string | null>(
+    null
+  )
   const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
@@ -80,12 +88,15 @@ const StatisticsTemplate = () => {
       const requestParams = {
         endDate: selectedEndDate,
         period: selectedPeriod,
+        mainCategory: selectedMainCategory,
       }
 
-      const [psycheResult, symptomsResult] = await Promise.all([
-        fetchPsycheSymptomsChart(requestParams),
-        fetchSymptomsChart(requestParams),
-      ])
+      const [psycheResult, symptomsResult, correlationResult] =
+        await Promise.all([
+          fetchPsycheSymptomsChart(requestParams),
+          fetchSymptomsChart(requestParams),
+          fetchCorrelationChart(requestParams),
+        ])
 
       if (!active) {
         return
@@ -106,9 +117,27 @@ const StatisticsTemplate = () => {
         return
       }
 
+      // correlation-specific handling: show friendly message when backend reports 422
+      if (!correlationResult.success && correlationResult.status === 422) {
+        setCorrelationNoData('Not enough data for correlation calculation.')
+      } else {
+        setCorrelationNoData(null)
+      }
+
       setStatistics({
         psycheSymptoms: psycheResult.data,
         symptoms: symptomsResult.data,
+        correlation: correlationResult.success
+          ? correlationResult.data
+          : {
+              chartType: 'column',
+              categories: [],
+              series: [],
+              dateRange: {
+                from: requestParams.endDate ?? '',
+                to: requestParams.endDate ?? '',
+              },
+            },
       })
       setIsLoading(false)
     }
@@ -118,7 +147,7 @@ const StatisticsTemplate = () => {
     return () => {
       active = false
     }
-  }, [selectedEndDate, selectedPeriod, reloadKey])
+  }, [selectedEndDate, selectedPeriod, selectedMainCategory, reloadKey])
 
   const activeRange = statistics?.psycheSymptoms.dateRange
   const selectedPeriodLabel = getStatisticsPeriodLabel(selectedPeriod)
@@ -262,6 +291,46 @@ const StatisticsTemplate = () => {
             title='Symptoms'
             description='Itchiness, dryness and inflammation.'
           />
+          <SC.CorrelationCardWrapper>
+            <SC.CorrelationHeader>
+              <div>
+                <Headline as='h3' variant='h4' noSpacing>
+                  Correlation
+                </Headline>
+                <Text size='small' color='textSecondary' noSpacing>
+                  Correlation between selected main category and symptoms.
+                </Text>
+              </div>
+              <SC.CorrelationCategoryControl>
+                <Text as='span' size='small' weight={600} noSpacing>
+                  Category
+                </Text>
+                <SC.MainCategorySelect
+                  aria-label='Main category'
+                  value={selectedMainCategory}
+                  onChange={e => setSelectedMainCategory(e.target.value)}
+                >
+                  <option value='care-products'>Care products</option>
+                  <option value='nutrition'>Nutrition</option>
+                  <option value='contact-factors'>Contact factors</option>
+                  <option value='health-factors'>Health factors</option>
+                </SC.MainCategorySelect>
+              </SC.CorrelationCategoryControl>
+            </SC.CorrelationHeader>
+            {correlationNoData ? (
+              <SC.StatePanel>
+                <Text size='small' color='textSecondary' noSpacing>
+                  {correlationNoData}
+                </Text>
+              </SC.StatePanel>
+            ) : (
+              <StatisticsChartCard
+                chart={statistics.correlation}
+                title=''
+                description=''
+              />
+            )}
+          </SC.CorrelationCardWrapper>
         </SC.ChartStack>
       )}
     </SC.PageWrapper>

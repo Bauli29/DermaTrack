@@ -19,14 +19,20 @@ export const StatisticsDateRangeSchema = z.object({
 })
 
 const BaseStatisticsChartSchema = z.object({
-  categories: z.array(StatisticsDateStringSchema),
+  categories: z.array(z.string().min(1)),
   series: z.array(StatisticsSeriesSchema),
   dateRange: StatisticsDateRangeSchema,
 })
 
-export const LineStatisticsChartSchema = BaseStatisticsChartSchema.extend({
-  chartType: z.literal('line'),
+const TimeSeriesStatisticsChartSchema = BaseStatisticsChartSchema.extend({
+  categories: z.array(StatisticsDateStringSchema),
 })
+
+export const LineStatisticsChartSchema = TimeSeriesStatisticsChartSchema.extend(
+  {
+    chartType: z.literal('line'),
+  }
+)
 
 export const ColumnStatisticsChartSchema = BaseStatisticsChartSchema.extend({
   chartType: z.literal('column'),

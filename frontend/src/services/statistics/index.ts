@@ -5,9 +5,9 @@ import { sessionAwareFetch } from '@/lib/session-aware-fetch'
 import {
   ColumnStatisticsChartSchema,
   LineStatisticsChartSchema,
-  type TColumnStatisticsChart,
-  type TLineStatisticsChart,
-  type TStatisticsPeriod,
+  TColumnStatisticsChart,
+  TLineStatisticsChart,
+  TStatisticsPeriod,
 } from './types'
 
 interface IApiErrorLike {
@@ -20,6 +20,7 @@ type TStatisticsFetch = (input: string, init?: RequestInit) => Promise<Response>
 export interface IStatisticsRequestParams {
   endDate?: string
   period?: TStatisticsPeriod
+  mainCategory?: string
 }
 
 interface IStatisticsRequestSuccess<TData> {
@@ -30,6 +31,7 @@ interface IStatisticsRequestSuccess<TData> {
 interface IStatisticsRequestFailure {
   success: false
   error: string
+  status?: number
 }
 
 export type TStatisticsRequestResult<TData> =
@@ -39,6 +41,7 @@ export type TStatisticsRequestResult<TData> =
 export const STATISTICS_API_PATHS = {
   psycheSymptoms: '/api/statistics/psyche-symptoms',
   symptoms: '/api/statistics/symptoms',
+  correlation: '/api/statistics/correlation',
 } as const
 
 const INVALID_STATISTICS_RESPONSE_MESSAGE =
@@ -99,6 +102,11 @@ export const buildStatisticsApiPath = (
     query.set('period', params.period)
   }
 
+  // Always add mainCategory if present (correlation endpoint requires it, others ignore it)
+  if (params.mainCategory) {
+    query.set('mainCategory', params.mainCategory)
+  }
+
   const queryString = query.toString()
   return queryString.length > 0 ? `${path}?${queryString}` : path
 }
@@ -123,6 +131,7 @@ const fetchStatisticsChart = async <TData>(
       return {
         success: false,
         error: await getStatisticsErrorMessage(response),
+        status: response.status,
       }
     }
 
@@ -165,6 +174,17 @@ export const fetchSymptomsChart = async (
 ): Promise<TStatisticsRequestResult<TColumnStatisticsChart>> =>
   fetchStatisticsChart(
     STATISTICS_API_PATHS.symptoms,
+    ColumnStatisticsChartSchema,
+    params,
+    fetchImpl
+  )
+
+export const fetchCorrelationChart = async (
+  params?: IStatisticsRequestParams,
+  fetchImpl?: TStatisticsFetch
+): Promise<TStatisticsRequestResult<TColumnStatisticsChart>> =>
+  fetchStatisticsChart(
+    STATISTICS_API_PATHS.correlation,
     ColumnStatisticsChartSchema,
     params,
     fetchImpl

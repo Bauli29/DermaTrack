@@ -18,49 +18,53 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StatisticsController implements IStatisticsController {
 
-    private final IStatisticsService statisticsService;
-    private final IAppUserRepository appUserRepository;
+        private final IStatisticsService statisticsService;
+        private final IAppUserRepository appUserRepository;
 
-    @Override
-    public ResponseEntity<HighchartsModel> getPsycheAndSymptoms(
-            Principal principal,
-            LocalDate endDate,
-            String period) {
-        AppUser currentUser = resolveCurrentUser(principal);
-        return ResponseEntity.ok(
-                statisticsService.getSymptomTrendLine(
-                        currentUser.getId(),
-                        endDate,
-                        StatisticsPeriod.fromQueryValue(period)));
-    }
+        @Override
+        public ResponseEntity<HighchartsModel> getPsycheAndSymptoms(
+                        Principal principal,
+                        LocalDate endDate,
+                        String period) {
+                AppUser currentUser = resolveCurrentUser(principal);
+                return ResponseEntity.ok(
+                                statisticsService.getSymptomTrendLine(
+                                                currentUser.getId(),
+                                                endDate,
+                                                StatisticsPeriod.fromQueryValue(period)));
+        }
 
-    @Override
-    public ResponseEntity<HighchartsModel> getSymptoms(
-            Principal principal,
-            LocalDate endDate,
-            String period) {
-        AppUser currentUser = resolveCurrentUser(principal);
-        return ResponseEntity.ok(
-                statisticsService.getSymptomTrendBar(
-                        currentUser.getId(),
-                        endDate,
-                        StatisticsPeriod.fromQueryValue(period)));
-    }
+        @Override
+        public ResponseEntity<HighchartsModel> getSymptoms(
+                        Principal principal,
+                        LocalDate endDate,
+                        String period) {
+                AppUser currentUser = resolveCurrentUser(principal);
+                return ResponseEntity.ok(
+                                statisticsService.getSymptomTrendBar(
+                                                currentUser.getId(),
+                                                endDate,
+                                                StatisticsPeriod.fromQueryValue(period)));
+        }
 
-    private AppUser resolveCurrentUser(Principal principal) {
-        return appUserRepository.findByUsername(principal.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("AppUser", "username", principal.getName()));
-    }
+        private AppUser resolveCurrentUser(Principal principal) {
+                return appUserRepository.findByUsername(principal.getName())
+                                .orElseThrow(() -> new ResourceNotFoundException("AppUser", "username",
+                                                principal.getName()));
+        }
 
-    @Override
-    public ResponseEntity<HighchartsModel> getCorrelation(Principal principal, LocalDate endDate, String period,
-            String mainCategory) {
-        AppUser currentUser = resolveCurrentUser(principal);
-        return ResponseEntity.ok(
-                statisticsService.getCorrelationTrendBar(
-                        currentUser.getId(),
-                        endDate,
-                        StatisticsPeriod.fromQueryValue(period),
-                        mainCategory));
-    }
+        @Override
+        public ResponseEntity<HighchartsModel> getCorrelation(
+                        Principal principal,
+                        LocalDate endDate,
+                        String period,
+                        String mainCategory) {
+                AppUser currentUser = resolveCurrentUser(principal);
+                return ResponseEntity.ok(
+                                statisticsService.getCorrelationTrendBar(
+                                                currentUser.getId(),
+                                                endDate,
+                                                StatisticsPeriod.fromQueryValue(period),
+                                                mainCategory));
+        }
 }

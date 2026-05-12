@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,9 @@ import de.dermatrack.backend.statistics.model.correlation.StatisticsMainCategory
 import de.dermatrack.backend.statistics.service.ICorrelationCalculator;
 import de.dermatrack.backend.statistics.service.IWeightedSymptomCalculator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class StatisticsCorrelationBarChartMapper {
@@ -27,6 +30,9 @@ public class StatisticsCorrelationBarChartMapper {
             LocalDate toDate, StatisticsMainCategory mainCategory) {
         List<DiaryEntry> safeEntries = entries == null ? List.of() : entries;
         validateEnoughData(safeEntries, fromDate, toDate);
+
+        log.debug("Calculating correlations for {} entries, category: {}, date range: {} to {}",
+                safeEntries.size(), mainCategory.getDisplayName(), fromDate, toDate);
 
         List<Double> weightedSymptoms = new ArrayList<>();
         for (DiaryEntry entry : safeEntries) {
@@ -43,10 +49,23 @@ public class StatisticsCorrelationBarChartMapper {
             }
 
             Double correlation = correlationCalculator.calculatePearsonCorrelation(subcategoryValues, weightedSymptoms);
+            log.debug("Subcategory: {}, correlation: {}", subcategory.name(), correlation);
+
             if (correlation != null) {
                 categories.add(subcategory.name());
                 correlationValues.add(correlation);
             }
+        }
+
+        log.info("Correlation chart: {} categories with data, {} total subcategories",
+                categories.size(), mainCategory.getFixedSubcategories().size());
+        if (!categories.isEmpty()) {
+            String correlationPreview = IntStream.range(0, categories.size())
+                    .mapToObj(index -> categories.get(index) + "="
+                            + String.format("%.3f", correlationValues.get(index)))
+                    .reduce((left, right) -> left + ", " + right)
+                    .orElse("n/a");
+            log.info("Correlation values ({}): {}", mainCategory.name(), correlationPreview);
         }
 
         List<HighchartsSeriesModel> series = List.of(

@@ -69,5 +69,5 @@ public interface IStatisticsController {
                         Principal principal,
                         @Parameter(description = "Inclusive end date in YYYY-MM-DD format. Defaults to today when omitted.") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
                         @Parameter(description = "Statistics period. Supported values: 7d, 30d, 90d. Defaults to 7d when omitted.") @RequestParam(required = false) String period,
-                        @Parameter(description = "Main category. Supported values: care-products, nutrition, contact-factors, health-factors.") @RequestParam String mainCategory);
+                        @Parameter(description = "Main category. Supported values: care-products, nutrition, contact-factors, health-factors. Defaults to care-products when omitted.") @RequestParam(required = false, defaultValue = "care-products") String mainCategory);
 }
