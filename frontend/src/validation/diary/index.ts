@@ -27,38 +27,52 @@ export const PsycheSchema = z
 
 export const ContactFactorsSchema = z
   .object({
-    shower: z.string().optional(),
-    clothing: z.string().optional(),
-    animalContact: z.string().optional(),
+    shower: z.boolean().optional(),
+    showerNotes: z.string().optional(),
+    clothing: z.boolean().optional(),
+    clothingNotes: z.string().optional(),
+    animalContact: z.boolean().optional(),
+    animalContactNotes: z.string().optional(),
     customContactFactors: z.array(z.string()).optional(),
   })
   .optional()
 
 export const NutritionSchema = z
   .object({
-    nuts: z.string().optional(),
-    fruits: z.string().optional(),
-    shellfish: z.string().optional(),
-    dairy: z.string().optional(),
-    gluten: z.string().optional(),
+    nuts: z.boolean().optional(),
+    nutsNotes: z.string().optional(),
+    fruits: z.boolean().optional(),
+    fruitsNotes: z.string().optional(),
+    shellfish: z.boolean().optional(),
+    shellfishNotes: z.string().optional(),
+    dairy: z.boolean().optional(),
+    dairyNotes: z.string().optional(),
+    gluten: z.boolean().optional(),
+    glutenNotes: z.string().optional(),
     customNutritionFactors: z.array(z.string()).optional(),
   })
   .optional()
 
 export const CareProductsSchema = z
   .object({
-    skinCare: z.string().optional(),
-    hairProducts: z.string().optional(),
-    soapShampoo: z.string().optional(),
-    cosmetics: z.string().optional(),
+    skinCare: z.boolean().optional(),
+    skinCareNotes: z.string().optional(),
+    hairProducts: z.boolean().optional(),
+    hairProductsNotes: z.string().optional(),
+    soapShampoo: z.boolean().optional(),
+    soapShampooNotes: z.string().optional(),
+    cosmetics: z.boolean().optional(),
+    cosmeticsNotes: z.string().optional(),
     customCareProducts: z.array(z.string()).optional(),
   })
   .optional()
 
 export const HealthSchema = z
   .object({
-    otherAllergies: z.string().optional(),
-    infections: z.string().optional().optional(),
+    otherAllergies: z.boolean().optional(),
+    otherAllergiesNotes: z.string().optional(),
+    infections: z.boolean().optional(),
+    infectionsNotes: z.string().optional(),
   })
   .optional()
 

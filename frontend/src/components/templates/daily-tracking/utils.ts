@@ -246,6 +246,66 @@ export const validateDailyTrackingForm = ({
   return validateSelectedImages(images)
 }
 
+const getMissingFactorDetailError = (
+  selectedFactors: string[],
+  factorDetails: { [key: string]: string },
+  options: readonly { value: string; label: string }[]
+): string | null => {
+  for (const factor of selectedFactors) {
+    const detail = factorDetails[factor]
+
+    if (typeof detail !== 'string' || detail.trim().length === 0) {
+      const option = options.find(item => item.value === factor)
+      const label = option?.label ?? factor
+      return `Please provide details about ${label}.`
+    }
+  }
+
+  return null
+}
+
+const validateRequiredFactorDetails = (
+  values: IDailyTrackingFormValues
+): string | null => {
+  const contactError = getMissingFactorDetailError(
+    values.contactFactors,
+    values.contactFactorDetails,
+    CONTACT_FACTOR_OPTIONS
+  )
+  if (contactError) {
+    return contactError
+  }
+
+  const nutritionError = getMissingFactorDetailError(
+    values.nutritionFactors,
+    values.nutritionFactorDetails,
+    NUTRITION_FACTOR_OPTIONS
+  )
+  if (nutritionError) {
+    return nutritionError
+  }
+
+  const careError = getMissingFactorDetailError(
+    values.careFactors,
+    values.careFactorDetails,
+    CARE_FACTOR_OPTIONS
+  )
+  if (careError) {
+    return careError
+  }
+
+  const healthError = getMissingFactorDetailError(
+    values.healthFactors,
+    values.healthFactorDetails,
+    HEALTH_FACTOR_OPTIONS
+  )
+  if (healthError) {
+    return healthError
+  }
+
+  return null
+}
+
 const mapCareFactorToField = (careFactor: string): string => {
   switch (careFactor) {
     case 'skin care':
@@ -260,6 +320,7 @@ const mapCareFactorToField = (careFactor: string): string => {
       return careFactor
   }
 }
+
 const mapHealthFactorToField = (factor: string): string => {
   switch (factor) {
     case 'allergies':
@@ -298,48 +359,67 @@ export const buildDiaryEntryInput = ({
     mentalStrain: mentalHealth ?? undefined,
   }
 
-  // Build contact factors object from selected factors and details
-  const contactFactorsObj: { [key: string]: string } = {}
+  const contactFactorsObj: { [key: string]: boolean | string } = {
+    shower: false,
+    clothing: false,
+    animalContact: false,
+  }
   contactFactors.forEach(factor => {
     const key = factor === 'animal-contact' ? 'animalContact' : factor
+    contactFactorsObj[key] = true
+
     const detail = contactFactorDetails[factor]
     if (detail) {
-      contactFactorsObj[key] = detail
+      contactFactorsObj[`${key}Notes`] = detail
     }
   })
 
-  // Build nutrition factors object from selected factors and details
-  const nutritionObj: { [key: string]: string } = {}
+  const nutritionObj: { [key: string]: boolean | string } = {
+    nuts: false,
+    fruits: false,
+    shellfish: false,
+    dairy: false,
+    gluten: false,
+  }
   nutritionFactors.forEach(factor => {
+    const key = factor.toLowerCase()
+    nutritionObj[key] = true
+
     const detail = nutritionFactorDetails[factor]
     if (detail) {
-      nutritionObj[factor.toLowerCase()] = detail
+      nutritionObj[`${key}Notes`] = detail
     }
   })
 
-  // Build care products object from selected factors and details
-  const careProductsObj: { [key: string]: string } = {}
+  const careProductsObj: { [key: string]: boolean | string } = {
+    skinCare: false,
+    hairProducts: false,
+    soapShampoo: false,
+    cosmetics: false,
+  }
   careFactors.forEach(factor => {
     const key = mapCareFactorToField(factor)
+    careProductsObj[key] = true
+
     const detail = careFactorDetails[factor]
     if (detail) {
-      careProductsObj[key] = detail
+      careProductsObj[`${key}Notes`] = detail
     }
   })
 
-  const healthObj: { [key: string]: string } = {}
+  const healthObj: { [key: string]: boolean | string } = {
+    otherAllergies: false,
+    infections: false,
+  }
   healthFactors.forEach(factor => {
+    const key = mapHealthFactorToField(factor)
+    healthObj[key] = true
+
     const detail = healthFactorDetails[factor]
     if (detail) {
-      const key = mapHealthFactorToField(factor)
-      healthObj[key] = detail
+      healthObj[`${key}Notes`] = detail
     }
   })
-
-  /*const health = {
-    otherAllergies: allergies ? allergies.toString() : undefined,
-    infections: infections ?? undefined,
-  }*/
 
   const symptomsObj = {
     itchiness: itchiness ?? undefined,
@@ -395,6 +475,14 @@ export const prepareDailyTrackingSubmission = ({
     }
   }
 
+  const factorDetailValidationError = validateRequiredFactorDetails(values)
+  if (factorDetailValidationError) {
+    return {
+      success: false,
+      error: factorDetailValidationError,
+    }
+  }
+
   const payloadValidation = validateDailyTrackingPayload(values)
   if (!payloadValidation.success) {
     return {
@@ -420,11 +508,67 @@ export const hasPendingDailyTrackingChanges = (
     key => values[key] !== initialValues[key]
   )
 
-// Maps backend response → frontend form values
+const extractFactorsAndNotes = (
+  obj: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+  keyMapping?: { [key: string]: string }
+): { factors: string[]; details: { [key: string]: string } } => {
+  const factors: string[] = []
+  const details: { [key: string]: string } = {}
+
+  for (const [key, value] of Object.entries(obj ?? {})) {
+    if (
+      key === 'customContactFactors' ||
+      key === 'customNutritionFactors' ||
+      key === 'customCareProducts'
+    ) {
+      continue
+    }
+
+    if (key.endsWith('Notes')) {
+      const baseKey = key.slice(0, -5)
+      if (typeof value === 'string') {
+        const mappedKey = keyMapping?.[baseKey] ?? baseKey
+        details[mappedKey] = value
+      }
+      continue
+    }
+
+    if (value === true) {
+      const mappedKey = keyMapping?.[key] ?? key
+      factors.push(mappedKey)
+    }
+  }
+
+  return { factors, details }
+}
+
 export const mapDiaryResponseToForm = (
   data: any // eslint-disable-line @typescript-eslint/no-explicit-any
 ): IDailyTrackingFormValues => {
   const tracking = data.tracking ?? {}
+
+  const contactFactorMapping = {
+    animalContact: 'animal-contact',
+  }
+
+  const careFactorMapping = {
+    skinCare: 'skin care',
+    hairProducts: 'hair products',
+  }
+
+  const healthFactorMapping = {
+    otherAllergies: 'allergies',
+  }
+
+  const { factors: contactFactors, details: contactFactorDetails } =
+    extractFactorsAndNotes(tracking.contactFactors, contactFactorMapping)
+  const { factors: nutritionFactors, details: nutritionFactorDetails } =
+    extractFactorsAndNotes(tracking.nutrition)
+  const { factors: careFactors, details: careFactorDetails } =
+    extractFactorsAndNotes(tracking.careProducts, careFactorMapping)
+  const { factors: healthFactors, details: healthFactorDetails } =
+    extractFactorsAndNotes(tracking.health, healthFactorMapping)
+
   return {
     id: data.id,
     date: data.entryDate,
@@ -433,29 +577,17 @@ export const mapDiaryResponseToForm = (
     sleep: tracking.psyche?.sleep ?? 0,
     mentalHealth: tracking.psyche?.mentalStrain ?? 0,
 
-    contactFactors: Object.keys(tracking.contactFactors ?? {}).filter(
-      k => k !== 'customContactFactors' && tracking.contactFactors?.[k] !== null
-    ),
+    contactFactors,
+    contactFactorDetails,
 
-    contactFactorDetails: tracking.contactFactors ?? {},
+    nutritionFactors,
+    nutritionFactorDetails,
 
-    nutritionFactors: Object.keys(tracking.nutrition ?? {}).filter(
-      k => k !== 'customNutritionFactors' && tracking.nutrition?.[k] !== null
-    ),
+    careFactors,
+    careFactorDetails,
 
-    nutritionFactorDetails: tracking.nutrition ?? {},
-
-    careFactors: Object.keys(tracking.careProducts ?? {}).filter(
-      k => k !== 'customCareProducts' && tracking.careProducts?.[k] !== null
-    ),
-
-    careFactorDetails: tracking.careProducts ?? {},
-
-    healthFactors: Object.keys(tracking.health ?? {}).filter(
-      k => tracking.health?.[k] !== null
-    ),
-
-    healthFactorDetails: tracking.health ?? {},
+    healthFactors,
+    healthFactorDetails,
 
     itchiness: tracking.symptoms?.itchiness ?? 0,
     inflammation: tracking.symptoms?.inflammation ?? 0,

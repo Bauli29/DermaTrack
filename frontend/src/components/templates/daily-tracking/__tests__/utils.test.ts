@@ -8,13 +8,14 @@ import {
   appendSelectedImages,
   buildDiaryEntryInput,
   createInitialDailyTrackingValues,
+  mapDiaryResponseToForm,
   hasPendingDailyTrackingChanges,
   isFutureDailyTrackingDate,
   prepareDailyTrackingSubmission,
   removeSelectedImage,
   validateDailyTrackingForm,
   validateDailyTrackingPayload,
-} from '../utils'
+} from '@/components/templates/daily-tracking/utils'
 
 const createMockFile = (
   name: string,
@@ -112,7 +113,7 @@ describe('daily tracking utils', () => {
     ]
 
     assert.deepStrictEqual(
-      removeSelectedImage(currentImages, 1).map(image => image.name),
+      removeSelectedImage(currentImages, 1).map((image: File) => image.name),
       ['first.png', 'third.png']
     )
   })
@@ -126,14 +127,22 @@ describe('daily tracking utils', () => {
       sleep: 3,
       nutrition: 5,
       mentalHealth: 0,
-      contactFactors: [],
-      contactFactorDetails: {},
-      nutritionFactors: [],
-      nutritionFactorDetails: {},
-      careFactors: [],
-      careFactorDetails: {},
-      healthFactors: [],
-      healthFactorDetails: {},
+      contactFactors: ['clothing'],
+      contactFactorDetails: {
+        clothing: 'Synthetic sweater',
+      },
+      nutritionFactors: ['nuts'],
+      nutritionFactorDetails: {
+        nuts: 'Peanut snack',
+      },
+      careFactors: ['soapShampoo'],
+      careFactorDetails: {
+        soapShampoo: 'Fragrance-free wash',
+      },
+      healthFactors: ['infections'],
+      healthFactorDetails: {
+        infections: 'Mild throat infection',
+      },
       itchiness: 6,
       inflammation: 2,
       dryness: 1,
@@ -147,10 +156,32 @@ describe('daily tracking utils', () => {
       entryDate: '2026-04-21',
       notes: 'More context',
       tracking: {
-        careProducts: undefined,
-        contactFactors: undefined,
-        health: undefined,
-        nutrition: undefined,
+        careProducts: {
+          skinCare: false,
+          hairProducts: false,
+          soapShampoo: true,
+          soapShampooNotes: 'Fragrance-free wash',
+          cosmetics: false,
+        },
+        contactFactors: {
+          shower: false,
+          clothing: true,
+          clothingNotes: 'Synthetic sweater',
+          animalContact: false,
+        },
+        health: {
+          otherAllergies: false,
+          infections: true,
+          infectionsNotes: 'Mild throat infection',
+        },
+        nutrition: {
+          nuts: true,
+          nutsNotes: 'Peanut snack',
+          fruits: false,
+          shellfish: false,
+          dairy: false,
+          gluten: false,
+        },
         psyche: {
           mentalStrain: 0,
           sleep: 3,
@@ -195,6 +226,87 @@ describe('daily tracking utils', () => {
     assert.strictEqual(validationResult.success, true)
   })
 
+  it('maps boolean-and-notes tracking data back into form values', () => {
+    assert.deepStrictEqual(
+      mapDiaryResponseToForm({
+        id: 'entry-1',
+        entryDate: '2026-04-21',
+        notes: 'More context',
+        tracking: {
+          psyche: {
+            stressLevel: 4,
+            sleep: 3,
+            mentalStrain: 0,
+          },
+          contactFactors: {
+            shower: false,
+            clothing: true,
+            clothingNotes: 'Synthetic sweater',
+            animalContact: false,
+          },
+          nutrition: {
+            nuts: true,
+            nutsNotes: 'Peanut snack',
+            fruits: false,
+            shellfish: false,
+            dairy: false,
+            gluten: false,
+          },
+          careProducts: {
+            skinCare: false,
+            hairProducts: false,
+            soapShampoo: true,
+            soapShampooNotes: 'Fragrance-free wash',
+            cosmetics: false,
+          },
+          health: {
+            otherAllergies: false,
+            infections: true,
+            infectionsNotes: 'Mild throat infection',
+          },
+          symptoms: {
+            itchiness: 6,
+            inflammation: 2,
+            dryness: 1,
+            scratch: true,
+            weepingSkin: false,
+            skinCracks: true,
+          },
+        },
+      }),
+      {
+        id: 'entry-1',
+        date: '2026-04-21',
+        stressLevel: 4,
+        sleep: 3,
+        mentalHealth: 0,
+        contactFactors: ['clothing'],
+        contactFactorDetails: {
+          clothing: 'Synthetic sweater',
+        },
+        nutritionFactors: ['nuts'],
+        nutritionFactorDetails: {
+          nuts: 'Peanut snack',
+        },
+        careFactors: ['soapShampoo'],
+        careFactorDetails: {
+          soapShampoo: 'Fragrance-free wash',
+        },
+        healthFactors: ['infections'],
+        healthFactorDetails: {
+          infections: 'Mild throat infection',
+        },
+        itchiness: 6,
+        inflammation: 2,
+        dryness: 1,
+        scratch: true,
+        weepingSkin: false,
+        skinCracks: true,
+        notes: 'More context',
+      }
+    )
+  })
+
   it('uses a shared success redirect delay constant', () => {
     assert.strictEqual(DAILY_TRACKING_SUCCESS_REDIRECT_DELAY_MS, 700)
   })
@@ -235,10 +347,28 @@ describe('daily tracking utils', () => {
           entryDate: '2026-04-21',
           notes: 'More context',
           tracking: {
-            careProducts: undefined,
-            contactFactors: undefined,
-            health: undefined,
-            nutrition: undefined,
+            careProducts: {
+              skinCare: false,
+              hairProducts: false,
+              soapShampoo: false,
+              cosmetics: false,
+            },
+            contactFactors: {
+              shower: false,
+              clothing: false,
+              animalContact: false,
+            },
+            health: {
+              otherAllergies: false,
+              infections: false,
+            },
+            nutrition: {
+              nuts: false,
+              fruits: false,
+              shellfish: false,
+              dairy: false,
+              gluten: false,
+            },
             psyche: {
               mentalStrain: 0,
               sleep: 3,
