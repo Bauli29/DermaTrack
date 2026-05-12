@@ -99,7 +99,7 @@ const RegistrationTemplate = () => {
       <Input
         label='Username'
         type='text'
-        placeholder='your_username'
+        placeholder='your username'
         value={username}
         onChange={e => {
           const { value } = e.target
