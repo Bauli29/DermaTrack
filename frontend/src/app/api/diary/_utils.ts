@@ -6,9 +6,11 @@ import {
   validateRequestOrThrow,
 } from '@/lib/validation-helper'
 
+import { DiaryEntrySchema } from '@/validation/diary'
+
 import { AUTH_COOKIE_NAMES } from '@/constants/auth'
 
-import { DiaryEntrySchema, type TDiaryEntryInput } from '@/validation/diary'
+import type { TDiaryEntryInput } from '@/validation/diary'
 
 const BACKEND_DIARY_BASE_PATH = '/api/diary'
 

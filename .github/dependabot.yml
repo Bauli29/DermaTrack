@@ -1,0 +1,33 @@
+version: 2
+updates:
+  # Regular dependency updates for frontend (pnpm uses npm ecosystem)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "deps"
+      - "dependabot"
+    commit-message:
+      prefix: "chore(deps):"
+
+  # Regular dependency updates for backend (Maven)
+  - package-ecosystem: "maven"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 4
+    labels:
+      - "deps"
+      - "dependabot"
+
+  # GitHub Actions updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "ci"
+      - "dependabot"
