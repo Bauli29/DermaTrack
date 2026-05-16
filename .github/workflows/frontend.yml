@@ -228,6 +228,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           projectBaseDir: frontend
-          args: >
+          args: |
             -Dsonar.projectKey=dermatrack_frontend
             -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
