@@ -22,7 +22,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@highcharts/react": "^4.2.1",
+    "@highcharts/react": "^5.0.1",
     "highcharts": "^12.6.0",
     "next": "16.2.4",
     "next-swagger-doc": "^0.4.1",
