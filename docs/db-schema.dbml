@@ -3,35 +3,98 @@
 // Source of truth: backend JPA entities (pushed to Neon DB via Hibernate)
 
 Table app_user {
-  id uuid [primary key, not null, note: '@UuidGenerator, not updatable']
+  id uuid [pk, not null]
   email varchar(100) [unique, not null]
   username varchar(50) [unique, not null]
   password varchar(255) [not null]
-  created_at timestamptz [not null, default: 'now()', note: 'set on @PrePersist, not updatable']
-  updated_at timestamptz [not null, default: 'now()', note: 'refreshed on @PreUpdate']
-
-  indexes {
-    email [unique, name: 'idx_user_email']
-    username [unique, name: 'idx_user_username']
-  }
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
 }
 
 Table diary_entry {
-  id uuid [primary key, not null, note: '@UuidGenerator, not updatable']
-  user_id uuid [not null, note: 'FK: fk_diary_entry_user']
-  created_at timestamptz [not null, note: 'set on @PrePersist, not updatable']
-  allergies integer
-  infections integer
+  id uuid [pk, not null]
+  user_id uuid [not null]
+  created_at timestamp [not null]
+  entry_date date [not null]
+
   stress_level integer
   sleep integer
-  nutrition integer
-  symptoms integer
-  miscellaneous text
+  mental_strain integer
 
-  indexes {
-    created_at [name: 'idx_diary_entry_created_at']
-    user_id [name: 'idx_diary_entry_user_id']
-  }
+  contact_shower boolean
+  contact_shower_notes text
+  contact_clothing boolean
+  contact_clothing_notes text
+  contact_animal boolean
+  contact_animal_notes text
+
+  nutrition_nuts boolean
+  nutrition_nuts_notes text
+  nutrition_fruits boolean
+  nutrition_fruits_notes text
+  nutrition_shellfish boolean
+  nutrition_shellfish_notes text
+  nutrition_dairy boolean
+  nutrition_dairy_notes text
+  nutrition_gluten boolean
+  nutrition_gluten_notes text
+
+  care_skin_care boolean
+  care_skin_care_notes text
+  care_hair_products boolean
+  care_hair_products_notes text
+  care_soapShampoo boolean
+  care_soapShampoo_notes text
+  care_cosmetics boolean
+  care_cosmetics_notes text
+
+  health_other_allergies boolean
+  health_other_allergies_notes text
+  health_infections boolean
+  health_infections_notes text
+
+  symptom_itchiness integer
+  symptom_scratch boolean
+  symptom_inflammation integer
+  symptom_dryness integer
+  symptom_weeping_skin boolean
+  symptom_skin_cracks boolean
+
+  notes text
 }
 
-Ref fk_diary_entry_user: diary_entry.user_id > app_user.id
+Table diary_entry_custom_contact {
+  diary_entry_id uuid [not null]
+  factor text
+}
+
+Table diary_entry_custom_nutrition {
+  diary_entry_id uuid [not null]
+  factor text
+}
+
+Table diary_entry_custom_care {
+  diary_entry_id uuid [not null]
+  product text
+}
+
+Table diary_entry_spread_photo {
+  diary_entry_id uuid [not null]
+  photo_url text
+}
+
+Table refresh_token {
+  id uuid [pk, not null]
+  user_id uuid [not null]
+  token text [not null, unique]
+  expires_at timestamp [not null]
+  created_at timestamp [not null]
+  revoked boolean [not null]
+}
+
+Ref: diary_entry.user_id > app_user.id
+Ref: diary_entry_custom_contact.diary_entry_id > diary_entry.id
+Ref: diary_entry_custom_nutrition.diary_entry_id > diary_entry.id
+Ref: diary_entry_custom_care.diary_entry_id > diary_entry.id
+Ref: diary_entry_spread_photo.diary_entry_id > diary_entry.id
+Ref: refresh_token.user_id > app_user.id
