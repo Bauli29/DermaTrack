@@ -1,4 +1,4 @@
-import TermsTemplate from '@/components/templates/TermsTemplate'
+import TermsTemplate from '@/components/templates/terms-template'
 
 export const metadata = {
   title: 'Terms of Service | DermaTrack',

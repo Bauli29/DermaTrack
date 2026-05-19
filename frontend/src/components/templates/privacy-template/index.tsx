@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 
 import { usePageTitle } from '@/hooks/use-page-title'
 
-import * as SC from '@/app/privacy/styles'
+import * as SC from './styles'
 
 const PrivacyTemplate = () => {
   const { setTitle } = usePageTitle()
@@ -15,7 +15,7 @@ const PrivacyTemplate = () => {
 
   return (
     <SC.PageWrapper>
-      <SC.Content>
+      <SC.ContentPageWrapper>
         <SC.Header>
           <SC.Title>Privacy Policy</SC.Title>
 
@@ -124,7 +124,7 @@ const PrivacyTemplate = () => {
             timely and transparent manner.
           </SC.Paragraph>
         </SC.Section>
-      </SC.Content>
+      </SC.ContentPageWrapper>
     </SC.PageWrapper>
   )
 }

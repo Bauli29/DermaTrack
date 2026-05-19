@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 
 import { usePageTitle } from '@/hooks/use-page-title'
 
-import * as SC from '@/app/terms/styles'
+import * as SC from './styles'
 
 const TermsTemplate = () => {
   const { setTitle } = usePageTitle()
@@ -15,7 +15,7 @@ const TermsTemplate = () => {
 
   return (
     <SC.PageWrapper>
-      <SC.Content>
+      <SC.ContentPageWrapper>
         <SC.Header>
           <SC.Title>Terms of Service</SC.Title>
 
@@ -152,7 +152,7 @@ const TermsTemplate = () => {
             address your concerns.
           </SC.Paragraph>
         </SC.Section>
-      </SC.Content>
+      </SC.ContentPageWrapper>
     </SC.PageWrapper>
   )
 }

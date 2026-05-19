@@ -1,4 +1,4 @@
-import PrivacyTemplate from '@/components/templates/PrivacyTemplate'
+import PrivacyTemplate from '@/components/templates/privacy-template'
 
 export const metadata = {
   title: 'Privacy Policy | DermaTrack',
