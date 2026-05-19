@@ -15,12 +15,12 @@ const GlobalStyle = createGlobalStyle`
   html,
   body {
     background-color: ${({ theme }) => theme.colors.background};
-    padding: 0;
-    margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
       Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+
     width: 100%;
-    max-width: 100vw;
+    margin: 0;
+    padding: 0;
     overflow-x: hidden;
   }
 
@@ -28,11 +28,11 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
 
-  body > * {
-    max-width: 100vw;
+  #__next {
+    width: 100%;
+    overflow-x: hidden;
   }
 
-  /* Add padding for fixed header and navbar */
   body {
     padding-top: var(--header-height);
     padding-bottom: calc(var(--navbar-height) + env(safe-area-inset-bottom));

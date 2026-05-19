@@ -65,9 +65,9 @@ export const SliderValue = styled.span`
 export const Label = styled.label`
   font-size: 0.95rem;
   color: ${({ theme }) => theme.colors.label};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
 `
 
 export const NoteTextarea = styled.textarea`
@@ -164,7 +164,8 @@ export const FileInputLabel = styled.label`
 
 export const Actions = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
   gap: 8px;
 `
 
