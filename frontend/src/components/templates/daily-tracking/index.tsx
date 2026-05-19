@@ -314,7 +314,7 @@ const DailyTrackingTemplate = () => {
   return (
     <ContentPageWrapper>
       {/* Date section: UI-only validation to prevent future dates */}
-      <SC.Section>
+      <SC.Card>
         <Text size='small' color='textSecondary'>
           Date
         </Text>
@@ -335,9 +335,9 @@ const DailyTrackingTemplate = () => {
         {isFutureDate && (
           <SC.ErrorText>Date must not be in the future.</SC.ErrorText>
         )}
-      </SC.Section>
+      </SC.Card>
 
-      <SC.Section>
+      <SC.Card>
         <SC.SectionTitle>Factors</SC.SectionTitle>
         <SC.SubsectionContainer>
           {PSYCHE_FACTOR_DEFINITIONS.map(renderSliderField)}
@@ -524,9 +524,9 @@ const DailyTrackingTemplate = () => {
             }}
           />
         </SC.SubsectionContainer>
-      </SC.Section>
+      </SC.Card>
 
-      <SC.Section>
+      <SC.Card>
         <SC.SectionTitle>Symptoms</SC.SectionTitle>
         <SC.SubsectionContainer>
           {SYMPTOM_FIELD_DEFINITIONS.map(renderSliderField)}
@@ -542,18 +542,18 @@ const DailyTrackingTemplate = () => {
             onChange={handleSymptomChange}
           />
         </SC.SubsectionContainer>
-      </SC.Section>
+      </SC.Card>
 
-      <SC.Section>
+      <SC.Card>
         <SC.SectionTitle>Notes</SC.SectionTitle>
         <SC.NoteTextarea
           placeholder='Optional: add any context (medication, weather, triggers, etc.)'
           value={notes}
           onChange={event => updateFormValue('notes', event.target.value)}
         />
-      </SC.Section>
+      </SC.Card>
 
-      <SC.Section>
+      <SC.Card>
         <SC.SectionTitle>Images</SC.SectionTitle>
         <SC.ImagePicker>
           <SC.FileInputLabel>
@@ -589,7 +589,7 @@ const DailyTrackingTemplate = () => {
             ))}
           </SC.ImagePreviewGrid>
         </SC.ImagePicker>
-      </SC.Section>
+      </SC.Card>
 
       {success && <SC.SuccessText aria-live='polite'>{success}</SC.SuccessText>}
       {error && <SC.ErrorText role='alert'>{error}</SC.ErrorText>}

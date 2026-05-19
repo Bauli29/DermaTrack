@@ -13,6 +13,15 @@ export const Section = styled.section`
     border-top: 1px solid ${({ theme }) => theme.colors.borderLight};
   }
 `
+export const Card = styled.div`
+  background: ${({ theme }) => theme.colors.surface};
+  border-radius: 14px;
+  box-shadow: 0 2px 10px ${({ theme }) => theme.colors.shadow};
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`
 
 export const SectionTitle = styled.div`
   font-size: 1.5rem;
@@ -26,6 +35,7 @@ export const SubsectionContainer = styled.div`
   flex-direction: column;
   gap: 10px;
   padding: 8px 0;
+  font-weight: 500;
 
   &:not(:first-child) {
     border-top: 1px dashed ${({ theme }) => theme.colors.borderLight};
