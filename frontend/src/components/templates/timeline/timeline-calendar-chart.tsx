@@ -3,17 +3,18 @@
 import 'highcharts/esm/modules/accessibility.src.js'
 import 'highcharts/esm/modules/heatmap.src.js'
 
-import type { ComponentType, HTMLAttributes, Ref } from 'react'
+import { Chart, HighchartsReactRefObject } from '@highcharts/react'
 import { useEffect, useMemo, useRef } from 'react'
-import { Chart, type HighchartsReactRefObject } from '@highcharts/react'
-import type { Options } from 'highcharts'
 
 import Text from '@/components/atoms/Text'
 
 import { useTheme } from '@/hooks/use-theme'
 
 import * as SC from './styles'
-import { buildTimelineChartOptions, type ITimelineHeatmapPoint } from './utils'
+import { buildTimelineChartOptions, ITimelineHeatmapPoint } from './utils'
+
+import type { ComponentType, HTMLAttributes, Ref } from 'react'
+import type { Options, Point } from 'highcharts'
 
 const HighchartsChart = Chart as unknown as ComponentType<{
   options: Options
@@ -86,6 +87,68 @@ const TimelineCalendarChart = ({
       resizeObserver.disconnect()
     }
   }, [options])
+
+  useEffect(() => {
+    const chart = chartRef.current?.chart
+
+    if (!chart) return
+
+    try {
+      const series = chart.series?.[0]
+
+      if (!series) return
+
+      type TPointWithGraphic = Point & {
+        options?: { custom?: { date?: string | null }; color?: string }
+        custom?: { date?: string | null }
+        color?: string
+        graphic?: {
+          toFront?: () => void
+          attr: { [key: string]: string | number }
+        }
+      }
+
+      series.data.forEach(point => {
+        const p = point as TPointWithGraphic
+        const { options, custom: directCustom, graphic } = p
+        const custom = options?.custom ?? directCustom
+
+        if (!graphic) return
+
+        if (custom?.date === selectedDate) {
+          try {
+            graphic.toFront()
+          } catch {
+            // no-op
+          }
+
+          const currentFill =
+            (p as TPointWithGraphic).color ??
+            options?.color ??
+            theme.colors.card
+
+          graphic.attr({
+            fill: currentFill,
+            stroke: theme.colors.primary,
+            'stroke-width': 4,
+          })
+        } else {
+          const currentFill =
+            (p as TPointWithGraphic).color ??
+            options?.color ??
+            theme.colors.card
+
+          graphic.attr({
+            fill: currentFill,
+            stroke: theme.colors.background,
+            'stroke-width': 3,
+          })
+        }
+      })
+    } catch {
+      // keep rendering even if a point graphic is unavailable during a rerender
+    }
+  }, [selectedDate, theme])
 
   if (data.length === 0) {
     return (

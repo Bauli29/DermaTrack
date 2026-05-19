@@ -5,6 +5,7 @@ import type {
 } from 'highcharts'
 
 import { formatDateInput } from '@/lib/date'
+
 import type { ITheme } from '@/lib/themes'
 import type { IDiaryEntry, ISymptoms } from '@/types/diary'
 
@@ -267,6 +268,29 @@ const createTimelineDataLabelStyle = (theme: ITheme) => ({
   textOutline: 'none',
 })
 
+const getTimelineSeverityColor = (
+  severity: number | null,
+  theme: ITheme
+): string => {
+  if (severity === null) {
+    return theme.colors.card
+  }
+
+  if (severity < 2.5) {
+    return theme.colors.healthy
+  }
+
+  if (severity < 5) {
+    return theme.colors.info
+  }
+
+  if (severity < 7.5) {
+    return theme.colors.attention
+  }
+
+  return theme.colors.critical
+}
+
 export const buildTimelineChartOptions = ({
   data,
   monthTitle,
@@ -280,14 +304,22 @@ export const buildTimelineChartOptions = ({
   selectedDate: string | null
   theme: ITheme
 }): Options => {
-  const selectedBorderColor = theme.colors.primary
-  const maxY = data.reduce((maximumY, point) => Math.max(maximumY, point.y), 0)
+  const selectedBorderColor = theme.colors.text
+  // Ensure calendar displays up to 5 rows (0..4) so the y-axis remains consistent
+  // for chart rendering and tests that expect a 5-row month layout.
+  const computedMaxY = data.reduce(
+    (maximumY, point) => Math.max(maximumY, point.y),
+    0
+  )
+  const maxY = Math.max(4, computedMaxY)
   const chartData = data.map(point => ({
     ...point,
+    color: getTimelineSeverityColor(point.value, theme),
     borderColor:
       point.custom.date === selectedDate
         ? selectedBorderColor
         : theme.colors.background,
+    borderWidth: point.custom.date === selectedDate ? 4 : 3,
   }))
 
   return {

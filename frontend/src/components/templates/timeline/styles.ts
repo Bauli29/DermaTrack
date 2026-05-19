@@ -129,6 +129,10 @@ export const DetailCard = styled.section`
   }
 `
 
+export const HistoryCard = styled(DetailCard)`
+  gap: 10px;
+`
+
 export const DetailHeader = styled.div`
   display: flex;
   flex-direction: column;
@@ -174,6 +178,69 @@ export const ActionRow = styled.div`
   @media (min-width: 420px) {
     grid-template-columns: max-content max-content;
   }
+`
+
+export const HistoryList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
+export const HistoryEntryButton = styled.button`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.card};
+  color: ${({ theme }) => theme.colors.text};
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.16s ease,
+    transform 0.16s ease,
+    background-color 0.16s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: ${({ theme }) => theme.colors.primary};
+    background: ${({ theme }) => theme.colors.surface};
+    transform: translateY(-1px);
+  }
+`
+
+export const HistoryEntryHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+`
+
+export const HistoryEntryMeta = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+`
+
+export const HistoryEntryBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: 0.72rem;
+  font-weight: 700;
+`
+
+export const HistoryEntrySummary = styled.span`
+  color: ${({ theme }) => theme.colors.textSecondary};
+  font-size: 0.82rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 `
 
 export const NoticePanel = styled.section`

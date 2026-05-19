@@ -14,10 +14,8 @@ import { formatDateInput } from '@/lib/date'
 import { usePageTitle } from '@/hooks/use-page-title'
 
 import { getDiaryEntries } from '@/services/diary'
-import type { IDiaryEntry } from '@/types/diary'
 
 import * as SC from './styles'
-import type { ITimelineCalendarChartProps } from './timeline-calendar-chart'
 import {
   addTimelineMonths,
   buildTimelineDays,
@@ -26,6 +24,18 @@ import {
   formatTimelineMonthTitle,
   getTimelineMonthRange,
 } from './utils'
+
+import type { IDiaryEntry } from '@/types/diary'
+
+import type { ITimelineCalendarChartProps } from './timeline-calendar-chart'
+const historyDateFormatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+})
+
+const formatHistoryDate = (date: string): string =>
+  historyDateFormatter.format(new Date(`${date}T00:00:00`))
 
 const TimelineCalendarChart = dynamic<ITimelineCalendarChartProps>(
   () => import('./timeline-calendar-chart'),
@@ -80,6 +90,66 @@ const TimelineTemplate = () => {
     () => buildTimelineHeatmapData(timelineDays),
     [timelineDays]
   )
+  // recentEntries removed — timeline only shows highlights (records)
+  interface IHighlightItem {
+    key: string
+    label: string
+    item: {
+      date: string
+      summary: ReturnType<typeof buildTimelineEntrySummary>
+      notesLength: number
+    }
+  }
+
+  const highlights = useMemo<IHighlightItem[]>(() => {
+    const daysWithEntry = timelineDays.filter(d => d.entry)
+
+    if (daysWithEntry.length === 0) return []
+
+    const summaries = daysWithEntry.map(d => ({
+      date: d.date,
+      summary: buildTimelineEntrySummary(d.entry!),
+      notesLength: (d.entry?.notes ?? '').length,
+    }))
+
+    const mostSevere = summaries.reduce(
+      (best, cur) =>
+        cur.summary.severity > best.summary.severity ? cur : best,
+      summaries[0]
+    )
+
+    const leastSevere = summaries.reduce(
+      (best, cur) =>
+        cur.summary.severity < best.summary.severity ? cur : best,
+      summaries[0]
+    )
+
+    const mostFactors = summaries.reduce(
+      (best, cur) =>
+        cur.summary.factorCount > best.summary.factorCount ? cur : best,
+      summaries[0]
+    )
+
+    const bestDocumented = summaries.reduce(
+      (best, cur) =>
+        (cur.summary.imageUrls.length || 0) >
+        (best.summary.imageUrls.length || 0)
+          ? cur
+          : best,
+      summaries[0]
+    )
+
+    return [
+      { key: 'most-severe', label: 'Most severe', item: mostSevere },
+      { key: 'least-severe', label: 'Least severe', item: leastSevere },
+      { key: 'most-factors', label: 'Most factors', item: mostFactors },
+      {
+        key: 'best-documented',
+        label: 'Best documented',
+        item: bestDocumented,
+      },
+    ]
+  }, [timelineDays])
   const selectedDay = useMemo(
     () => timelineDays.find(day => day.date === selectedDate) ?? null,
     [selectedDate, timelineDays]
@@ -181,8 +251,8 @@ const TimelineTemplate = () => {
           Timeline
         </Headline>
         <Text size='small' color='textSecondary' noSpacing>
-          Monthly tracking calendar with symptom severity and quick entry
-          access.
+          Browse your day-by-day logbook, open a specific entry, and see the
+          month in context.
         </Text>
       </SC.PageHeader>
 
@@ -368,22 +438,54 @@ const TimelineTemplate = () => {
           </SC.ActionRow>
         </SC.DetailCard>
 
-        <SC.DetailCard>
+        <SC.HistoryCard>
           <SC.DetailHeader>
             <Headline as='h3' variant='h4' noSpacing>
-              Legend
+              Logbook highlights
             </Headline>
             <Text size='small' color='textSecondary' noSpacing>
-              Colored days use the same weighted symptom score as statistics.
+              Notable records from this month.
             </Text>
           </SC.DetailHeader>
-          <SC.StatePanel>
-            <Text size='small' color='textSecondary' noSpacing>
-              Green is low symptom severity, blue is moderate, yellow is high,
-              and red is severe. Blank days have no saved entry.
-            </Text>
-          </SC.StatePanel>
-        </SC.DetailCard>
+          {highlights.length > 0 && (
+            <>
+              <Headline as='h4' variant='h5' noSpacing>
+                Highlights
+              </Headline>
+              <SC.HistoryList>
+                {highlights.map(h => (
+                  <SC.HistoryEntryButton
+                    key={h.key}
+                    type='button'
+                    onClick={() => handleSelectDate(h.item.date)}
+                    aria-label={`${h.label} ${h.item.date}`}
+                  >
+                    <SC.HistoryEntryHeader>
+                      <Headline as='h5' variant='h5' noSpacing>
+                        {h.label}
+                      </Headline>
+                      <SC.HistoryEntryBadge>
+                        {h.item.summary.severity.toFixed(1)}
+                      </SC.HistoryEntryBadge>
+                    </SC.HistoryEntryHeader>
+                    <SC.HistoryEntrySummary>
+                      {formatHistoryDate(h.item.date)} —{' '}
+                      {h.item.summary.symptomSummary}
+                    </SC.HistoryEntrySummary>
+                  </SC.HistoryEntryButton>
+                ))}
+              </SC.HistoryList>
+            </>
+          )}
+
+          {highlights.length === 0 && (
+            <SC.StatePanel>
+              <Text size='small' color='textSecondary' noSpacing>
+                No notable records for this month yet.
+              </Text>
+            </SC.StatePanel>
+          )}
+        </SC.HistoryCard>
       </SC.DetailGrid>
     </SC.PageWrapper>
   )

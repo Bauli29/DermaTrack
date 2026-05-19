@@ -1,12 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-import { AUTH_COOKIE_NAMES } from '@/constants/auth'
+import { isAccessTokenExpired } from '@/app/api/auth/token-utils'
+
 import { getAuthRedirectPath } from '@/lib/auth-route-guard'
 
-export const proxy = (request: NextRequest): NextResponse => {
+import { AUTH_COOKIE_NAMES } from '@/constants/auth'
+
+export const proxy = (request: NextRequest) => {
+  // Lazy-require NextResponse so tests don't load next/server at module import time
+  // (which references the global Request implementation not available in Jest).
+  const { NextResponse } = require('next/server')
+
   const { pathname } = request.nextUrl
+  const accessToken = request.cookies.get(AUTH_COOKIE_NAMES.ACCESS_TOKEN)?.value
   const isLoggedIn =
-    request.cookies.get(AUTH_COOKIE_NAMES.AUTH_STATE)?.value === '1'
+    typeof accessToken === 'string' && !isAccessTokenExpired(accessToken)
   const redirectPath = getAuthRedirectPath(pathname, isLoggedIn)
 
   if (redirectPath) {

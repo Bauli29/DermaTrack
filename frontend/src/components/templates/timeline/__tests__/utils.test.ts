@@ -1,5 +1,4 @@
 import { lightTheme } from '@/lib/themes'
-import type { IDiaryEntry } from '@/types/diary'
 
 import {
   addTimelineMonths,
@@ -10,14 +9,17 @@ import {
   calculateTimelineSeverity,
   formatTimelineMonthTitle,
   getTimelineMonthRange,
+  ITimelineDay,
 } from '../utils'
+
+import type { IDiaryEntry } from '@/types/diary'
 
 interface IFormatterOption {
   formatter?: (this: unknown) => string
 }
 
 interface IChartSeriesWithDataLabels {
-  data: { borderColor?: string }[]
+  data: { borderColor?: string; color?: string }[]
   dataLabels?: IFormatterOption[]
 }
 
@@ -156,17 +158,37 @@ describe('timeline template utils', () => {
     })
   })
 
-  it('builds heatmap chart options with a selected point border', () => {
-    const days = buildTimelineDays(
-      new Date(2026, 3, 1),
-      [
-        buildEntry('2026-04-23', {
-          itchiness: 4,
-        }),
-      ],
-      '2026-04-30'
-    )
-    const data = buildTimelineHeatmapData(days)
+  it('builds heatmap chart options with severity colors and a selected border', () => {
+    const data = buildTimelineHeatmapData([
+      {
+        date: '2026-04-01',
+        dayOfMonth: 1,
+        isFuture: false,
+        entry: null,
+        severity: 1,
+      },
+      {
+        date: '2026-04-02',
+        dayOfMonth: 2,
+        isFuture: false,
+        entry: null,
+        severity: 3,
+      },
+      {
+        date: '2026-04-03',
+        dayOfMonth: 3,
+        isFuture: false,
+        entry: null,
+        severity: 6,
+      },
+      {
+        date: '2026-04-23',
+        dayOfMonth: 23,
+        isFuture: false,
+        entry: null,
+        severity: 8,
+      },
+    ] as ITimelineDay[])
     const options = buildTimelineChartOptions({
       data,
       monthTitle: 'April 2026',
@@ -180,11 +202,30 @@ describe('timeline template utils', () => {
         (point as unknown as { custom: { date: string | null } }).custom
           .date === '2026-04-23'
     )
+    const lowPoint = series.data.find(
+      point =>
+        (point as unknown as { custom: { date: string | null } }).custom
+          .date === '2026-04-01'
+    )
+    const moderatePoint = series.data.find(
+      point =>
+        (point as unknown as { custom: { date: string | null } }).custom
+          .date === '2026-04-02'
+    )
+    const highPoint = series.data.find(
+      point =>
+        (point as unknown as { custom: { date: string | null } }).custom
+          .date === '2026-04-03'
+    )
 
     expect(options.chart?.type).toBe('heatmap')
     expect(options.xAxis).toMatchObject({ min: 0, max: 6 })
     expect(options.yAxis).toMatchObject({ min: 0, max: 4 })
-    expect(selectedPoint?.borderColor).toBe(lightTheme.colors.primary)
+    expect(selectedPoint?.borderColor).toBe(lightTheme.colors.text)
+    expect(selectedPoint?.color).toBe(lightTheme.colors.critical)
+    expect(lowPoint?.color).toBe(lightTheme.colors.healthy)
+    expect(moderatePoint?.color).toBe(lightTheme.colors.info)
+    expect(highPoint?.color).toBe(lightTheme.colors.attention)
   })
 
   it('reads Highcharts point custom data from formatter and click contexts', () => {
