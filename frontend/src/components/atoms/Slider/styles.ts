@@ -36,6 +36,8 @@ export const SliderWrapper = styled.div<IStyledSliderWrapperProps>`
   margin: ${({ $margin }) => $margin ?? '1rem 0'};
   padding: ${`calc(${sliderConfig.thumbSize} / 2) 0`};
   cursor: pointer;
+  touch-action: none;
+  user-select: none;
 `
 
 export const SliderTrack = styled.div<IStyledSliderTrackProps>`
