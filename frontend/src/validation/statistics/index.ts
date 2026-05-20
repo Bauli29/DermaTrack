@@ -2,8 +2,6 @@ import { z } from 'zod'
 
 const DATE_STRING_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
-export const StatisticsPeriodSchema = z.enum(['7d', '30d', '90d'])
-
 export const StatisticsDateStringSchema = z
   .string()
   .regex(DATE_STRING_PATTERN, 'Expected date in YYYY-MM-DD format')

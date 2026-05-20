@@ -1,26 +1,24 @@
 'use client'
 
-import type { ComponentType, HTMLAttributes, Ref } from 'react'
+import type { ComponentType, HTMLAttributes, ReactNode, Ref } from 'react'
+import { Chart, HighchartsReactRefObject } from '@highcharts/react'
 import { useEffect, useMemo, useRef } from 'react'
-import { Chart, type HighchartsReactRefObject } from '@highcharts/react'
-import type { Options } from 'highcharts'
 
 import Headline from '@/components/atoms/Headline'
 import Text from '@/components/atoms/Text'
 
 import { useTheme } from '@/hooks/use-theme'
 
-import type { TStatisticsChart } from '@/services/statistics/types'
-
 import * as SC from './styles'
 import {
-  buildStatisticsSeriesSnapshots,
   buildStatisticsChartOptions,
-  formatStatisticsDate,
   formatStatisticsRange,
-  formatStatisticsScore,
   hasRenderableStatisticsChart,
 } from './utils'
+
+import type { Options } from 'highcharts'
+
+import type { TStatisticsChart } from '@/services/statistics/types'
 
 const HighchartsChart = Chart as unknown as ComponentType<{
   options: Options
@@ -32,22 +30,24 @@ export interface IStatisticsChartCardProps {
   chart: TStatisticsChart
   title: string
   description: string
+  headerAction?: ReactNode
+  note?: ReactNode
+  emptyMessage?: string
 }
 
 const StatisticsChartCard = ({
   chart,
   title,
   description,
+  headerAction,
+  note,
+  emptyMessage,
 }: IStatisticsChartCardProps) => {
   const { theme } = useTheme()
   const chartSurfaceRef = useRef<HTMLDivElement | null>(null)
   const chartRef = useRef<HighchartsReactRefObject | null>(null)
   const options = useMemo(
     () => buildStatisticsChartOptions(chart, theme),
-    [chart, theme]
-  )
-  const seriesSnapshots = useMemo(
-    () => buildStatisticsSeriesSnapshots(chart, theme),
     [chart, theme]
   )
 
@@ -92,17 +92,24 @@ const StatisticsChartCard = ({
   if (!hasRenderableStatisticsChart(chart)) {
     return (
       <SC.ChartCard>
-        <SC.ChartTitleGroup>
-          <Headline variant='h4' noSpacing>
-            {title}
-          </Headline>
-          <Text size='small' color='textSecondary' maxLines={2} noSpacing>
-            {description}
-          </Text>
-        </SC.ChartTitleGroup>
+        <SC.ChartHeader>
+          <SC.ChartTitleGroup>
+            <Headline variant='h4' noSpacing>
+              {title}
+            </Headline>
+            <Text size='small' color='textSecondary' maxLines={2} noSpacing>
+              {description}
+            </Text>
+          </SC.ChartTitleGroup>
+          {headerAction && (
+            <SC.ChartHeaderAction>{headerAction}</SC.ChartHeaderAction>
+          )}
+        </SC.ChartHeader>
+        {note && <SC.ChartNote>{note}</SC.ChartNote>}
         <SC.StatePanel>
           <Text size='small' color='textSecondary' noSpacing>
-            No chart data is available for the selected window.
+            {emptyMessage ??
+              'No chart data is available for the selected window.'}
           </Text>
         </SC.StatePanel>
       </SC.ChartCard>
@@ -120,34 +127,15 @@ const StatisticsChartCard = ({
             {description}
           </Text>
         </SC.ChartTitleGroup>
-        <SC.RangeBadge>
-          {formatStatisticsRange(chart.dateRange.from, chart.dateRange.to)}
-        </SC.RangeBadge>
+        <SC.ChartHeaderRight>
+          <SC.RangeBadge>
+            {formatStatisticsRange(chart.dateRange.from, chart.dateRange.to)}
+          </SC.RangeBadge>
+          {headerAction && (
+            <SC.ChartHeaderAction>{headerAction}</SC.ChartHeaderAction>
+          )}
+        </SC.ChartHeaderRight>
       </SC.ChartHeader>
-      <SC.SeriesSnapshot
-        role='list'
-        aria-label={`${title} latest recorded values`}
-      >
-        {seriesSnapshots.map(snapshot => {
-          const score = formatStatisticsScore(snapshot.value)
-          const date = snapshot.date
-            ? formatStatisticsDate(snapshot.date)
-            : 'No recorded date'
-
-          return (
-            <SC.SeriesChip
-              key={snapshot.name}
-              role='listitem'
-              aria-label={`${snapshot.name}: ${score}, ${date}`}
-              title={`${snapshot.name}: ${score}, ${date}`}
-            >
-              <SC.SeriesSwatch $color={snapshot.color} aria-hidden='true' />
-              <SC.SeriesName>{snapshot.name}</SC.SeriesName>
-              <SC.SeriesValue>{score}</SC.SeriesValue>
-            </SC.SeriesChip>
-          )
-        })}
-      </SC.SeriesSnapshot>
       <SC.ChartSurface ref={chartSurfaceRef}>
         <HighchartsChart
           ref={chartRef}
@@ -160,6 +148,7 @@ const StatisticsChartCard = ({
           }}
         />
       </SC.ChartSurface>
+      {note && <SC.ChartNote>{note}</SC.ChartNote>}
     </SC.ChartCard>
   )
 }

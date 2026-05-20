@@ -10,7 +10,6 @@ import de.dermatrack.backend.auth.model.AppUser;
 import de.dermatrack.backend.auth.repository.IAppUserRepository;
 import de.dermatrack.backend.exception.ResourceNotFoundException;
 import de.dermatrack.backend.statistics.model.common.HighchartsModel;
-import de.dermatrack.backend.statistics.model.common.StatisticsPeriod;
 import de.dermatrack.backend.statistics.service.IStatisticsService;
 import lombok.RequiredArgsConstructor;
 
@@ -24,47 +23,47 @@ public class StatisticsController implements IStatisticsController {
         @Override
         public ResponseEntity<HighchartsModel> getPsycheAndSymptoms(
                         Principal principal,
-                        LocalDate endDate,
-                        String period) {
+                        LocalDate startDate,
+                        LocalDate endDate) {
                 AppUser currentUser = resolveCurrentUser(principal);
                 return ResponseEntity.ok(
                                 statisticsService.getSymptomTrendLine(
                                                 currentUser.getId(),
-                                                endDate,
-                                                StatisticsPeriod.fromQueryValue(period)));
+                                                startDate,
+                                                endDate));
         }
 
         @Override
         public ResponseEntity<HighchartsModel> getSymptoms(
                         Principal principal,
-                        LocalDate endDate,
-                        String period) {
+                        LocalDate startDate,
+                        LocalDate endDate) {
                 AppUser currentUser = resolveCurrentUser(principal);
                 return ResponseEntity.ok(
                                 statisticsService.getSymptomTrendBar(
                                                 currentUser.getId(),
+                                                startDate,
+                                                endDate));
+        }
+
+        @Override
+        public ResponseEntity<HighchartsModel> getCorrelation(
+                        Principal principal,
+                        LocalDate startDate,
+                        LocalDate endDate,
+                        String mainCategory) {
+                AppUser currentUser = resolveCurrentUser(principal);
+                return ResponseEntity.ok(
+                                statisticsService.getCorrelationTrendBar(
+                                                currentUser.getId(),
+                                                startDate,
                                                 endDate,
-                                                StatisticsPeriod.fromQueryValue(period)));
+                                                mainCategory));
         }
 
         private AppUser resolveCurrentUser(Principal principal) {
                 return appUserRepository.findByUsername(principal.getName())
                                 .orElseThrow(() -> new ResourceNotFoundException("AppUser", "username",
                                                 principal.getName()));
-        }
-
-        @Override
-        public ResponseEntity<HighchartsModel> getCorrelation(
-                        Principal principal,
-                        LocalDate endDate,
-                        String period,
-                        String mainCategory) {
-                AppUser currentUser = resolveCurrentUser(principal);
-                return ResponseEntity.ok(
-                                statisticsService.getCorrelationTrendBar(
-                                                currentUser.getId(),
-                                                endDate,
-                                                StatisticsPeriod.fromQueryValue(period),
-                                                mainCategory));
         }
 }

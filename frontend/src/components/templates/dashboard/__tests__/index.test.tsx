@@ -1,6 +1,5 @@
-import { ReactNode } from 'react'
+import { act, ReactNode } from 'react'
 import { createRoot, Root } from 'react-dom/client'
-import { act } from 'react-dom/test-utils'
 import { ThemeProvider } from 'styled-components'
 
 import { ThemeContextProvider } from '@/context/theme'
