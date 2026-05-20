@@ -6,6 +6,8 @@ import type {
   SeriesLineOptions,
 } from 'highcharts'
 
+import { IStatisticsPeriodOption, IStatisticsSeriesSnapshot } from './types'
+
 import type { ITheme } from '@/lib/themes'
 import type {
   TStatisticsChart,
@@ -17,18 +19,6 @@ const createLegendItemStyle = (theme: ITheme): CSSObject => ({
   fontSize: '12px',
   fontWeight: '500',
 })
-
-export interface IStatisticsSeriesSnapshot {
-  name: string
-  color: string
-  value: number | null
-  date: string | null
-}
-
-export interface IStatisticsPeriodOption {
-  value: TStatisticsPeriod
-  label: string
-}
 
 const MAX_DENSE_AXIS_TICKS = 10
 const MAX_SPARSE_AXIS_TICKS = 8

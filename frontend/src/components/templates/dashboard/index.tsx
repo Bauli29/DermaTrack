@@ -24,6 +24,7 @@ import { getDiaryEntries } from '@/services/diary'
 import * as SC from './styles'
 
 import type { IDiaryEntry } from '@/types/diary'
+import type { TSeverityTone } from './types'
 
 const formatGreeting = (date: Date): string => {
   const hour = date.getHours()
@@ -54,8 +55,6 @@ const formatUsernameForGreeting = (username: string): string => {
     .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join(' ')
 }
-
-type TSeverityTone = 'low' | 'moderate' | 'high' | 'severe' | 'empty'
 
 const getSeverityTone = (severity: number | null): TSeverityTone => {
   if (severity === null) {

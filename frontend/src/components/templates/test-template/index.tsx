@@ -6,8 +6,8 @@ import Button from '@/components/atoms/Button'
 import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
 import Link from '@/components/atoms/Link'
-import Slider from '@/components/atoms/Slider'
 import Select from '@/components/atoms/Select'
+import Slider from '@/components/atoms/Slider'
 import Text from '@/components/atoms/Text'
 
 import CompoundRadioButtons from '@/components/molecules/CompoundRadioButtons'
@@ -20,31 +20,7 @@ import { getHealth } from '@/services/actuator/health'
 
 import * as SC from './styles'
 
-import type { TButtonVariant } from '@/components/atoms/Button/types'
-import type { TIconColor, TIconSize } from '@/components/atoms/Icon/types'
-import type { TLinkVariant } from '@/components/atoms/Link/types'
-
-interface IButtonExample {
-  label: string
-  variant: TButtonVariant
-  clickable?: boolean
-}
-
-interface IIconExample {
-  name: string
-  size: TIconSize
-  color: TIconColor
-  ariaLabel?: string
-}
-
-interface ILinkExample {
-  href: string
-  label: string
-  variant?: TLinkVariant
-  showExternalIcon?: boolean
-  underline?: boolean
-  disabled?: boolean
-}
+import type { IButtonExample, IIconExample, ILinkExample } from './types'
 
 const BUTTON_EXAMPLES: IButtonExample[] = [
   { label: 'Primary', variant: 'primary', clickable: true },

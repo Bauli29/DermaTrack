@@ -1,19 +1,16 @@
 'use client'
 import styled, { css } from 'styled-components'
 
-import type { IStyledHeadlineProps, THeadlineVariant } from './types'
+import type {
+  IStyledHeadlineProps,
+  THeadlineVariant,
+  IHeadlineToken,
+} from './types'
 
 // Local, component-scoped typography tokens for Headline variants (h1–h6).
 // Moved from the theme into the component per project preference.
 // Keeping these centralized here still provides a single source of truth for
 // this atom, while avoiding global theme coupling.
-
-interface IHeadlineToken {
-  fontSize: string
-  lineHeight: number
-  spacingAfter: string
-  fontWeight: number
-}
 
 const HEADLINE_TOKENS: { [V in THeadlineVariant]: IHeadlineToken } = {
   h1: {

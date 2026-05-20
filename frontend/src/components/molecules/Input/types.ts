@@ -1,12 +1,12 @@
 import { InputHTMLAttributes } from 'react'
 
-import type { TValidationState } from '../shared/form-field'
+import type { TValidationState } from '../shared/form-field.types'
 
 export type {
   IStatusIconProps,
   IStyledContainerProps,
   TValidationState,
-} from '../shared/form-field'
+} from '../shared/form-field.types'
 
 export interface IInputProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,

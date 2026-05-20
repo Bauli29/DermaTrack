@@ -1,17 +1,11 @@
 'use client'
 import styled, { css } from 'styled-components'
 
-import type { IStyledTextProps, TTextSize } from './types'
+import type { IStyledTextProps, TTextSize, ITextToken } from './types'
 
 // Local, component-scoped typography tokens for Text variants (small/medium/large).
 // Per project preference, these live with the component instead of the global theme.
 // This keeps the atom portable and avoids cross-component coupling.
-interface ITextToken {
-  fontSize: string
-  lineHeight: number
-  spacingAfter: string
-  fontWeight: number
-}
 
 const TEXT_TOKENS: { [S in TTextSize]: ITextToken } = {
   small: {

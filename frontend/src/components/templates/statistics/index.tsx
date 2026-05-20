@@ -27,13 +27,12 @@ import {
   STATISTICS_PERIOD_OPTIONS,
 } from './utils'
 
-import type {
-  TColumnStatisticsChart,
-  TLineStatisticsChart,
-  TStatisticsPeriod,
-} from '@/services/statistics/types'
+import type { TStatisticsPeriod } from '@/services/statistics/types'
+
+import type { IStatisticsViewState } from './types'
 
 import type { IStatisticsChartCardProps } from './statistics-chart-card'
+
 const StatisticsChartCard = dynamic<IStatisticsChartCardProps>(
   () => import('./statistics-chart-card'),
   {
@@ -49,12 +48,6 @@ const StatisticsChartCard = dynamic<IStatisticsChartCardProps>(
     ),
   }
 )
-
-interface IStatisticsViewState {
-  psycheSymptoms: TLineStatisticsChart
-  symptoms: TColumnStatisticsChart
-  correlation: TColumnStatisticsChart
-}
 
 const StatisticsTemplate = () => {
   const { setTitle } = usePageTitle()
