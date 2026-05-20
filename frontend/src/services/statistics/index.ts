@@ -5,38 +5,16 @@ import { sessionAwareFetch } from '@/lib/session-aware-fetch'
 import {
   ColumnStatisticsChartSchema,
   LineStatisticsChartSchema,
+} from '@/validation/statistics'
+
+import type {
+  IApiErrorLike,
+  IStatisticsRequestParams,
   TColumnStatisticsChart,
   TLineStatisticsChart,
-  TStatisticsPeriod,
+  TStatisticsFetch,
+  TStatisticsRequestResult,
 } from './types'
-
-interface IApiErrorLike {
-  error?: string
-  message?: string
-}
-
-type TStatisticsFetch = (input: string, init?: RequestInit) => Promise<Response>
-
-export interface IStatisticsRequestParams {
-  endDate?: string
-  period?: TStatisticsPeriod
-  mainCategory?: string
-}
-
-interface IStatisticsRequestSuccess<TData> {
-  success: true
-  data: TData
-}
-
-interface IStatisticsRequestFailure {
-  success: false
-  error: string
-  status?: number
-}
-
-export type TStatisticsRequestResult<TData> =
-  | IStatisticsRequestSuccess<TData>
-  | IStatisticsRequestFailure
 
 export const STATISTICS_API_PATHS = {
   psycheSymptoms: '/api/statistics/psyche-symptoms',

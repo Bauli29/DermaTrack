@@ -1,6 +1,6 @@
 import { HTMLInputTypeAttribute, InputHTMLAttributes } from 'react'
 
-import type { TValidationState } from '../shared/form-field'
+import type { TValidationState } from '../shared/form-field.types'
 
 export interface ICompoundCheckboxDetailInput {
   label?: string

@@ -1,44 +1,13 @@
 import type { TDiaryEntryInput } from '@/validation/diary'
 import { sessionAwareFetch } from '@/lib/session-aware-fetch'
 
-interface IApiErrorLike {
-  error?: string
-  message?: string
-}
-
-export interface ICreateDiaryEntrySuccess {
-  success: true
-}
-
-export interface ICreateDiaryEntryFailure {
-  success: false
-  error: string
-}
-
-export type TCreateDiaryEntryResult =
-  | ICreateDiaryEntrySuccess
-  | ICreateDiaryEntryFailure
-
-type TDiaryFetch = (input: string, init?: RequestInit) => Promise<Response>
-
-export interface IGetDiaryEntrySuccess<T> {
-  success: true
-  data: T | null
-}
-
-export interface IGetDiaryEntryFailure {
-  success: false
-  error: string
-}
-
-export type TGetDiaryEntryResult<T> =
-  | IGetDiaryEntrySuccess<T>
-  | IGetDiaryEntryFailure
-
-export interface IGetDiaryEntriesParams {
-  fromDate?: string
-  toDate?: string
-}
+import type {
+  IApiErrorLike,
+  IGetDiaryEntriesParams,
+  TDiaryFetch,
+  TGetDiaryEntryResult,
+  TCreateDiaryEntryResult,
+} from './types'
 
 const getApiErrorMessage = (body: IApiErrorLike | null): string | null => {
   if (!body) {

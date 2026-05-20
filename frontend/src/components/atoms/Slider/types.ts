@@ -42,3 +42,9 @@ export interface IStyledSliderFillProps {
   $percentage: number // filling the Track until the Point of Thumb
   $disabled: boolean
 }
+
+export interface ISliderRangeConfig {
+  min: number
+  max: number
+  step: number
+}

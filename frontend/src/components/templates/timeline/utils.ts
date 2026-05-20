@@ -1,57 +1,25 @@
-import type {
-  Options,
-  PointOptionsObject,
-  SeriesHeatmapOptions,
-} from 'highcharts'
+import type { Options, SeriesHeatmapOptions } from 'highcharts'
 
 import { formatDateInput } from '@/lib/date'
 
 import type { ITheme } from '@/lib/themes'
 import type { IDiaryEntry, ISymptoms } from '@/types/diary'
+import type {
+  ITimelineDay,
+  ITimelineEntrySummary,
+  ITimelineHeatmapPoint,
+  ITimelineHeatmapPointCustom,
+  ITimelineMonthRange,
+  ITimelinePointContext,
+} from './types'
 
-export interface ITimelineMonthRange {
-  fromDate: string
-  toDate: string
-}
-
-export interface ITimelineDay {
-  date: string
-  dayOfMonth: number
-  isFuture: boolean
-  entry: IDiaryEntry | null
-  severity: number | null
-}
-
-export interface ITimelineHeatmapPointCustom {
-  date: string | null
-  dayOfMonth: number | null
-  empty: boolean
-  hasEntry: boolean
-  isFuture: boolean
-  severity: number | null
-}
-
-export interface ITimelineHeatmapPoint extends PointOptionsObject {
-  x: number
-  y: number
-  value: number | null
-  custom: ITimelineHeatmapPointCustom
-}
-
-export interface ITimelineEntrySummary {
-  severity: number
-  symptomSummary: string
-  factorCount: number
-  imageUrls: string[]
-}
-
-interface ITimelinePointContext {
-  custom?: ITimelineHeatmapPointCustom
-  options?: {
-    custom?: ITimelineHeatmapPointCustom
-  }
-  point?: ITimelinePointContext
-}
+export type {
+  ITimelineDay,
+  ITimelineEntrySummary,
+  ITimelineHeatmapPoint,
+  ITimelineHeatmapPointCustom,
+  ITimelineMonthRange,
+} from './types'
 
 export const TIMELINE_WEEKDAYS = [
   'Sun',

@@ -11,95 +11,27 @@ import {
 
 import type { TValidationResult } from '@/lib/validation-helper'
 import type { TDiaryEntryInput } from '@/validation/diary'
-export interface IDailyTrackingFormValues {
-  id?: string
-  date: string
-  allergies?: number
-  infections?: number
-  stressLevel: number
-  sleep: number
-  nutrition?: number
-  mentalHealth: number
-  contactFactors: string[]
-  contactFactorDetails: { [key: string]: string }
-  nutritionFactors: string[]
-  nutritionFactorDetails: { [key: string]: string }
-  careFactors: string[]
-  careFactorDetails: { [key: string]: string }
-  healthFactors: string[]
-  healthFactorDetails: { [key: string]: string }
-  itchiness: number
-  inflammation: number
-  dryness: number
-  scratch?: boolean
-  weepingSkin?: boolean
-  skinCracks?: boolean
-  notes: string
-}
+import type {
+  IDailyTrackingFormValues,
+  IDailyTrackingSliderFieldDefinition,
+  IDailyTrackingSubmissionOptions,
+  IDailyTrackingValidationOptions,
+  TDailyTrackingSubmissionResult,
+} from './types'
+
+export type {
+  IDailyTrackingFormValues,
+  IDailyTrackingSliderFieldDefinition,
+  IDailyTrackingSubmissionFailure,
+  IDailyTrackingSubmissionSuccess,
+  TDailyTrackingSubmissionResult,
+  TDailyTrackingSliderFieldKey,
+} from './types'
 
 export const DAILY_TRACKING_SUCCESS_REDIRECT_DELAY_MS = 700
 export const DAILY_TRACKING_SUCCESS_MESSAGE = 'Entry saved successfully.'
 export const DAILY_TRACKING_DISCARD_CONFIRMATION_TEXT =
   'Discard changes? Your input will be lost.'
-
-export type TDailyTrackingSliderFieldKey =
-  | 'allergies'
-  | 'infections'
-  | 'stressLevel'
-  | 'sleep'
-  | 'mentalHealth'
-  | 'itchiness'
-  | 'inflammation'
-  | 'dryness'
-
-export type TContactFactor = 'shower' | 'clothing' | 'animal-contact'
-
-export type TNutritionFactor =
-  | 'Nuts'
-  | 'Fruits'
-  | 'Shellfish'
-  | 'Dairy'
-  | 'Gluten'
-
-export type TCareFactor =
-  | 'skin care'
-  | 'hair products'
-  | 'soapShampoo'
-  | 'cosmetics'
-
-export type THealthFactor = 'other allergies' | 'infection'
-
-export interface IDailyTrackingSliderFieldDefinition {
-  key: TDailyTrackingSliderFieldKey
-  label: string
-  helperText: string
-}
-
-interface IDailyTrackingValidationOptions {
-  date: string
-  images: File[]
-  today?: Date
-}
-
-interface IDailyTrackingSubmissionOptions {
-  values: IDailyTrackingFormValues
-  images: File[]
-  today?: Date
-}
-
-export interface IDailyTrackingSubmissionSuccess {
-  success: true
-  data: TDiaryEntryInput
-}
-
-export interface IDailyTrackingSubmissionFailure {
-  success: false
-  error: string
-}
-
-export type TDailyTrackingSubmissionResult =
-  | IDailyTrackingSubmissionSuccess
-  | IDailyTrackingSubmissionFailure
 
 export const PSYCHE_FACTOR_DEFINITIONS: readonly IDailyTrackingSliderFieldDefinition[] =
   [

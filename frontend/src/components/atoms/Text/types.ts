@@ -47,3 +47,10 @@ export interface IStyledTextProps {
   $maxLines?: number
   $weight?: number
 }
+
+export interface ITextToken {
+  fontSize: string
+  lineHeight: number
+  spacingAfter: string
+  fontWeight: number
+}

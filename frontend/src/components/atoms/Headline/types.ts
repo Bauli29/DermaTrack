@@ -1,4 +1,5 @@
 import { HTMLAttributes } from 'react'
+
 import type { ITheme } from '@/lib/themes'
 
 export type THeadlineVariant = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
@@ -25,4 +26,11 @@ export interface IStyledHeadlineProps {
   $align: THeadlineAlign
   $noSpacing?: boolean
   $margin?: string
+}
+
+export interface IHeadlineToken {
+  fontSize: string
+  lineHeight: number
+  spacingAfter: string
+  fontWeight: number
 }
