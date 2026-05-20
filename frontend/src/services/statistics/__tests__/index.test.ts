@@ -91,7 +91,7 @@ describe('statistics service', () => {
     jest.clearAllMocks()
   })
 
-  it('builds api paths with and without an endDate', () => {
+  it('builds api paths with startDate and endDate', () => {
     expect(buildStatisticsApiPath('/api/statistics/symptoms')).toBe(
       '/api/statistics/symptoms'
     )
@@ -102,18 +102,18 @@ describe('statistics service', () => {
     ).toBe('/api/statistics/symptoms?endDate=2026-04-29')
     expect(
       buildStatisticsApiPath('/api/statistics/symptoms', {
+        startDate: '2026-03-31',
         endDate: '2026-04-29',
-        period: '30d',
       })
-    ).toBe('/api/statistics/symptoms?endDate=2026-04-29&period=30d')
+    ).toBe('/api/statistics/symptoms?startDate=2026-03-31&endDate=2026-04-29')
     expect(
       buildStatisticsApiPath('/api/statistics/correlation', {
+        startDate: '2026-03-31',
         endDate: '2026-04-29',
-        period: '30d',
         mainCategory: 'care-products',
       })
     ).toBe(
-      '/api/statistics/correlation?endDate=2026-04-29&period=30d&mainCategory=care-products'
+      '/api/statistics/correlation?startDate=2026-03-31&endDate=2026-04-29&mainCategory=care-products'
     )
   })
 
@@ -129,8 +129,8 @@ describe('statistics service', () => {
     await expect(
       fetchPsycheSymptomsChart(
         {
+          startDate: '2026-03-31',
           endDate: '2026-04-29',
-          period: '30d',
         },
         fetchImpl
       )
@@ -140,7 +140,7 @@ describe('statistics service', () => {
     })
 
     expect(fetchImpl).toHaveBeenCalledWith(
-      '/api/statistics/psyche-symptoms?endDate=2026-04-29&period=30d',
+      '/api/statistics/psyche-symptoms?startDate=2026-03-31&endDate=2026-04-29',
       {
         method: 'GET',
         cache: 'no-store',
@@ -196,8 +196,8 @@ describe('statistics service', () => {
     await expect(
       fetchCorrelationChart(
         {
+          startDate: '2026-03-31',
           endDate: '2026-04-29',
-          period: '30d',
           mainCategory: 'care-products',
         },
         fetchImpl
@@ -208,7 +208,7 @@ describe('statistics service', () => {
     })
 
     expect(fetchImpl).toHaveBeenCalledWith(
-      '/api/statistics/correlation?endDate=2026-04-29&period=30d&mainCategory=care-products',
+      '/api/statistics/correlation?startDate=2026-03-31&endDate=2026-04-29&mainCategory=care-products',
       {
         method: 'GET',
         cache: 'no-store',

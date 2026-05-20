@@ -1,7 +1,6 @@
 import type {
   TColumnStatisticsChart,
   TLineStatisticsChart,
-  TStatisticsPeriod,
 } from '@/services/statistics/types'
 
 export interface IStatisticsViewState {
@@ -15,9 +14,4 @@ export interface IStatisticsSeriesSnapshot {
   color: string
   value: number | null
   date: string | null
-}
-
-export interface IStatisticsPeriodOption {
-  value: TStatisticsPeriod
-  label: string
 }

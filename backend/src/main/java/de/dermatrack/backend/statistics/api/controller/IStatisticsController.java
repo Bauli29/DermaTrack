@@ -31,35 +31,35 @@ public interface IStatisticsController {
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Statistics chart for psyche & symptoms returned", content = {
                                         @Content(mediaType = "application/json", schema = @Schema(implementation = HighchartsModel.class)) }),
-                        @ApiResponse(responseCode = "400", description = "Invalid endDate supplied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+                        @ApiResponse(responseCode = "400", description = "Invalid date supplied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "404", description = "Authenticated user not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))) })
         @GetMapping("/psyche-symptoms")
         ResponseEntity<HighchartsModel> getPsycheAndSymptoms(
                         Principal principal,
-                        @Parameter(description = "Inclusive end date in YYYY-MM-DD format. Defaults to today when omitted.") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                        @Parameter(description = "Statistics period. Supported values: 7d, 30d, 90d. Defaults to 7d when omitted.") @RequestParam(required = false) String period);
+                        @Parameter(description = "Inclusive start date in YYYY-MM-DD format. Defaults to 7 days before endDate when omitted.") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                        @Parameter(description = "Inclusive end date in YYYY-MM-DD format. Defaults to today when omitted.") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate);
 
         @Operation(summary = "Get symptom statistics for the authenticated user")
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Statistics chart for symptoms returned", content = {
                                         @Content(mediaType = "application/json", schema = @Schema(implementation = HighchartsModel.class)) }),
-                        @ApiResponse(responseCode = "400", description = "Invalid endDate supplied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+                        @ApiResponse(responseCode = "400", description = "Invalid date supplied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "404", description = "Authenticated user not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))) })
         @GetMapping("/symptoms")
         ResponseEntity<HighchartsModel> getSymptoms(
                         Principal principal,
-                        @Parameter(description = "Inclusive end date in YYYY-MM-DD format. Defaults to today when omitted.") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                        @Parameter(description = "Statistics period. Supported values: 7d, 30d, 90d. Defaults to 7d when omitted.") @RequestParam(required = false) String period);
+                        @Parameter(description = "Inclusive start date in YYYY-MM-DD format. Defaults to 7 days before endDate when omitted.") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                        @Parameter(description = "Inclusive end date in YYYY-MM-DD format. Defaults to today when omitted.") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate);
 
         @Operation(summary = "Get correlation statistics for the authenticated user")
         @ApiResponses(value = {
                         @ApiResponse(responseCode = "200", description = "Statistics chart for correlation returned", content = {
                                         @Content(mediaType = "application/json", schema = @Schema(implementation = HighchartsModel.class)) }),
-                        @ApiResponse(responseCode = "400", description = "Invalid endDate supplied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
+                        @ApiResponse(responseCode = "400", description = "Invalid date supplied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "422", description = "Not enough data for correlation calculation", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
                         @ApiResponse(responseCode = "404", description = "Authenticated user not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
@@ -67,7 +67,7 @@ public interface IStatisticsController {
         @GetMapping("/correlation")
         ResponseEntity<HighchartsModel> getCorrelation(
                         Principal principal,
+                        @Parameter(description = "Inclusive start date in YYYY-MM-DD format. Defaults to 7 days before endDate when omitted.") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                         @Parameter(description = "Inclusive end date in YYYY-MM-DD format. Defaults to today when omitted.") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                        @Parameter(description = "Statistics period. Supported values: 7d, 30d, 90d. Defaults to 7d when omitted.") @RequestParam(required = false) String period,
                         @Parameter(description = "Main category. Supported values: care-products, nutrition, contact-factors, health-factors. Defaults to care-products when omitted.") @RequestParam(required = false, defaultValue = "care-products") String mainCategory);
 }

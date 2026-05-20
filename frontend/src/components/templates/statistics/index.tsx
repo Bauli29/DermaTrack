@@ -1,14 +1,15 @@
 'use client'
 
+import 'react-datepicker/dist/react-datepicker.css'
+
 import dynamic from 'next/dynamic'
 import { useEffect, useMemo, useState } from 'react'
+import DatePicker from 'react-datepicker'
 
 import Button from '@/components/atoms/Button'
 import Headline from '@/components/atoms/Headline'
 import Icon from '@/components/atoms/Icon'
 import Text from '@/components/atoms/Text'
-
-import DateCalendarPicker from '@/components/organisms/DateCalendarPicker'
 
 import { formatDateInput } from '@/lib/date'
 
@@ -21,13 +22,6 @@ import {
 } from '@/services/statistics'
 
 import * as SC from './styles'
-import {
-  formatStatisticsRange,
-  getStatisticsPeriodLabel,
-  STATISTICS_PERIOD_OPTIONS,
-} from './utils'
-
-import type { TStatisticsPeriod } from '@/services/statistics/types'
 
 import type { IStatisticsViewState } from './types'
 
@@ -49,12 +43,38 @@ const StatisticsChartCard = dynamic<IStatisticsChartCardProps>(
   }
 )
 
+const PRESETS = [
+  { label: '7d', days: 7 },
+  { label: '14d', days: 14 },
+] as const
+
+const parseStatisticsDate = (value: string): Date | null => {
+  if (!value) return null
+  const [yearText, monthText, dayText] = value.split('-')
+  const year = Number(yearText)
+  const month = Number(monthText)
+  const day = Number(dayText)
+  if (!year || !month || !day) return null
+  const date = new Date(year, month - 1, day)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 const StatisticsTemplate = () => {
   const { setTitle } = usePageTitle()
-  const today = useMemo(() => formatDateInput(new Date()), [])
+  const todayDate = useMemo(() => new Date(), [])
+  const todayStr = useMemo(() => formatDateInput(todayDate), [todayDate])
 
-  const [selectedEndDate, setSelectedEndDate] = useState<string>(today)
-  const [selectedPeriod, setSelectedPeriod] = useState<TStatisticsPeriod>('7d')
+  const getPresetRange = (days: number) => {
+    const start = new Date(todayDate)
+    start.setDate(start.getDate() - days + 1)
+    return { startDate: formatDateInput(start), endDate: todayStr }
+  }
+
+  const [startDate, setStartDate] = useState<string>(
+    () => getPresetRange(7).startDate
+  )
+  const [endDate, setEndDate] = useState<string>(todayStr)
+  const [activePreset, setActivePreset] = useState<number | null>(7)
   const [selectedMainCategory, setSelectedMainCategory] =
     useState<string>('care-products')
   const [statistics, setStatistics] = useState<IStatisticsViewState | null>(
@@ -72,6 +92,10 @@ const StatisticsTemplate = () => {
   }, [setTitle])
 
   useEffect(() => {
+    if (!startDate || !endDate) {
+      return
+    }
+
     let active = true
 
     const loadStatistics = async () => {
@@ -79,8 +103,8 @@ const StatisticsTemplate = () => {
       setError(null)
       setStatistics(null)
       const requestParams = {
-        endDate: selectedEndDate,
-        period: selectedPeriod,
+        startDate,
+        endDate,
         mainCategory: selectedMainCategory,
       }
 
@@ -110,7 +134,6 @@ const StatisticsTemplate = () => {
         return
       }
 
-      // correlation-specific handling: show friendly message when backend reports 422
       if (!correlationResult.success && correlationResult.status === 422) {
         setCorrelationNoData('Not enough data for correlation calculation.')
       } else {
@@ -127,8 +150,8 @@ const StatisticsTemplate = () => {
               categories: [],
               series: [],
               dateRange: {
-                from: requestParams.endDate ?? '',
-                to: requestParams.endDate ?? '',
+                from: startDate,
+                to: endDate,
               },
             },
       })
@@ -140,10 +163,24 @@ const StatisticsTemplate = () => {
     return () => {
       active = false
     }
-  }, [selectedEndDate, selectedPeriod, selectedMainCategory, reloadKey])
+  }, [startDate, endDate, selectedMainCategory, reloadKey])
 
-  const activeRange = statistics?.psycheSymptoms.dateRange
-  const selectedPeriodLabel = getStatisticsPeriodLabel(selectedPeriod)
+  const applyPreset = (days: number) => {
+    const { startDate: s, endDate: e } = getPresetRange(days)
+    setStartDate(s)
+    setEndDate(e)
+    setActivePreset(days)
+  }
+
+  const handleRangeChange = (dates: [Date | null, Date | null]) => {
+    const [start, end] = dates
+    setStartDate(start ? formatDateInput(start) : '')
+    setEndDate(end ? formatDateInput(end) : '')
+    setActivePreset(null)
+  }
+
+  const pickerStart = useMemo(() => parseStatisticsDate(startDate), [startDate])
+  const pickerEnd = useMemo(() => parseStatisticsDate(endDate), [endDate])
   const retryStatisticsLoad = () => setReloadKey(current => current + 1)
 
   return (
@@ -158,76 +195,40 @@ const StatisticsTemplate = () => {
       </SC.PageHeader>
 
       <SC.Toolbar>
-        <SC.FilterPanel>
-          <SC.FilterGroup>
-            <Text as='span' size='small' weight={600} noSpacing>
-              End date
-            </Text>
-            <SC.DateControls>
-              <DateCalendarPicker
-                value={selectedEndDate}
-                maxDate={today}
-                onChange={setSelectedEndDate}
-              />
+        <SC.FilterRow>
+          <SC.RangePickerRoot>
+            <DatePicker
+              selectsRange
+              startDate={pickerStart}
+              endDate={pickerEnd}
+              onChange={handleRangeChange}
+              maxDate={todayDate}
+              dateFormat='dd.MM.yyyy'
+              placeholderText='DD.MM.YYYY – DD.MM.YYYY'
+              className='stats-range-picker__input'
+              calendarClassName='stats-range-picker__calendar'
+              popperClassName='stats-range-picker__popper'
+              popperPlacement='bottom-start'
+              showPopperArrow={false}
+            />
+          </SC.RangePickerRoot>
+          <SC.PresetGroup>
+            {PRESETS.map(preset => (
               <Button
-                variant='ghost-outline'
-                size='md'
-                onClick={() => setSelectedEndDate(formatDateInput(new Date()))}
-                disabled={selectedEndDate === today}
-                aria-label='Use today as end date'
-                title='Use today as end date'
+                key={preset.label}
+                type='button'
+                variant={
+                  activePreset === preset.days ? 'primary' : 'ghost-outline'
+                }
+                size='sm'
+                onClick={() => applyPreset(preset.days)}
+                aria-pressed={activePreset === preset.days}
               >
-                <Icon name='today' color='textSecondary' />
-                <Text as='span' size='small' color='textSecondary' noSpacing>
-                  Today
-                </Text>
+                {preset.label}
               </Button>
-            </SC.DateControls>
-          </SC.FilterGroup>
-
-          <SC.FilterGroup>
-            <Text as='span' size='small' weight={600} noSpacing>
-              Period
-            </Text>
-            <SC.PeriodControls role='group' aria-label='Statistics period'>
-              {STATISTICS_PERIOD_OPTIONS.map(option => {
-                const isActivePeriod = selectedPeriod === option.value
-
-                return (
-                  <Button
-                    key={option.value}
-                    type='button'
-                    variant={isActivePeriod ? 'primary' : 'ghost-outline'}
-                    size='sm'
-                    onClick={() => setSelectedPeriod(option.value)}
-                    aria-pressed={isActivePeriod}
-                  >
-                    {option.label}
-                  </Button>
-                )
-              })}
-            </SC.PeriodControls>
-          </SC.FilterGroup>
-        </SC.FilterPanel>
-
-        <SC.RangeSummary>
-          <SC.SummaryPill>
-            <SC.SummaryLabel>Period</SC.SummaryLabel>
-            <SC.SummaryValue>{selectedPeriodLabel}</SC.SummaryValue>
-          </SC.SummaryPill>
-          <SC.SummaryPill>
-            <SC.SummaryLabel>Selected end date</SC.SummaryLabel>
-            <SC.SummaryValue>{selectedEndDate}</SC.SummaryValue>
-          </SC.SummaryPill>
-          <SC.SummaryPill>
-            <SC.SummaryLabel>Window</SC.SummaryLabel>
-            <SC.SummaryValue>
-              {activeRange
-                ? formatStatisticsRange(activeRange.from, activeRange.to)
-                : selectedPeriodLabel}
-            </SC.SummaryValue>
-          </SC.SummaryPill>
-        </SC.RangeSummary>
+            ))}
+          </SC.PresetGroup>
+        </SC.FilterRow>
       </SC.Toolbar>
 
       {error && (
@@ -256,10 +257,10 @@ const StatisticsTemplate = () => {
         </SC.ErrorBanner>
       )}
 
-      {isLoading && (
+      {isLoading && !statistics && (
         <SC.StatePanel aria-live='polite'>
           <Text size='small' color='textSecondary' noSpacing>
-            Loading {selectedPeriodLabel} statistics...
+            Loading statistics...
           </Text>
         </SC.StatePanel>
       )}
@@ -272,7 +273,7 @@ const StatisticsTemplate = () => {
         </SC.StatePanel>
       )}
 
-      {!isLoading && statistics && (
+      {statistics && (
         <SC.ChartStack>
           <StatisticsChartCard
             chart={statistics.psycheSymptoms}
@@ -284,16 +285,15 @@ const StatisticsTemplate = () => {
             title='Symptoms'
             description='Itchiness, dryness and inflammation.'
           />
-          <SC.CorrelationCardWrapper>
-            <SC.CorrelationHeader>
-              <div>
-                <Headline as='h3' variant='h4' noSpacing>
-                  Correlation
-                </Headline>
-                <Text size='small' color='textSecondary' noSpacing>
-                  Correlation between selected main category and symptoms.
-                </Text>
-              </div>
+          <StatisticsChartCard
+            chart={statistics.correlation}
+            title='Correlation'
+            description='Correlation between selected main category and symptoms.'
+            emptyMessage={
+              correlationNoData ??
+              'No chart data is available for the selected window.'
+            }
+            headerAction={
               <SC.CorrelationCategoryControl>
                 <Text as='span' size='small' weight={600} noSpacing>
                   Category
@@ -309,21 +309,30 @@ const StatisticsTemplate = () => {
                   <option value='health-factors'>Health factors</option>
                 </SC.MainCategorySelect>
               </SC.CorrelationCategoryControl>
-            </SC.CorrelationHeader>
-            {correlationNoData ? (
-              <SC.StatePanel>
-                <Text size='small' color='textSecondary' noSpacing>
-                  {correlationNoData}
-                </Text>
-              </SC.StatePanel>
-            ) : (
-              <StatisticsChartCard
-                chart={statistics.correlation}
-                title=''
-                description=''
-              />
-            )}
-          </SC.CorrelationCardWrapper>
+            }
+            note={
+              <SC.CorrelationScaleNote>
+                <SC.CorrelationScaleItem $positive={false}>
+                  <SC.CorrelationScaleDot $positive={false} />
+                  <span>
+                    <strong>−1</strong> factor may help
+                  </span>
+                </SC.CorrelationScaleItem>
+                <SC.CorrelationScaleItem $positive={null}>
+                  <SC.CorrelationScaleDot $positive={null} />
+                  <span>
+                    <strong>0</strong> no link
+                  </span>
+                </SC.CorrelationScaleItem>
+                <SC.CorrelationScaleItem $positive>
+                  <SC.CorrelationScaleDot $positive />
+                  <span>
+                    <strong>+1</strong> factor may worsen
+                  </span>
+                </SC.CorrelationScaleItem>
+              </SC.CorrelationScaleNote>
+            }
+          />
         </SC.ChartStack>
       )}
     </SC.PageWrapper>

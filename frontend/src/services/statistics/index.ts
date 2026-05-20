@@ -70,14 +70,15 @@ export const buildStatisticsApiPath = (
   params: IStatisticsRequestParams = {}
 ): string => {
   const query = new URLSearchParams()
+  const trimmedStartDate = params.startDate?.trim()
   const trimmedEndDate = params.endDate?.trim()
+
+  if (trimmedStartDate) {
+    query.set('startDate', trimmedStartDate)
+  }
 
   if (trimmedEndDate) {
     query.set('endDate', trimmedEndDate)
-  }
-
-  if (params.period) {
-    query.set('period', params.period)
   }
 
   // Always add mainCategory if present (correlation endpoint requires it, others ignore it)

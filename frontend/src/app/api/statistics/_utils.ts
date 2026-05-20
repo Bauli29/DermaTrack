@@ -10,13 +10,11 @@ import {
 import { AUTH_COOKIE_NAMES } from '@/constants/auth'
 
 const BACKEND_STATISTICS_BASE_PATH = '/api/statistics'
-const END_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
-const PeriodParamSchema = z.enum(['7d', '30d', '90d'])
-
-const EndDateParamSchema = z
+const DateParamSchema = z
   .string()
-  .regex(END_DATE_PATTERN, 'endDate must use YYYY-MM-DD format')
+  .regex(DATE_PATTERN, 'Date must use YYYY-MM-DD format')
   .refine(value => {
     const [yearText, monthText, dayText] = value.split('-')
     const year = Number(yearText)
@@ -39,10 +37,9 @@ const EndDateParamSchema = z
       date.getMonth() === month - 1 &&
       date.getDate() === day
     )
-  }, 'endDate must be a valid calendar date')
+  }, 'Date must be a valid calendar date')
 
 type TStatisticsEndpoint = 'psyche-symptoms' | 'symptoms' | 'correlation'
-type TStatisticsPeriod = z.infer<typeof PeriodParamSchema>
 
 const MainCategoryParamSchema = z.enum([
   'care-products',
@@ -72,28 +69,18 @@ const readStatisticsResponsePayload = async (
   return trimmedText.length > 0 ? { error: trimmedText } : null
 }
 
-const readValidatedEndDate = (request: NextRequest): string | undefined => {
-  const rawEndDate = request.nextUrl.searchParams.get('endDate')
-  const trimmedEndDate = rawEndDate?.trim()
+const readValidatedDate = (
+  request: NextRequest,
+  paramName: string
+): string | undefined => {
+  const rawDate = request.nextUrl.searchParams.get(paramName)
+  const trimmedDate = rawDate?.trim()
 
-  if (!trimmedEndDate) {
+  if (!trimmedDate) {
     return undefined
   }
 
-  return validateRequestOrThrow(EndDateParamSchema, trimmedEndDate)
-}
-
-const readValidatedPeriod = (
-  request: NextRequest
-): TStatisticsPeriod | undefined => {
-  const rawPeriod = request.nextUrl.searchParams.get('period')
-  const trimmedPeriod = rawPeriod?.trim().toLowerCase()
-
-  if (!trimmedPeriod) {
-    return undefined
-  }
-
-  return validateRequestOrThrow(PeriodParamSchema, trimmedPeriod)
+  return validateRequestOrThrow(DateParamSchema, trimmedDate)
 }
 
 const readValidatedMainCategory = (
@@ -111,18 +98,18 @@ const readValidatedMainCategory = (
 
 export const buildStatisticsBackendPath = (
   endpoint: TStatisticsEndpoint,
+  startDate?: string,
   endDate?: string,
-  period?: TStatisticsPeriod,
   mainCategory?: string
 ): string => {
   const query = new URLSearchParams()
 
-  if (endDate) {
-    query.set('endDate', endDate)
+  if (startDate) {
+    query.set('startDate', startDate)
   }
 
-  if (period) {
-    query.set('period', period)
+  if (endDate) {
+    query.set('endDate', endDate)
   }
 
   // mainCategory is only applicable for correlation endpoint
@@ -155,13 +142,13 @@ export const proxyStatisticsRequest = async (
   request: NextRequest,
   endpoint: TStatisticsEndpoint
 ): Promise<Response> => {
-  const endDate = readValidatedEndDate(request)
-  const period = readValidatedPeriod(request)
+  const startDate = readValidatedDate(request, 'startDate')
+  const endDate = readValidatedDate(request, 'endDate')
   const mainCategory =
     endpoint === 'correlation' ? readValidatedMainCategory(request) : undefined
 
   return secureFetch(
-    buildStatisticsBackendPath(endpoint, endDate, period, mainCategory),
+    buildStatisticsBackendPath(endpoint, startDate, endDate, mainCategory),
     {
       method: 'GET',
       cache: 'no-store',
