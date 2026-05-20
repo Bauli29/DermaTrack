@@ -1,8 +1,4 @@
-export interface ISliderRangeConfig {
-  min: number
-  max: number
-  step: number
-}
+import { ISliderRangeConfig } from './types'
 
 const getStepPrecision = (value: number): number => {
   const [, fraction = ''] = value.toString().split('.')

@@ -19,6 +19,16 @@ const VALID_USERNAME = 'testuser'
 const VALID_PASSWORD = 'SecurePass123!'
 const VALID_EMAIL = 'test@example.com'
 
+const createFakeAccessToken = (offsetSeconds = 3600): string => {
+  const payload = Buffer.from(
+    JSON.stringify({
+      sub: VALID_USERNAME,
+      exp: Math.floor(Date.now() / 1000) + offsetSeconds,
+    })
+  ).toString('base64url')
+  return `header.${payload}.signature`
+}
+
 // ---------------------------------------------------------------------------
 // Route-mock helpers
 // ---------------------------------------------------------------------------
@@ -68,10 +78,10 @@ test.describe('Auth – Login', () => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',
-        // Set the auth-state cookie so the Next.js middleware (proxy.ts) allows
-        // access to the protected '/' route after redirect.
+        // Set the access-token cookie so the Next.js middleware (proxy.ts) sees
+        // a valid, non-expired JWT and allows access to the protected '/' route.
         headers: {
-          'Set-Cookie': 'dermatrack_auth=1; Path=/; SameSite=Lax; HttpOnly',
+          'Set-Cookie': `dermatrack_access_token=${createFakeAccessToken()}; Path=/; SameSite=Lax; HttpOnly`,
         },
         body: JSON.stringify({ user: { username: VALID_USERNAME } }),
       })
@@ -93,10 +103,10 @@ test.describe('Auth – Login', () => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',
-        // Set the auth-state cookie so the Next.js middleware (proxy.ts) allows
-        // access to the protected '/tracking/daily' route after redirect.
+        // Set the access-token cookie so the Next.js middleware (proxy.ts) sees
+        // a valid, non-expired JWT and allows access to the protected route.
         headers: {
-          'Set-Cookie': 'dermatrack_auth=1; Path=/; SameSite=Lax; HttpOnly',
+          'Set-Cookie': `dermatrack_access_token=${createFakeAccessToken()}; Path=/; SameSite=Lax; HttpOnly`,
         },
         body: JSON.stringify({ user: { username: VALID_USERNAME } }),
       })
@@ -233,7 +243,7 @@ test.describe('Auth – Register', () => {
 
   const fillValidForm = async (page: Page) => {
     await page.getByLabel('Username').fill('newuser123')
-    await page.getByLabel('Email').pressSequentially(VALID_EMAIL)
+    await page.getByLabel('Email').fill(VALID_EMAIL)
     await page.getByLabel('Password', { exact: true }).fill(VALID_PASSWORD)
     await page.getByLabel('Confirm Password').fill(VALID_PASSWORD)
     await page.locator('#accept-terms').check()

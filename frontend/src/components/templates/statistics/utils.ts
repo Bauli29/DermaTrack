@@ -6,29 +6,16 @@ import type {
   SeriesLineOptions,
 } from 'highcharts'
 
+import { IStatisticsSeriesSnapshot } from './types'
+
 import type { ITheme } from '@/lib/themes'
-import type {
-  TStatisticsChart,
-  TStatisticsPeriod,
-} from '@/services/statistics/types'
+import type { TStatisticsChart } from '@/services/statistics/types'
 
 const createLegendItemStyle = (theme: ITheme): CSSObject => ({
   color: theme.colors.text,
   fontSize: '12px',
   fontWeight: '500',
 })
-
-export interface IStatisticsSeriesSnapshot {
-  name: string
-  color: string
-  value: number | null
-  date: string | null
-}
-
-export interface IStatisticsPeriodOption {
-  value: TStatisticsPeriod
-  label: string
-}
 
 const MAX_DENSE_AXIS_TICKS = 10
 const MAX_SPARSE_AXIS_TICKS = 8
@@ -60,25 +47,6 @@ const formatDateAxisLabel = function (
 
   return month ? `${day}<br/>${month}` : day
 }
-
-export const STATISTICS_PERIOD_OPTIONS: IStatisticsPeriodOption[] = [
-  {
-    value: '7d',
-    label: '7 days',
-  },
-  {
-    value: '30d',
-    label: '30 days',
-  },
-  {
-    value: '90d',
-    label: '90 days',
-  },
-]
-
-export const getStatisticsPeriodLabel = (period: TStatisticsPeriod): string =>
-  STATISTICS_PERIOD_OPTIONS.find(option => option.value === period)?.label ??
-  '7 days'
 
 export const getStatisticsSeriesColors = (
   chartType: TStatisticsChart['chartType'],

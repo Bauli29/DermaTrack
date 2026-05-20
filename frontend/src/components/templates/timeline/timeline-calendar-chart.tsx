@@ -11,7 +11,11 @@ import Text from '@/components/atoms/Text'
 import { useTheme } from '@/hooks/use-theme'
 
 import * as SC from './styles'
-import { buildTimelineChartOptions, ITimelineHeatmapPoint } from './utils'
+import { buildTimelineChartOptions } from './utils'
+
+import type { ITimelineCalendarChartProps } from './types'
+
+export type { ITimelineCalendarChartProps } from './types'
 
 import type { ComponentType, HTMLAttributes, Ref } from 'react'
 import type { Options, Point } from 'highcharts'
@@ -21,13 +25,6 @@ const HighchartsChart = Chart as unknown as ComponentType<{
   containerProps?: HTMLAttributes<HTMLDivElement>
   ref?: Ref<HighchartsReactRefObject>
 }>
-
-export interface ITimelineCalendarChartProps {
-  data: ITimelineHeatmapPoint[]
-  monthTitle: string
-  selectedDate: string | null
-  onSelectDate: (date: string) => void
-}
 
 const TimelineCalendarChart = ({
   data,

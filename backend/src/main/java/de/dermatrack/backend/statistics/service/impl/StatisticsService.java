@@ -12,9 +12,8 @@ import de.dermatrack.backend.diary.repository.IDiaryEntryRepository;
 import de.dermatrack.backend.statistics.mapper.StatisticsBarChartMapper;
 import de.dermatrack.backend.statistics.mapper.StatisticsCorrelationBarChartMapper;
 import de.dermatrack.backend.statistics.mapper.StatisticsLineChartMapper;
-import de.dermatrack.backend.statistics.model.common.StatisticsPeriod;
-import de.dermatrack.backend.statistics.model.correlation.StatisticsMainCategory;
 import de.dermatrack.backend.statistics.model.common.HighchartsModel;
+import de.dermatrack.backend.statistics.model.correlation.StatisticsMainCategory;
 import de.dermatrack.backend.statistics.service.IStatisticsService;
 import lombok.RequiredArgsConstructor;
 
@@ -29,37 +28,36 @@ public class StatisticsService implements IStatisticsService {
     private final StatisticsCorrelationBarChartMapper statisticsCorrelationBarChartMapper;
 
     @Override
-    public HighchartsModel getSymptomTrendLine(UUID userId, LocalDate endDate, StatisticsPeriod period) {
-        return getTrend(userId, endDate, period, statisticsLineChartMapper::toHighchartsModel);
+    public HighchartsModel getSymptomTrendLine(UUID userId, LocalDate startDate, LocalDate endDate) {
+        return getTrend(userId, startDate, endDate, statisticsLineChartMapper::toHighchartsModel);
     }
 
     @Override
-    public HighchartsModel getSymptomTrendBar(UUID userId, LocalDate endDate, StatisticsPeriod period) {
-        return getTrend(userId, endDate, period, statisticsBarChartMapper::toHighchartsModel);
+    public HighchartsModel getSymptomTrendBar(UUID userId, LocalDate startDate, LocalDate endDate) {
+        return getTrend(userId, startDate, endDate, statisticsBarChartMapper::toHighchartsModel);
     }
 
     @Override
-    public HighchartsModel getCorrelationTrendBar(UUID userId, LocalDate endDate, StatisticsPeriod period,
+    public HighchartsModel getCorrelationTrendBar(UUID userId, LocalDate startDate, LocalDate endDate,
             String mainCategory) {
         StatisticsMainCategory resolvedMainCategory = StatisticsMainCategory.fromQueryValue(mainCategory);
-        return getTrend(userId, endDate, period,
+        return getTrend(userId, startDate, endDate,
                 (entries, fromDate, toDate) -> statisticsCorrelationBarChartMapper.toHighchartsModel(entries,
                         fromDate, toDate, resolvedMainCategory));
     }
 
     private HighchartsModel getTrend(
             UUID userId,
+            LocalDate startDate,
             LocalDate endDate,
-            StatisticsPeriod period,
             TrendChartMapper mapper) {
         LocalDate effectiveEndDate = endDate == null ? LocalDate.now() : endDate;
-        StatisticsPeriod effectivePeriod = period == null ? StatisticsPeriod.LAST_7_DAYS : period;
-        LocalDate fromDate = effectiveEndDate.minusDays(effectivePeriod.getDays() - 1L);
+        LocalDate effectiveStartDate = startDate == null ? effectiveEndDate.minusDays(6) : startDate;
 
         List<DiaryEntry> entries = diaryEntryRepository
-                .findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, fromDate, effectiveEndDate);
+                .findAllByUser_IdAndEntryDateBetweenOrderByEntryDateAsc(userId, effectiveStartDate, effectiveEndDate);
 
-        return mapper.map(entries, fromDate, effectiveEndDate);
+        return mapper.map(entries, effectiveStartDate, effectiveEndDate);
     }
 
     @FunctionalInterface

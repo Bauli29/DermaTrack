@@ -21,6 +21,7 @@ import {
 import * as SC from './styles'
 
 import type { TValidationState } from '@/components/molecules/Input/types'
+
 const LoginTemplate = () => {
   const router = useRouter()
   const { login, isLoading, error, clearError } = useAuth()

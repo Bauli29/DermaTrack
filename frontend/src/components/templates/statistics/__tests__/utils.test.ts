@@ -2,13 +2,12 @@ import { lightTheme } from '@/lib/themes'
 
 import {
   buildStatisticsAxisTickIndices,
-  buildStatisticsSeriesSnapshots,
   buildStatisticsChartOptions,
+  buildStatisticsSeriesSnapshots,
   formatStatisticsAxisDate,
   formatStatisticsDate,
   formatStatisticsRange,
   formatStatisticsScore,
-  getStatisticsPeriodLabel,
   hasRenderableStatisticsChart,
 } from '../utils'
 
@@ -48,12 +47,6 @@ describe('statistics template utils', () => {
     expect(formatStatisticsScore(4)).toBe('4')
     expect(formatStatisticsScore(4.25)).toBe('4.3')
     expect(formatStatisticsScore(null)).toBe('N/A')
-  })
-
-  it('returns display labels for statistics periods', () => {
-    expect(getStatisticsPeriodLabel('7d')).toBe('7 days')
-    expect(getStatisticsPeriodLabel('30d')).toBe('30 days')
-    expect(getStatisticsPeriodLabel('90d')).toBe('90 days')
   })
 
   it('builds sparse axis ticks for longer periods', () => {
