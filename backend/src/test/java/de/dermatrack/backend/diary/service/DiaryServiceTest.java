@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -41,7 +43,7 @@ class DiaryServiceTest {
     private UUID testId;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws NoSuchFieldException, IllegalAccessException {
         testId = UUID.randomUUID();
         testUser = new AppUser();
         testUser.setId(UUID.randomUUID());
@@ -56,6 +58,12 @@ class DiaryServiceTest {
         testEntry.setSleep(6);
         testEntry.setMentalStrain(5);
         testEntry.setSymptomItchiness(4);
+
+        // Set the self-reference field for unit tests using reflection
+        // This enables methods to call other transactional methods via diaryService
+        Field diaryServiceField = DiaryService.class.getDeclaredField("diaryService");
+        diaryServiceField.setAccessible(true);
+        diaryServiceField.set(diaryService, spy(diaryService));
     }
 
     @Test

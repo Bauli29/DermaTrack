@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional // Enable transaction management
 public class DiaryService {
 
+    private static final String DIARY_ENTRY = "DiaryEntry";
+
     private final IDiaryEntryRepository IDiaryEntryRepository;
+
+    @Lazy
+    @Autowired
+    private DiaryService diaryService;
 
     /**
      * Create or update a diary entry
@@ -43,7 +51,7 @@ public class DiaryService {
     public DiaryEntry findById(UUID id) {
         log.trace("Service: Finding diary entry by id: {}", id);
         return IDiaryEntryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("DiaryEntry", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException(DIARY_ENTRY, "id", id));
     }
 
     /**
@@ -67,7 +75,7 @@ public class DiaryService {
         log.trace("Service: Deleting diary entry by id: {}", id);
 
         if (!IDiaryEntryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("DiaryEntry", "id", id);
+            throw new ResourceNotFoundException(DIARY_ENTRY, "id", id);
         }
 
         IDiaryEntryRepository.deleteById(id);
@@ -89,19 +97,19 @@ public class DiaryService {
     public DiaryEntry findByIdAndUserId(UUID id, UUID userId) {
         log.trace("Service: Finding diary entry by id: {} and user: {}", id, userId);
         return IDiaryEntryRepository.findByIdAndUser_Id(id, userId)
-                .orElseThrow(() -> new ResourceNotFoundException("DiaryEntry", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException(DIARY_ENTRY, "id", id));
     }
 
     public DiaryEntry createForUser(DiaryEntry diaryEntry, UUID userId) {
         LocalDate entryDate = diaryEntry.getEntryDate();
         return IDiaryEntryRepository
                 .findByUser_IdAndEntryDate(userId, entryDate)
-                .map(existing -> updateForUser(existing.getId(), userId, diaryEntry))
+                .map(existing -> diaryService.updateForUser(existing.getId(), userId, diaryEntry))
                 .orElseGet(() -> IDiaryEntryRepository.save(diaryEntry));
     }
 
     public DiaryEntry updateForUser(UUID id, UUID userId, DiaryEntry diaryEntry) {
-        DiaryEntry existingEntry = findByIdAndUserId(id, userId);
+        DiaryEntry existingEntry = diaryService.findByIdAndUserId(id, userId);
 
         existingEntry.setEntryDate(diaryEntry.getEntryDate());
         existingEntry.setStressLevel(diaryEntry.getStressLevel());
@@ -154,7 +162,7 @@ public class DiaryService {
     }
 
     public void deleteByIdAndUserId(UUID id, UUID userId) {
-        DiaryEntry existingEntry = findByIdAndUserId(id, userId);
+        DiaryEntry existingEntry = diaryService.findByIdAndUserId(id, userId);
         IDiaryEntryRepository.delete(existingEntry);
     }
 
@@ -165,7 +173,7 @@ public class DiaryService {
         return IDiaryEntryRepository
                 .findByUser_IdAndEntryDate(userId, date)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "DiaryEntry",
+                        DIARY_ENTRY,
                         "entryDate",
                         date));
     }

@@ -21,62 +21,77 @@ public class DatabaseConfig {
     @Profile("prod")
     public DataSource prodDataSource() {
         String databaseUrl = System.getenv("DATABASE_URL");
+        validateDatabaseUrl(databaseUrl);
 
-        if (databaseUrl != null
-                && (databaseUrl.startsWith("postgresql://") || databaseUrl.startsWith("postgres://"))) {
-            try {
-                String normalizedDatabaseUrl = databaseUrl.startsWith("postgres://")
-                        ? databaseUrl.replaceFirst("^postgres://", "postgresql://")
-                        : databaseUrl;
+        try {
+            URI uri = parsePostgresUrl(databaseUrl);
+            String username = extractUsername(uri);
+            String password = extractPassword(uri);
+            int port = getPort(uri);
+            String jdbcUrl = buildJdbcUrl(uri, port);
 
-                URI uri = new URI(normalizedDatabaseUrl);
+            return DataSourceBuilder.create()
+                    .driverClassName("org.postgresql.Driver")
+                    .url(jdbcUrl)
+                    .username(username)
+                    .password(password)
+                    .build();
 
-                String userInfo = uri.getUserInfo();
-                String username = null;
-                String password = null;
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Invalid DATABASE_URL format", e);
+        }
+    }
 
-                if (userInfo != null) {
-                    String[] credentials = userInfo.split(":");
-                    username = credentials[0];
-                    if (credentials.length > 1) {
-                        password = credentials[1];
-                    }
-                }
+    private void validateDatabaseUrl(String databaseUrl) {
+        if (databaseUrl == null
+                || (!databaseUrl.startsWith("postgresql://") && !databaseUrl.startsWith("postgres://"))) {
+            throw new RuntimeException("DATABASE_URL environment variable is required for production");
+        }
+    }
 
-                int port = uri.getPort();
-                if (port == -1) {
-                    port = 5432;
-                }
+    private URI parsePostgresUrl(String databaseUrl) throws URISyntaxException {
+        String normalizedUrl = databaseUrl.startsWith("postgres://")
+                ? databaseUrl.replaceFirst("^postgres://", "postgresql://")
+                : databaseUrl;
+        return new URI(normalizedUrl);
+    }
 
-                String jdbcUrl;
-                String query = uri.getQuery();
-                if (query != null && !query.isEmpty()) {
-                    jdbcUrl = String.format(
-                            "jdbc:postgresql://%s:%d%s?%s",
-                            uri.getHost(),
-                            port,
-                            uri.getPath(),
-                            query);
-                } else {
-                    jdbcUrl = String.format(
-                            "jdbc:postgresql://%s:%d%s?sslmode=require",
-                            uri.getHost(),
-                            port,
-                            uri.getPath());
-                }
+    private String extractUsername(URI uri) {
+        String userInfo = uri.getUserInfo();
+        if (userInfo != null) {
+            String[] credentials = userInfo.split(":");
+            return credentials[0];
+        }
+        return null;
+    }
 
-                return DataSourceBuilder.create()
-                        .driverClassName("org.postgresql.Driver")
-                        .url(jdbcUrl)
-                        .username(username)
-                        .password(password)
-                        .build();
-
-            } catch (URISyntaxException e) {
-                throw new RuntimeException("Invalid DATABASE_URL format", e);
+    private String extractPassword(URI uri) {
+        String userInfo = uri.getUserInfo();
+        if (userInfo != null) {
+            String[] credentials = userInfo.split(":");
+            if (credentials.length > 1) {
+                return credentials[1];
             }
         }
+        return null;
+    }
 
-        throw new RuntimeException("DATABASE_URL environment variable is required for production");
+    private int getPort(URI uri) {
+        int port = uri.getPort();
+        return port == -1 ? 5432 : port;
+    }
+
+    private String buildJdbcUrl(URI uri, int port) {
+        String query = uri.getQuery();
+        String baseUrl = String.format(
+                "jdbc:postgresql://%s:%d%s",
+                uri.getHost(),
+                port,
+                uri.getPath());
+
+        if (query != null && !query.isEmpty()) {
+            return baseUrl + "?" + query;
+        }
+        return baseUrl + "?sslmode=require";
     }
 }

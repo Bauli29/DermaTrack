@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .anyMatch(p -> p.equals("local-h2") || p.equals("local") || p.equals("default"));
 
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // NOSONAR - stateless JWT API, CSRF nicht relevant
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
