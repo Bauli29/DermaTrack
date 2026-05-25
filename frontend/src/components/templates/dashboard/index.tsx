@@ -413,6 +413,7 @@ const DashboardTemplate = () => {
                       <SC.WeekDayCard
                         key={day.date}
                         type='button'
+                        data-testid={`week-day-${day.date}`}
                         $selected={day.date === selectedDate}
                         onClick={() => handleSelectDate(day.date)}
                         onDoubleClick={() =>
