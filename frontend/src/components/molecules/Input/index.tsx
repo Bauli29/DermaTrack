@@ -1,6 +1,6 @@
 'use client'
 
-import { useId } from 'react'
+import { useId, useEffect, useRef, useState } from 'react'
 
 import Icon from '@/components/atoms/Icon'
 import Text from '@/components/atoms/Text'
@@ -28,8 +28,32 @@ const Input = ({
   const reactId = useId()
   const fieldId = id ?? `input-${reactId}`
   const helperId = helperText ? `${fieldId}-helper` : undefined
-  const showSuccess = validation === 'success'
   const showError = validation === 'error'
+  const [showPassword, setShowPassword] = useState(false)
+  const hideTimerRef = useRef<number | null>(null)
+
+  useEffect(
+    () => () => {
+      if (hideTimerRef.current) window.clearTimeout(hideTimerRef.current)
+    },
+    []
+  )
+
+  const handleTogglePassword = () => {
+    if (!showPassword) {
+      setShowPassword(true)
+      hideTimerRef.current = window.setTimeout(() => {
+        setShowPassword(false)
+        hideTimerRef.current = null
+      }, 3000)
+    } else {
+      if (hideTimerRef.current) {
+        window.clearTimeout(hideTimerRef.current)
+        hideTimerRef.current = null
+      }
+      setShowPassword(false)
+    }
+  }
 
   return (
     <SC.Container $fullWidth={fullWidth} $margin={margin} $maxWidth={maxWidth}>
@@ -48,7 +72,7 @@ const Input = ({
       <SC.FieldWrapper>
         <SC.Input
           id={fieldId}
-          type={type}
+          type={type === 'password' && showPassword ? 'text' : type}
           $validation={validation}
           $disabled={disabled}
           disabled={disabled}
@@ -57,11 +81,21 @@ const Input = ({
           aria-describedby={helperId}
           {...rest}
         />
+        {type === 'password' && (
+          <SC.ToggleButton
+            type='button'
+            onClick={handleTogglePassword}
+            aria-pressed={showPassword}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            <Icon
+              name={showPassword ? 'visibility_off' : 'visibility'}
+              size='md'
+            />
+          </SC.ToggleButton>
+        )}
 
-        <SC.StatusIcon $visible={showSuccess || showError} aria-hidden>
-          {showSuccess && (
-            <Icon name='check_circle' color='success' size='md' />
-          )}
+        <SC.StatusIcon $visible={showError} aria-hidden>
           {showError && <Icon name='cancel' color='error' size='md' />}
         </SC.StatusIcon>
       </SC.FieldWrapper>
