@@ -88,7 +88,7 @@ test.describe('Auth – Login', () => {
     )
 
     await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill(VALID_PASSWORD)
+    await page.getByLabel('Password', { exact: true }).fill(VALID_PASSWORD)
     await page.getByRole('button', { name: 'Login' }).click()
 
     await expect(page).toHaveURL('/')
@@ -113,7 +113,7 @@ test.describe('Auth – Login', () => {
     )
 
     await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill(VALID_PASSWORD)
+    await page.getByLabel('Password', { exact: true }).fill(VALID_PASSWORD)
     await page.getByRole('button', { name: 'Login' }).click()
 
     await expect(page).toHaveURL('/tracking/daily')
@@ -134,7 +134,7 @@ test.describe('Auth – Login', () => {
     )
 
     await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill('WrongPassword1!')
+    await page.getByLabel('Password', { exact: true }).fill('WrongPassword1!')
     await page.getByRole('button', { name: 'Login' }).click()
 
     // USER_FACING_ERROR_MESSAGES[INVALID_CREDENTIALS]
@@ -159,7 +159,7 @@ test.describe('Auth – Login', () => {
     )
 
     await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill(VALID_PASSWORD)
+    await page.getByLabel('Password', { exact: true }).fill(VALID_PASSWORD)
     await page.getByRole('button', { name: 'Login' }).click()
 
     // USER_FACING_ERROR_MESSAGES[SERVER_ERROR]
@@ -173,7 +173,7 @@ test.describe('Auth – Login', () => {
     page,
   }) => {
     await page.getByLabel('Username').fill('ab') // min is 3 chars
-    await page.getByLabel('Password').fill(VALID_PASSWORD)
+    await page.getByLabel('Password', { exact: true }).fill(VALID_PASSWORD)
 
     await expect(page.getByRole('button', { name: 'Login' })).toBeDisabled()
   })
@@ -182,7 +182,7 @@ test.describe('Auth – Login', () => {
     page,
   }) => {
     await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill('short') // no uppercase, no special, too short
+    await page.getByLabel('Password', { exact: true }).fill('short') // no uppercase, no special, too short
 
     await expect(page.getByRole('button', { name: 'Login' })).toBeDisabled()
   })
@@ -191,7 +191,7 @@ test.describe('Auth – Login', () => {
     page,
   }) => {
     await page.getByLabel('Username').fill('a')
-    await page.getByLabel('Password').click() // blur the username field
+    await page.getByLabel('Password', { exact: true }).click() // blur the username field
 
     await expect(page.getByText(/3-50 chars/)).toBeVisible()
   })
@@ -212,7 +212,7 @@ test.describe('Auth – Login', () => {
     )
 
     await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill('WrongPassword1!')
+    await page.getByLabel('Password', { exact: true }).fill('WrongPassword1!')
     await page.getByRole('button', { name: 'Login' }).click()
     // Wait for the specific error text before testing that it clears.
     await expect(page.locator('p[role="alert"]')).toHaveText(
