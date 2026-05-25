@@ -6,7 +6,7 @@ import styled from 'styled-components'
 export const PageWrapper = styled.main`
   width: 100%;
   min-height: calc(100dvh - 128px);
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 16px 12px 24px;
   color: ${({ theme }) => theme.colors.text};
@@ -50,7 +50,7 @@ export const PageWrapper = styled.main`
 
 export const HeroCard = styled.section`
   width: 100%;
-  max-width: 1120px;
+  max-width: 1360px;
   margin: 0 auto;
   display: grid;
   gap: 14px;
@@ -120,7 +120,7 @@ export const StatValue = styled.span`
 
 export const MainGrid = styled.section`
   width: 100%;
-  max-width: 1120px;
+  max-width: 1360px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -129,26 +129,11 @@ export const MainGrid = styled.section`
 
 export const CardGrid = styled.section`
   display: grid;
-  gap: 16px;
+  gap: 20px;
 
   @media (min-width: 900px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
-
-    > :nth-child(1) {
-      grid-column: 1;
-      grid-row: 2;
-    }
-
-    > :nth-child(2) {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    > :nth-child(3) {
-      grid-column: 2;
-      grid-row: 1 / span 2;
-    }
   }
 `
 
@@ -166,8 +151,13 @@ export const CalendarCard = styled.section`
 export const WeekSurface = styled.div`
   display: grid;
   gap: 12px;
-  overflow-x: auto;
   padding-bottom: 4px;
+`
+
+export const WeekScroller = styled.div`
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
 `
 
 export const WeekGrid = styled.div`

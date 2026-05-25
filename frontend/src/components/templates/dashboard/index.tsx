@@ -243,6 +243,11 @@ const DashboardTemplate = () => {
   }, [today, weekStart])
 
   const handleSelectDate = (date: string) => {
+    if (date === selectedDate) {
+      router.push(`/tracking/daily?date=${encodeURIComponent(date)}`)
+      return
+    }
+
     setSelectedDate(date)
     const entry = entries.find(candidate => candidate.entryDate === date)
     setNotice(entry ? null : 'No entry yet for this day.')
@@ -314,53 +319,6 @@ const DashboardTemplate = () => {
         <SC.CardGrid>
           <SC.CardPanel>
             <Headline as='h3' variant='h4' noSpacing>
-              {selectedDate}
-            </Headline>
-            <Text size='small' color='textSecondary' noSpacing>
-              {selectedDateLabel}
-            </Text>
-
-            {selectedEntrySummary ? (
-              <>
-                <SC.BadgeRow>
-                  <SC.Badge>
-                    Severity {selectedEntrySummary.severity.toFixed(1)}
-                  </SC.Badge>
-                  <SC.Badge>
-                    {selectedEntrySummary.factorCount} factors
-                  </SC.Badge>
-                </SC.BadgeRow>
-                <Text size='small' color='textSecondary' noSpacing>
-                  {selectedEntrySummary.symptomSummary}
-                </Text>
-              </>
-            ) : (
-              <SC.EmptyState>
-                <Text size='small' color='textSecondary' noSpacing>
-                  {emptyStateText}
-                </Text>
-              </SC.EmptyState>
-            )}
-
-            <SC.ActionButtonRow>
-              <Button
-                type='button'
-                variant={selectedEntry ? 'primary-outline' : 'primary'}
-                size='md'
-                onClick={openDailyTracking}
-                disabled={false}
-              >
-                <Icon
-                  name={selectedEntry ? 'edit_calendar' : 'add'}
-                  color={selectedEntry ? 'primary' : 'inherit'}
-                />
-                {selectedEntry ? 'Edit entry' : 'New entry'}
-              </Button>
-            </SC.ActionButtonRow>
-          </SC.CardPanel>
-
-          <SC.CardPanel>
-            <Headline as='h3' variant='h4' noSpacing>
               Weekly insights
             </Headline>
             <Text size='small' color='textSecondary' noSpacing>
@@ -410,34 +368,6 @@ const DashboardTemplate = () => {
                   </SC.ActionMeta>
                 </SC.ActionText>
               </SC.ActionLink>
-
-              <SC.ActionLink href='/statistics'>
-                <SC.ActionIcon>
-                  <Icon name='bar_chart' color='primary' />
-                </SC.ActionIcon>
-                <SC.ActionText>
-                  <Text as='span' size='medium' weight={700} noSpacing>
-                    Open statistics
-                  </Text>
-                  <SC.ActionMeta>
-                    Review symptoms, factors, and correlations.
-                  </SC.ActionMeta>
-                </SC.ActionText>
-              </SC.ActionLink>
-
-              <SC.ActionLink href='/timeline'>
-                <SC.ActionIcon>
-                  <Icon name='calendar_month' color='primary' />
-                </SC.ActionIcon>
-                <SC.ActionText>
-                  <Text as='span' size='medium' weight={700} noSpacing>
-                    Open timeline
-                  </Text>
-                  <SC.ActionMeta>
-                    See the full month view and entry history.
-                  </SC.ActionMeta>
-                </SC.ActionText>
-              </SC.ActionLink>
             </SC.ActionGrid>
           </SC.CardPanel>
         </SC.CardGrid>
@@ -448,8 +378,9 @@ const DashboardTemplate = () => {
               Last week
             </Headline>
             <Text size='small' color='textSecondary' noSpacing>
-              A compact view of the last seven days. Click any day to edit an
-              existing entry or create a new one for that date.
+              A compact view of the last seven days. Click any day to see the
+              entry previously recorded. Double click to edit an existing entry
+              or create a new one for that date.
             </Text>
           </SC.CardHeader>
 
@@ -476,28 +407,37 @@ const DashboardTemplate = () => {
 
             return (
               <SC.WeekSurface>
-                <SC.WeekGrid>
-                  {weekDays.map(day => (
-                    <SC.WeekDayCard
-                      key={day.date}
-                      type='button'
-                      $selected={day.date === selectedDate}
-                      onClick={() => handleSelectDate(day.date)}
-                    >
-                      <SC.WeekDayHeader>
-                        <SC.WeekDayLabel>{day.weekday}</SC.WeekDayLabel>
-                        <SC.WeekDayDate>{day.dayOfMonth}</SC.WeekDayDate>
-                      </SC.WeekDayHeader>
-                      <SC.WeekDayValue
-                        $tone={getSeverityTone(day.summary?.severity ?? null)}
+                <SC.WeekScroller>
+                  <SC.WeekGrid>
+                    {weekDays.map(day => (
+                      <SC.WeekDayCard
+                        key={day.date}
+                        type='button'
+                        $selected={day.date === selectedDate}
+                        onClick={() => handleSelectDate(day.date)}
+                        onDoubleClick={() =>
+                          router.push(
+                            `/tracking/daily?date=${encodeURIComponent(
+                              day.date
+                            )}`
+                          )
+                        }
                       >
-                        {day.summary
-                          ? day.summary.severity.toFixed(1)
-                          : 'No entry'}
-                      </SC.WeekDayValue>
-                    </SC.WeekDayCard>
-                  ))}
-                </SC.WeekGrid>
+                        <SC.WeekDayHeader>
+                          <SC.WeekDayLabel>{day.weekday}</SC.WeekDayLabel>
+                          <SC.WeekDayDate>{day.dayOfMonth}</SC.WeekDayDate>
+                        </SC.WeekDayHeader>
+                        <SC.WeekDayValue
+                          $tone={getSeverityTone(day.summary?.severity ?? null)}
+                        >
+                          {day.summary
+                            ? day.summary.severity.toFixed(1)
+                            : 'No entry'}
+                        </SC.WeekDayValue>
+                      </SC.WeekDayCard>
+                    ))}
+                  </SC.WeekGrid>
+                </SC.WeekScroller>
 
                 <SC.WeekLegend>
                   <SC.WeekLegendItem>
@@ -526,6 +466,54 @@ const DashboardTemplate = () => {
             </SC.NoticePanel>
           )}
         </SC.CalendarCard>
+
+        <SC.CardPanel>
+          <Headline as='h3' variant='h4' noSpacing>
+            Entry recorded
+          </Headline>
+          <Text size='small' color='textSecondary' noSpacing>
+            {selectedDate}
+          </Text>
+          <Text size='small' color='textSecondary' noSpacing>
+            {selectedDateLabel}
+          </Text>
+
+          {selectedEntrySummary ? (
+            <>
+              <SC.BadgeRow>
+                <SC.Badge>
+                  Severity {selectedEntrySummary.severity.toFixed(1)}
+                </SC.Badge>
+                <SC.Badge>{selectedEntrySummary.factorCount} factors</SC.Badge>
+              </SC.BadgeRow>
+              <Text size='small' color='textSecondary' noSpacing>
+                {selectedEntrySummary.symptomSummary}
+              </Text>
+            </>
+          ) : (
+            <SC.EmptyState>
+              <Text size='small' color='textSecondary' noSpacing>
+                {emptyStateText}
+              </Text>
+            </SC.EmptyState>
+          )}
+
+          <SC.ActionButtonRow>
+            <Button
+              type='button'
+              variant={selectedEntry ? 'primary-outline' : 'primary'}
+              size='md'
+              onClick={openDailyTracking}
+              disabled={false}
+            >
+              <Icon
+                name={selectedEntry ? 'edit_calendar' : 'add'}
+                color={selectedEntry ? 'primary' : 'inherit'}
+              />
+              {selectedEntry ? 'Edit entry' : 'New entry'}
+            </Button>
+          </SC.ActionButtonRow>
+        </SC.CardPanel>
       </SC.MainGrid>
     </PageWrapper>
   )
