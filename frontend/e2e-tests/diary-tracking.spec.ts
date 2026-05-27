@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 import {
   buildDiaryEntry,
@@ -6,7 +6,11 @@ import {
   mockSessionLoggedIn,
 } from './test-utils'
 
+import type { Page } from '@playwright/test'
+
 const today = () => formatDateInput(new Date())
+const notesTextareaSelector =
+  'textarea[placeholder="Optional: add any context (medication, weather, triggers, etc.)"]:visible'
 
 const mockDiaryEntryApi = async (page: Page, entryDate: string) => {
   await page.route('**/api/diary*', async route => {
@@ -70,11 +74,7 @@ test.describe('Daily tracking page', () => {
     await expect(
       page.getByText('Symptoms', { exact: true }).first()
     ).toBeVisible()
-    await expect(
-      page.getByPlaceholder(
-        'Optional: add any context (medication, weather, triggers, etc.)'
-      )
-    ).toBeVisible()
+    await expect(page.locator(notesTextareaSelector).first()).toBeVisible()
   })
 
   test('validates required factor details before saving', async ({ page }) => {
@@ -118,9 +118,8 @@ test.describe('Daily tracking page', () => {
       .fill('Short lukewarm shower')
     await page.getByRole('checkbox', { name: 'Skin Cracks' }).check()
     await page
-      .getByPlaceholder(
-        'Optional: add any context (medication, weather, triggers, etc.)'
-      )
+      .locator(notesTextareaSelector)
+      .first()
       .fill('New diary note from e2e test')
 
     await page.getByRole('button', { name: 'Save' }).click()
