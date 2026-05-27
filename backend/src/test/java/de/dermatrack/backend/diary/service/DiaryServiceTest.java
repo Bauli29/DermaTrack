@@ -252,30 +252,6 @@ class DiaryServiceTest {
         verify(diaryEntryRepository).findByIdAndUser_Id(testId, anotherUserId);
     }
 
-    /*
-     * @Test
-     * 
-     * @DisplayName("updateForUser() should throw conflict when another entry already uses target date"
-     * )
-     * void updateForUser_WhenDateAlreadyTaken_ShouldThrowConflict() {
-     * UUID userId = testUser.getId();
-     * when(diaryEntryRepository.findByIdAndUser_Id(testId,
-     * userId)).thenReturn(Optional.of(testEntry));
-     * when(diaryEntryRepository.existsByUser_IdAndEntryDateAndIdNot(userId,
-     * testEntry.getEntryDate(), testId))
-     * .thenReturn(true);
-     * 
-     * assertThatThrownBy(() -> diaryService.updateForUser(testId, userId,
-     * testEntry))
-     * .isInstanceOf(DiaryEntryAlreadyExistsException.class);
-     * 
-     * verify(diaryEntryRepository).findByIdAndUser_Id(testId, userId);
-     * verify(diaryEntryRepository).existsByUser_IdAndEntryDateAndIdNot(userId,
-     * testEntry.getEntryDate(), testId);
-     * verify(diaryEntryRepository, never()).save(any(DiaryEntry.class));
-     * }
-     */
-
     @Test
     @DisplayName("updateForUser() should preserve owner and createdAt when update is valid")
     void updateForUser_WhenValid_ShouldPreserveOwnerAndCreatedAt() {
