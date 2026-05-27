@@ -4,7 +4,8 @@ import { createAuthError, EAuthErrorCode, parseApiError } from '@/types/errors'
 import { sessionAwareFetch } from '@/lib/session-aware-fetch'
 
 import type { ISessionResponse } from '@/types/auth'
-import type { IApiErrorResponse, IAuthError } from '@/types/errors'
+import type { IAuthError } from '@/types/errors'
+import type { IAuthApiErrorResponse } from '@/app/api/auth/backend-error-utils'
 
 type TAuthFetch = (input: string, init?: RequestInit) => Promise<Response>
 
@@ -38,10 +39,30 @@ const readJsonResponse = async <T>(response: Response): Promise<T | null> =>
 
 const parseResponseError = async (response: Response): Promise<IAuthError> => {
   const fallbackMessage = 'Authentication request failed'
-  const body = await readJsonResponse<IApiErrorResponse>(response)
+  const body = await readJsonResponse<IAuthApiErrorResponse>(response)
 
   if (body) {
-    return parseApiError(body, response.status)
+    // If body has a 'code' field (from normalizeBackendError), use it directly
+    if (
+      typeof body.code === 'string' &&
+      (Object.values(EAuthErrorCode) as string[]).includes(body.code)
+    ) {
+      return {
+        code: body.code as EAuthErrorCode,
+        message: body.error ?? fallbackMessage,
+        statusCode: body.statusCode ?? response.status,
+        details: body.details ? { details: body.details } : undefined,
+      }
+    }
+
+    // Fallback if code is not recognized
+    return parseApiError(
+      {
+        error: body.error ?? fallbackMessage,
+        message: body.error,
+      },
+      response.status
+    )
   }
 
   return createAuthError(

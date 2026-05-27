@@ -19,7 +19,7 @@ interface IBackendErrorBody {
 
 const BACKEND_ERROR_CODE_MAP: { readonly [key: string]: EAuthErrorCode } = {
   INVALID_CREDENTIALS: EAuthErrorCode.INVALID_CREDENTIALS,
-  INVALID_REFRESH_TOKEN: EAuthErrorCode.SESSION_EXPIRED,
+  INVALID_REFRESH_TOKEN: EAuthErrorCode.REFRESH_FAILED,
   ACCESS_TOKEN_EXPIRED: EAuthErrorCode.SESSION_EXPIRED,
 }
 
@@ -80,7 +80,8 @@ export const normalizeBackendError = async (
 
   const backendErrorCode =
     typeof safeBody.errorCode === 'string'
-      ? BACKEND_ERROR_CODE_MAP[safeBody.errorCode]
+      ? (BACKEND_ERROR_CODE_MAP[safeBody.errorCode] ??
+        EAuthErrorCode.UNKNOWN_ERROR)
       : undefined
 
   if (backendErrorCode) {
