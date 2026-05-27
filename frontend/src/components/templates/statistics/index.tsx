@@ -22,6 +22,11 @@ import {
 } from '@/services/statistics'
 
 import * as SC from './styles'
+import {
+  buildStatisticsCsv,
+  buildStatisticsExportFileName,
+  hasRenderableStatisticsChart,
+} from './utils'
 
 import type { IStatisticsViewState } from './types'
 
@@ -47,6 +52,30 @@ const PRESETS = [
   { label: '7d', days: 7 },
   { label: '14d', days: 14 },
 ] as const
+
+const MAIN_CATEGORIES = [
+  { value: 'care-products', label: 'Care products' },
+  { value: 'nutrition', label: 'Nutrition' },
+  { value: 'contact-factors', label: 'Contact factors' },
+  { value: 'health-factors', label: 'Health factors' },
+] as const
+
+const downloadTextFile = (
+  fileName: string,
+  content: string,
+  mimeType: string
+) => {
+  const blob = new Blob([content], { type: mimeType })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+
+  link.href = url
+  link.download = fileName
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.setTimeout(() => window.URL.revokeObjectURL(url), 0)
+}
 
 const parseStatisticsDate = (value: string): Date | null => {
   if (!value) return null
@@ -182,6 +211,52 @@ const StatisticsTemplate = () => {
   const pickerStart = useMemo(() => parseStatisticsDate(startDate), [startDate])
   const pickerEnd = useMemo(() => parseStatisticsDate(endDate), [endDate])
   const retryStatisticsLoad = () => setReloadKey(current => current + 1)
+  const selectedMainCategoryLabel =
+    MAIN_CATEGORIES.find(category => category.value === selectedMainCategory)
+      ?.label ?? 'Care products'
+  const exportableCharts = useMemo(
+    () =>
+      statistics
+        ? [
+            {
+              title: 'Psyche & Symptoms',
+              chart: statistics.psycheSymptoms,
+            },
+            {
+              title: 'Symptoms',
+              chart: statistics.symptoms,
+            },
+            {
+              title: `Correlation - ${selectedMainCategoryLabel}`,
+              chart: statistics.correlation,
+            },
+          ]
+        : [],
+    [selectedMainCategoryLabel, statistics]
+  )
+  const canExportCsv = exportableCharts.some(({ chart }) =>
+    hasRenderableStatisticsChart(chart)
+  )
+  const csvExportRange =
+    exportableCharts.find(({ chart }) => hasRenderableStatisticsChart(chart))
+      ?.chart.dateRange ?? null
+
+  const exportLoadedStatisticsCsv = () => {
+    if (!canExportCsv || !csvExportRange) {
+      return
+    }
+
+    downloadTextFile(
+      buildStatisticsExportFileName(
+        'dermatrack-statistics',
+        csvExportRange.from,
+        csvExportRange.to,
+        'csv'
+      ),
+      buildStatisticsCsv(exportableCharts),
+      'text/csv;charset=utf-8'
+    )
+  }
 
   return (
     <SC.PageWrapper>
@@ -229,6 +304,22 @@ const StatisticsTemplate = () => {
             ))}
           </SC.PresetGroup>
         </SC.FilterRow>
+        {statistics && (
+          <SC.ToolbarActions>
+            <Button
+              type='button'
+              variant='ghost-outline'
+              size='sm'
+              onClick={exportLoadedStatisticsCsv}
+              disabled={!canExportCsv}
+            >
+              <Icon name='download' color='inherit' aria-hidden='true' />
+              <Text as='span' size='small' color='text' noSpacing>
+                Export CSV
+              </Text>
+            </Button>
+          </SC.ToolbarActions>
+        )}
       </SC.Toolbar>
 
       {error && (
@@ -279,16 +370,34 @@ const StatisticsTemplate = () => {
             chart={statistics.psycheSymptoms}
             title='Psyche & Symptoms'
             description='Mental strain, stress level, sleep and weighted symptoms.'
+            exportFileName={buildStatisticsExportFileName(
+              'psyche-symptoms',
+              statistics.psycheSymptoms.dateRange.from,
+              statistics.psycheSymptoms.dateRange.to,
+              'chart'
+            ).replace(/\.chart$/, '')}
           />
           <StatisticsChartCard
             chart={statistics.symptoms}
             title='Symptoms'
             description='Itchiness, dryness and inflammation.'
+            exportFileName={buildStatisticsExportFileName(
+              'symptoms',
+              statistics.symptoms.dateRange.from,
+              statistics.symptoms.dateRange.to,
+              'chart'
+            ).replace(/\.chart$/, '')}
           />
           <StatisticsChartCard
             chart={statistics.correlation}
             title='Correlation'
             description='Correlation between selected main category and symptoms.'
+            exportFileName={buildStatisticsExportFileName(
+              `correlation-${selectedMainCategoryLabel}`,
+              statistics.correlation.dateRange.from,
+              statistics.correlation.dateRange.to,
+              'chart'
+            ).replace(/\.chart$/, '')}
             emptyMessage={
               correlationNoData ??
               'No chart data is available for the selected window.'
@@ -303,10 +412,11 @@ const StatisticsTemplate = () => {
                   value={selectedMainCategory}
                   onChange={e => setSelectedMainCategory(e.target.value)}
                 >
-                  <option value='care-products'>Care products</option>
-                  <option value='nutrition'>Nutrition</option>
-                  <option value='contact-factors'>Contact factors</option>
-                  <option value='health-factors'>Health factors</option>
+                  {MAIN_CATEGORIES.map(category => (
+                    <option key={category.value} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
                 </SC.MainCategorySelect>
               </SC.CorrelationCategoryControl>
             }

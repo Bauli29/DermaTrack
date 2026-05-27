@@ -36,6 +36,14 @@ export const Toolbar = styled.section`
   gap: 8px;
 `
 
+export const ToolbarActions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+`
+
 export const FilterRow = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -297,6 +305,21 @@ export const ChartHeaderAction = styled.div`
   gap: 6px;
 `
 
+export const ChartExportActions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-start;
+
+  button {
+    min-width: 72px;
+  }
+
+  @media (min-width: 640px) {
+    justify-content: flex-end;
+  }
+`
+
 export const ChartTitleGroup = styled.div`
   display: flex;
   flex-direction: column;
@@ -350,6 +373,13 @@ export const ChartNote = styled.div`
   border-radius: 6px;
   background: ${({ theme }) => theme.colors.card};
   border: 1px solid ${({ theme }) => theme.colors.borderLight};
+`
+
+export const ExportStatus = styled.div`
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: ${({ theme }) => theme.colors.card};
+  border: 1px solid ${({ theme }) => theme.colors.error};
 `
 
 export const StatePanel = styled.section`

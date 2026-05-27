@@ -3,6 +3,8 @@ import { lightTheme } from '@/lib/themes'
 import {
   buildStatisticsAxisTickIndices,
   buildStatisticsChartOptions,
+  buildStatisticsCsv,
+  buildStatisticsExportFileName,
   buildStatisticsSeriesSnapshots,
   formatStatisticsAxisDate,
   formatStatisticsDate,
@@ -47,6 +49,44 @@ describe('statistics template utils', () => {
     expect(formatStatisticsScore(4)).toBe('4')
     expect(formatStatisticsScore(4.25)).toBe('4.3')
     expect(formatStatisticsScore(null)).toBe('N/A')
+  })
+
+  it('builds csv for loaded statistics charts', () => {
+    const csv = buildStatisticsCsv([
+      {
+        title: 'Symptoms, daily',
+        chart: {
+          ...sampleColumnChart,
+          categories: ['2026-04-23', '2026-04-24'],
+          series: [
+            { name: 'Itchiness', data: [6, null] },
+            { name: 'Inflammation "score"', data: [3.5, 4] },
+          ],
+        },
+      },
+    ])
+
+    expect(csv).toBe(
+      [
+        'Chart,Category,Series,Value,From,To',
+        '"Symptoms, daily",2026-04-23,Itchiness,6,2026-04-23,2026-04-24',
+        '"Symptoms, daily",2026-04-23,"Inflammation ""score""",3.5,2026-04-23,2026-04-24',
+        '"Symptoms, daily",2026-04-24,Itchiness,,2026-04-23,2026-04-24',
+        '"Symptoms, daily",2026-04-24,"Inflammation ""score""",4,2026-04-23,2026-04-24',
+        '',
+      ].join('\n')
+    )
+  })
+
+  it('builds safe export file names', () => {
+    expect(
+      buildStatisticsExportFileName(
+        'Correlation - Care products',
+        '2026-04-23',
+        '2026-04-29',
+        'pdf'
+      )
+    ).toBe('correlation-care-products-2026-04-23-to-2026-04-29.pdf')
   })
 
   it('builds sparse axis ticks for longer periods', () => {
@@ -150,6 +190,16 @@ describe('statistics template utils', () => {
     expect(yAxis.labels?.formatter?.call({ value: -1 })).toBe('')
     expect(yAxis.labels?.formatter?.call({ value: 0 })).toBe('0')
     expect(options.legend?.enabled).toBe(false)
+    expect(options.exporting).toEqual(
+      expect.objectContaining({
+        fallbackToExportServer: false,
+        buttons: {
+          contextButton: {
+            enabled: false,
+          },
+        },
+      })
+    )
     expect(options.plotOptions?.series).toEqual(
       expect.objectContaining({
         clip: false,
