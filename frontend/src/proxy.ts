@@ -13,8 +13,12 @@ export const proxy = (request: NextRequest) => {
 
   const { pathname } = request.nextUrl
   const accessToken = request.cookies.get(AUTH_COOKIE_NAMES.ACCESS_TOKEN)?.value
+  const refreshToken = request.cookies.get(
+    AUTH_COOKIE_NAMES.REFRESH_TOKEN
+  )?.value
   const isLoggedIn =
-    typeof accessToken === 'string' && !isAccessTokenExpired(accessToken)
+    (typeof accessToken === 'string' && !isAccessTokenExpired(accessToken)) ||
+    typeof refreshToken === 'string'
   const redirectPath = getAuthRedirectPath(pathname, isLoggedIn)
 
   if (redirectPath) {
