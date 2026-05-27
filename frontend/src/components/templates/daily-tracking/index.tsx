@@ -1,13 +1,14 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import Button from '@/components/atoms/Button'
 import Slider from '@/components/atoms/Slider'
 import Text from '@/components/atoms/Text'
 
 import CompoundCheckboxes from '@/components/molecules/CompoundCheckboxes'
+import ImageUpload from '@/components/molecules/ImageUpload'
 
 import DateCalendarPicker from '@/components/organisms/DateCalendarPicker'
 
@@ -31,6 +32,7 @@ import {
   removeSelectedImage,
   SYMPTOM_CHECKBOX_OPTIONS,
   SYMPTOM_FIELD_DEFINITIONS,
+  validateSelectedImages,
 } from '@/components/templates/daily-tracking/utils'
 import { ContentPageWrapper } from '@/components/templates/shared/styles'
 
@@ -38,12 +40,8 @@ import { formatDateInput } from '@/lib/date'
 
 import { usePageTitle } from '@/hooks/use-page-title'
 
-import {
-  ACCEPTED_IMAGE_TYPES,
-  MAX_IMAGE_MB,
-  MAX_IMAGES,
-} from '@/constants/uploads'
 import { createDiaryEntry, getDiaryEntryByDate } from '@/services/diary'
+import { deleteImage, uploadImage } from '@/services/uploads'
 
 import * as SC from './styles'
 
@@ -225,17 +223,25 @@ const DailyTrackingTemplate = () => {
     )
   }
 
-  const onPickImages: React.ChangeEventHandler<HTMLInputElement> = event => {
+  const onPickImages = (files: File[]) => {
     clearSuccessState()
     setError(null)
-    const files = Array.from(event.target.files ?? [])
+
     if (files.length === 0) {
-      event.target.value = ''
       return
     }
 
-    setImages(prev => appendSelectedImages(prev, files))
-    event.target.value = ''
+    const existingImageCount = formValues.spreadPhotoUrls.length + images.length
+    const validationError = validateSelectedImages(files, existingImageCount)
+
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+
+    setImages(prev =>
+      appendSelectedImages(prev, files, formValues.spreadPhotoUrls.length)
+    )
   }
 
   const handleSymptomChange = (values: string[]) => {
@@ -252,6 +258,13 @@ const DailyTrackingTemplate = () => {
   const removeImage = (index: number) => {
     clearSuccessState()
     setImages(prev => removeSelectedImage(prev, index))
+  }
+
+  const removeSavedImage = (url: string) => {
+    updateFormValue(
+      'spreadPhotoUrls',
+      formValues.spreadPhotoUrls.filter(imageUrl => imageUrl !== url)
+    )
   }
 
   const resetForm = () => {
@@ -293,11 +306,45 @@ const DailyTrackingTemplate = () => {
     }
 
     setIsSubmitting(true)
+    const uploadedImageUrls: string[] = []
 
     try {
-      const result = await createDiaryEntry(submission.data)
+      for (const image of images) {
+        const uploadResult = await uploadImage(image)
+
+        if (!uploadResult.success) {
+          await Promise.all(uploadedImageUrls.map(url => deleteImage(url)))
+          setError(uploadResult.error)
+          return
+        }
+
+        uploadedImageUrls.push(uploadResult.data.url)
+      }
+
+      const finalSubmission =
+        uploadedImageUrls.length > 0
+          ? prepareDailyTrackingSubmission({
+              values: {
+                ...formValues,
+                spreadPhotoUrls: [
+                  ...formValues.spreadPhotoUrls,
+                  ...uploadedImageUrls,
+                ],
+              },
+              images: [],
+            })
+          : submission
+
+      if (!finalSubmission.success) {
+        await Promise.all(uploadedImageUrls.map(url => deleteImage(url)))
+        setError(finalSubmission.error)
+        return
+      }
+
+      const result = await createDiaryEntry(finalSubmission.data)
 
       if (!result.success) {
+        await Promise.all(uploadedImageUrls.map(url => deleteImage(url)))
         setError(result.error)
         return
       }
@@ -555,40 +602,14 @@ const DailyTrackingTemplate = () => {
 
       <SC.Card>
         <SC.SectionTitle>Images</SC.SectionTitle>
-        <SC.ImagePicker>
-          <SC.FileInputLabel>
-            Choose Images
-            <input
-              type='file'
-              accept={ACCEPTED_IMAGE_TYPES.join(',')}
-              multiple
-              onChange={onPickImages}
-            />
-          </SC.FileInputLabel>
-          <SC.HelperText>
-            JPEG/PNG only, up to {MAX_IMAGES} images, max {MAX_IMAGE_MB}MB each.
-            Images are not uploaded yet.
-          </SC.HelperText>
-          <SC.ImagePreviewGrid>
-            {images.length === 0 && (
-              <SC.ImagePreviewItem>No images selected</SC.ImagePreviewItem>
-            )}
-            {images.map((file, index) => (
-              <SC.ImagePreviewItem key={`${file.name}-${file.size}-${index}`}>
-                <SC.ImagePreviewContent>
-                  <SC.ImagePreviewName>{file.name}</SC.ImagePreviewName>
-                  <Button
-                    size='sm'
-                    variant='danger-outline'
-                    onClick={() => removeImage(index)}
-                  >
-                    Remove
-                  </Button>
-                </SC.ImagePreviewContent>
-              </SC.ImagePreviewItem>
-            ))}
-          </SC.ImagePreviewGrid>
-        </SC.ImagePicker>
+        <ImageUpload
+          savedImageUrls={formValues.spreadPhotoUrls}
+          selectedImages={images}
+          disabled={isSubmitting}
+          onPickImages={onPickImages}
+          onRemoveSavedImage={removeSavedImage}
+          onRemoveSelectedImage={removeImage}
+        />
       </SC.Card>
 
       {success && <SC.SuccessText aria-live='polite'>{success}</SC.SuccessText>}

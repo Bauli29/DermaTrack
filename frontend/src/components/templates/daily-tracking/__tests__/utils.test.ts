@@ -15,6 +15,7 @@ import {
   removeSelectedImage,
   validateDailyTrackingForm,
   validateDailyTrackingPayload,
+  validateSelectedImages,
 } from '@/components/templates/daily-tracking/utils'
 
 const createMockFile = (
@@ -50,6 +51,7 @@ describe('daily tracking utils', () => {
         scratch: undefined,
         weepingSkin: undefined,
         skinCracks: undefined,
+        spreadPhotoUrls: [],
         notes: '',
       }
     )
@@ -105,6 +107,36 @@ describe('daily tracking utils', () => {
     assert.strictEqual(nextImages.at(-1)?.name, 'new-1.png')
   })
 
+  it('caps appended images against already saved image urls', () => {
+    const currentImages = [
+      createMockFile('new-1.png', 'image/png', 1024),
+      createMockFile('new-2.png', 'image/png', 1024),
+    ]
+    const selectedImages = [
+      createMockFile('new-3.png', 'image/png', 1024),
+      createMockFile('new-4.png', 'image/png', 1024),
+    ]
+
+    const nextImages = appendSelectedImages(currentImages, selectedImages, 2)
+
+    assert.deepStrictEqual(
+      nextImages.map((image: File) => image.name),
+      ['new-1.png', 'new-2.png', 'new-3.png']
+    )
+  })
+
+  it('validates image limits against existing saved images', () => {
+    const images = [
+      createMockFile('new-1.png', 'image/png', 1024),
+      createMockFile('new-2.png', 'image/png', 1024),
+    ]
+
+    assert.strictEqual(
+      validateSelectedImages(images, 4),
+      'You can select up to 5 images.'
+    )
+  })
+
   it('removes the selected image by index', () => {
     const currentImages = [
       createMockFile('first.png', 'image/png', 1024),
@@ -149,6 +181,7 @@ describe('daily tracking utils', () => {
       scratch: true,
       weepingSkin: false,
       skinCracks: true,
+      spreadPhotoUrls: ['/api/uploads/images/photo-1.jpg'],
       notes: 'More context',
     })
 
@@ -194,6 +227,7 @@ describe('daily tracking utils', () => {
           scratch: true,
           weepingSkin: false,
           skinCracks: true,
+          spreadPhotoUrls: ['/api/uploads/images/photo-1.jpg'],
         },
       },
     })
@@ -220,6 +254,7 @@ describe('daily tracking utils', () => {
       scratch: undefined,
       weepingSkin: undefined,
       skinCracks: undefined,
+      spreadPhotoUrls: [],
       notes: '',
     })
 
@@ -271,6 +306,7 @@ describe('daily tracking utils', () => {
             scratch: true,
             weepingSkin: false,
             skinCracks: true,
+            spreadPhotoUrls: ['/api/uploads/images/photo-1.jpg'],
           },
         },
       }),
@@ -302,6 +338,7 @@ describe('daily tracking utils', () => {
         scratch: true,
         weepingSkin: false,
         skinCracks: true,
+        spreadPhotoUrls: ['/api/uploads/images/photo-1.jpg'],
         notes: 'More context',
       }
     )
@@ -336,6 +373,7 @@ describe('daily tracking utils', () => {
           scratch: true,
           weepingSkin: false,
           skinCracks: true,
+          spreadPhotoUrls: [],
           notes: 'More context',
         },
         images: [],
@@ -413,6 +451,7 @@ describe('daily tracking utils', () => {
           scratch: undefined,
           weepingSkin: undefined,
           skinCracks: undefined,
+          spreadPhotoUrls: [],
           notes: '',
         },
         images: [],

@@ -129,6 +129,7 @@ export const createInitialDailyTrackingValues = (
   scratch: undefined,
   weepingSkin: undefined,
   skinCracks: undefined,
+  spreadPhotoUrls: [],
   notes: '',
 })
 
@@ -149,12 +150,13 @@ export const isFutureDailyTrackingDate = (
 
 export const appendSelectedImages = (
   currentImages: File[],
-  selectedImages: File[]
+  selectedImages: File[],
+  existingImageCount = 0
 ): File[] => {
   const nextImages = [...currentImages]
 
   for (const image of selectedImages) {
-    if (nextImages.length >= MAX_IMAGES) {
+    if (nextImages.length + existingImageCount >= MAX_IMAGES) {
       break
     }
 
@@ -170,8 +172,11 @@ export const removeSelectedImage = (
 ): File[] =>
   currentImages.filter((_, imageIndex) => imageIndex !== indexToRemove)
 
-const validateSelectedImages = (images: File[]): string | null => {
-  if (images.length > MAX_IMAGES) {
+export const validateSelectedImages = (
+  images: File[],
+  existingImageCount = 0
+): string | null => {
+  if (images.length + existingImageCount > MAX_IMAGES) {
     return `You can select up to ${MAX_IMAGES} images.`
   }
 
@@ -194,13 +199,14 @@ const validateSelectedImages = (images: File[]): string | null => {
 export const validateDailyTrackingForm = ({
   date,
   images,
+  existingImageCount = 0,
   today = new Date(),
 }: IDailyTrackingValidationOptions): string | null => {
   if (isFutureDailyTrackingDate(date, today)) {
     return 'Date must not be in the future.'
   }
 
-  return validateSelectedImages(images)
+  return validateSelectedImages(images, existingImageCount)
 }
 
 const getMissingFactorDetailError = (
@@ -308,6 +314,7 @@ export const buildDiaryEntryInput = ({
   scratch,
   weepingSkin,
   skinCracks,
+  spreadPhotoUrls,
   notes,
 }: IDailyTrackingFormValues): TDiaryEntryInput => {
   const psyche = {
@@ -378,13 +385,25 @@ export const buildDiaryEntryInput = ({
     }
   })
 
-  const symptomsObj = {
+  const symptomsObj: {
+    itchiness?: number
+    inflammation?: number
+    dryness?: number
+    scratch?: boolean
+    weepingSkin?: boolean
+    skinCracks?: boolean
+    spreadPhotoUrls?: string[]
+  } = {
     itchiness: itchiness ?? undefined,
     inflammation: inflammation ?? undefined,
     dryness: dryness ?? undefined,
     scratch: scratch ?? undefined,
     weepingSkin: weepingSkin ?? undefined,
     skinCracks: skinCracks ?? undefined,
+  }
+
+  if (spreadPhotoUrls.length > 0) {
+    symptomsObj.spreadPhotoUrls = [...spreadPhotoUrls]
   }
 
   const tracking = {
@@ -422,6 +441,7 @@ export const prepareDailyTrackingSubmission = ({
   const validationError = validateDailyTrackingForm({
     date: values.date,
     images,
+    existingImageCount: values.spreadPhotoUrls.length,
     today,
   })
 
@@ -451,7 +471,9 @@ export const prepareDailyTrackingSubmission = ({
 
   return {
     success: true,
-    data: payloadValidation.data,
+    data: values.id
+      ? { ...payloadValidation.data, id: values.id }
+      : payloadValidation.data,
   }
 }
 
@@ -552,6 +574,7 @@ export const mapDiaryResponseToForm = (
     scratch: tracking.symptoms?.scratch ?? false,
     weepingSkin: tracking.symptoms?.weepingSkin ?? false,
     skinCracks: tracking.symptoms?.skinCracks ?? false,
+    spreadPhotoUrls: tracking.symptoms?.spreadPhotoUrls ?? [],
 
     notes: data.notes ?? '',
   }

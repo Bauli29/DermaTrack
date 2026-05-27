@@ -23,6 +23,7 @@ export interface IDailyTrackingFormValues {
   scratch?: boolean
   weepingSkin?: boolean
   skinCracks?: boolean
+  spreadPhotoUrls: string[]
   notes: string
 }
 
@@ -62,6 +63,7 @@ export interface IDailyTrackingSliderFieldDefinition {
 export interface IDailyTrackingValidationOptions {
   date: string
   images: File[]
+  existingImageCount?: number
   today?: Date
 }
 
@@ -73,7 +75,7 @@ export interface IDailyTrackingSubmissionOptions {
 
 export interface IDailyTrackingSubmissionSuccess {
   success: true
-  data: TDiaryEntryInput
+  data: TDiaryEntryInput & { id?: string }
 }
 
 export interface IDailyTrackingSubmissionFailure {

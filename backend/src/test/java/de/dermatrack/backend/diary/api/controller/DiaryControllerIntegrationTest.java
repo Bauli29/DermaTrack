@@ -185,6 +185,9 @@ class DiaryControllerIntegrationTest {
                                 .andExpect(jsonPath("$.id").value(saved.getId().toString()))
                                 .andExpect(jsonPath("$.entryDate").value("2026-04-25"))
                                 .andExpect(jsonPath("$.tracking.psyche.stressLevel").value(9))
+                                .andExpect(jsonPath("$.tracking.contactFactors.showerNotes").value("yes"))
+                                .andExpect(jsonPath("$.tracking.contactFactors.clothingNotes").value("cotton"))
+                                .andExpect(jsonPath("$.tracking.contactFactors.animalContactNotes").value("none"))
                                 .andExpect(jsonPath("$.tracking.symptoms.itchiness").value(6))
                                 .andExpect(jsonPath("$.tracking.health.otherAllergiesNotes").value("dust"));
         }

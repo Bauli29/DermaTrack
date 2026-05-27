@@ -6,6 +6,7 @@ package-lock.json
 
 # SonarQube and build artifacts
 /backend/target/
+/backend/uploads/
 /frontend/coverage/
 /.scannerwork/
 /reports/
