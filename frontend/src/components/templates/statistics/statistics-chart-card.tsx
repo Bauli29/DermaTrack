@@ -1,22 +1,28 @@
 'use client'
 
+import 'highcharts/esm/modules/exporting.src'
+import 'highcharts/esm/modules/offline-exporting.src'
+
 import type { ComponentType, HTMLAttributes, ReactNode, Ref } from 'react'
 import { Chart, HighchartsReactRefObject } from '@highcharts/react'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
+import Button from '@/components/atoms/Button'
 import Headline from '@/components/atoms/Headline'
+import Icon from '@/components/atoms/Icon'
 import Text from '@/components/atoms/Text'
 
 import { useTheme } from '@/hooks/use-theme'
 
 import * as SC from './styles'
 import {
+  buildStatisticsExportFileName,
   buildStatisticsChartOptions,
   formatStatisticsRange,
   hasRenderableStatisticsChart,
 } from './utils'
 
-import type { Options } from 'highcharts'
+import type { ExportingOptions, Options } from 'highcharts'
 
 import type { TStatisticsChart } from '@/services/statistics/types'
 
@@ -33,6 +39,16 @@ export interface IStatisticsChartCardProps {
   headerAction?: ReactNode
   note?: ReactNode
   emptyMessage?: string
+  exportFileName?: string
+}
+
+type TChartExportType = 'image/png' | 'application/pdf'
+
+interface IExportableHighchartsChart {
+  exportChart?: (
+    exportingOptions?: ExportingOptions,
+    chartOptions?: Options
+  ) => Promise<void> | void
 }
 
 const StatisticsChartCard = ({
@@ -42,14 +58,60 @@ const StatisticsChartCard = ({
   headerAction,
   note,
   emptyMessage,
+  exportFileName,
 }: IStatisticsChartCardProps) => {
   const { theme } = useTheme()
   const chartSurfaceRef = useRef<HTMLDivElement | null>(null)
   const chartRef = useRef<HighchartsReactRefObject | null>(null)
+  const [pendingExportType, setPendingExportType] =
+    useState<TChartExportType | null>(null)
+  const [exportError, setExportError] = useState<string | null>(null)
   const options = useMemo(
     () => buildStatisticsChartOptions(chart, theme),
     [chart, theme]
   )
+
+  const fileNameBase =
+    exportFileName ??
+    buildStatisticsExportFileName(
+      title,
+      chart.dateRange.from,
+      chart.dateRange.to,
+      'chart'
+    ).replace(/\.chart$/, '')
+
+  const exportChart = async (type: TChartExportType) => {
+    const chartInstance = chartRef.current?.chart as
+      | IExportableHighchartsChart
+      | null
+      | undefined
+
+    if (!chartInstance?.exportChart) {
+      setExportError('Chart export is currently unavailable.')
+      return
+    }
+
+    setPendingExportType(type)
+    setExportError(null)
+
+    try {
+      const exportingOptions: ExportingOptions = {
+        fallbackToExportServer: false,
+        filename: fileNameBase,
+        type,
+      }
+
+      await chartInstance.exportChart(exportingOptions, {
+        title: {
+          text: title,
+        },
+      })
+    } catch {
+      setExportError('Chart export failed. Please try again.')
+    } finally {
+      setPendingExportType(null)
+    }
+  }
 
   useEffect(() => {
     const surface = chartSurfaceRef.current
@@ -134,6 +196,32 @@ const StatisticsChartCard = ({
           {headerAction && (
             <SC.ChartHeaderAction>{headerAction}</SC.ChartHeaderAction>
           )}
+          <SC.ChartExportActions aria-label={`${title} exports`}>
+            <Button
+              type='button'
+              variant='ghost-outline'
+              size='sm'
+              onClick={() => void exportChart('image/png')}
+              disabled={pendingExportType !== null}
+            >
+              <Icon name='image' color='inherit' aria-hidden='true' />
+              <Text as='span' size='small' color='text' noSpacing>
+                PNG
+              </Text>
+            </Button>
+            <Button
+              type='button'
+              variant='ghost-outline'
+              size='sm'
+              onClick={() => void exportChart('application/pdf')}
+              disabled={pendingExportType !== null}
+            >
+              <Icon name='picture_as_pdf' color='inherit' aria-hidden='true' />
+              <Text as='span' size='small' color='text' noSpacing>
+                PDF
+              </Text>
+            </Button>
+          </SC.ChartExportActions>
         </SC.ChartHeaderRight>
       </SC.ChartHeader>
       <SC.ChartSurface ref={chartSurfaceRef}>
@@ -148,6 +236,13 @@ const StatisticsChartCard = ({
           }}
         />
       </SC.ChartSurface>
+      {exportError && (
+        <SC.ExportStatus role='alert'>
+          <Text as='span' size='small' color='error' noSpacing>
+            {exportError}
+          </Text>
+        </SC.ExportStatus>
+      )}
       {note && <SC.ChartNote>{note}</SC.ChartNote>}
     </SC.ChartCard>
   )

@@ -28,6 +28,12 @@ const SCORE_AXIS_TICKS = [SCORE_AXIS_PADDING_TICK, ...SCORE_AXIS_VISIBLE_TICKS]
 const CORRELATION_AXIS_MIN = -1
 const CORRELATION_AXIS_MAX = 1
 const CORRELATION_AXIS_TICKS = [-1, -0.5, 0, 0.5, 1]
+const CSV_HEADERS = ['Chart', 'Category', 'Series', 'Value', 'From', 'To']
+
+interface IStatisticsCsvChart {
+  title: string
+  chart: TStatisticsChart
+}
 
 const formatScoreAxisLabel = function (
   this: AxisLabelsFormatterContextObject
@@ -118,6 +124,61 @@ export const formatStatisticsScore = (value: number | null): string => {
   return new Intl.NumberFormat('en-GB', {
     maximumFractionDigits: 1,
   }).format(value)
+}
+
+const escapeCsvField = (value: string | number | null): string => {
+  if (value === null) {
+    return ''
+  }
+
+  const stringValue = String(value)
+
+  if (
+    stringValue.includes('"') ||
+    stringValue.includes(',') ||
+    stringValue.includes('\n')
+  ) {
+    return `"${stringValue.replaceAll('"', '""')}"`
+  }
+
+  return stringValue
+}
+
+export const buildStatisticsCsv = (charts: IStatisticsCsvChart[]): string => {
+  const rows: (string | number | null)[][] = [CSV_HEADERS]
+
+  charts.forEach(({ chart, title }) => {
+    chart.categories.forEach((category, categoryIndex) => {
+      chart.series.forEach(series => {
+        rows.push([
+          title,
+          category,
+          series.name,
+          series.data[categoryIndex] ?? null,
+          chart.dateRange.from,
+          chart.dateRange.to,
+        ])
+      })
+    })
+  })
+
+  return `${rows.map(row => row.map(escapeCsvField).join(',')).join('\n')}\n`
+}
+
+export const buildStatisticsExportFileName = (
+  title: string,
+  from: string,
+  to: string,
+  extension: string
+): string => {
+  const safeTitle = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+  const baseName = safeTitle.length > 0 ? safeTitle : 'statistics'
+
+  return `${baseName}-${from}-to-${to}.${extension}`
 }
 
 export const buildStatisticsAxisTickIndices = (
@@ -216,6 +277,14 @@ export const buildStatisticsChartOptions = (
     colors: getStatisticsSeriesColors(chart.chartType, theme),
     credits: {
       enabled: false,
+    },
+    exporting: {
+      fallbackToExportServer: false,
+      buttons: {
+        contextButton: {
+          enabled: false,
+        },
+      },
     },
     legend: {
       enabled: false,
