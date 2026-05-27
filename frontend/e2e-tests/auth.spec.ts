@@ -87,8 +87,10 @@ test.describe('Auth – Login', () => {
       })
     )
 
-    await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill(VALID_PASSWORD)
+    await page.getByLabel('Username').pressSequentially(VALID_USERNAME)
+    await page
+      .getByLabel('Password', { exact: true })
+      .pressSequentially(VALID_PASSWORD)
     await page.getByRole('button', { name: 'Login' }).click()
 
     await expect(page).toHaveURL('/')
@@ -112,8 +114,10 @@ test.describe('Auth – Login', () => {
       })
     )
 
-    await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill(VALID_PASSWORD)
+    await page.getByLabel('Username').pressSequentially(VALID_USERNAME)
+    await page
+      .getByLabel('Password', { exact: true })
+      .pressSequentially(VALID_PASSWORD)
     await page.getByRole('button', { name: 'Login' }).click()
 
     await expect(page).toHaveURL('/tracking/daily')
@@ -133,8 +137,10 @@ test.describe('Auth – Login', () => {
       })
     )
 
-    await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill('WrongPassword1!')
+    await page.getByLabel('Username').pressSequentially(VALID_USERNAME)
+    await page
+      .getByLabel('Password', { exact: true })
+      .pressSequentially('WrongPassword1!')
     await page.getByRole('button', { name: 'Login' }).click()
 
     // USER_FACING_ERROR_MESSAGES[INVALID_CREDENTIALS]
@@ -158,8 +164,10 @@ test.describe('Auth – Login', () => {
       })
     )
 
-    await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill(VALID_PASSWORD)
+    await page.getByLabel('Username').pressSequentially(VALID_USERNAME)
+    await page
+      .getByLabel('Password', { exact: true })
+      .pressSequentially(VALID_PASSWORD)
     await page.getByRole('button', { name: 'Login' }).click()
 
     // USER_FACING_ERROR_MESSAGES[SERVER_ERROR]
@@ -172,8 +180,10 @@ test.describe('Auth – Login', () => {
   test('sad path: submit button disabled for too-short username', async ({
     page,
   }) => {
-    await page.getByLabel('Username').fill('ab') // min is 3 chars
-    await page.getByLabel('Password').fill(VALID_PASSWORD)
+    await page.getByLabel('Username').pressSequentially('ab') // min is 3 chars
+    await page
+      .getByLabel('Password', { exact: true })
+      .pressSequentially(VALID_PASSWORD)
 
     await expect(page.getByRole('button', { name: 'Login' })).toBeDisabled()
   })
@@ -181,8 +191,10 @@ test.describe('Auth – Login', () => {
   test('sad path: submit button disabled for weak password', async ({
     page,
   }) => {
-    await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill('short') // no uppercase, no special, too short
+    await page.getByLabel('Username').pressSequentially(VALID_USERNAME)
+    await page
+      .getByLabel('Password', { exact: true })
+      .pressSequentially('short') // no uppercase, no special, too short
 
     await expect(page.getByRole('button', { name: 'Login' })).toBeDisabled()
   })
@@ -190,8 +202,8 @@ test.describe('Auth – Login', () => {
   test('sad path: username validation hint appears on blur', async ({
     page,
   }) => {
-    await page.getByLabel('Username').fill('a')
-    await page.getByLabel('Password').click() // blur the username field
+    await page.getByLabel('Username').pressSequentially('a')
+    await page.getByLabel('Password', { exact: true }).click() // blur the username field
 
     await expect(page.getByText(/3-50 chars/)).toBeVisible()
   })
@@ -211,8 +223,10 @@ test.describe('Auth – Login', () => {
       })
     )
 
-    await page.getByLabel('Username').fill(VALID_USERNAME)
-    await page.getByLabel('Password').fill('WrongPassword1!')
+    await page.getByLabel('Username').pressSequentially(VALID_USERNAME)
+    await page
+      .getByLabel('Password', { exact: true })
+      .pressSequentially('WrongPassword1!')
     await page.getByRole('button', { name: 'Login' }).click()
     // Wait for the specific error text before testing that it clears.
     await expect(page.locator('p[role="alert"]')).toHaveText(
@@ -242,10 +256,12 @@ test.describe('Auth – Register', () => {
   })
 
   const fillValidForm = async (page: Page) => {
-    await page.getByLabel('Username').fill('newuser123')
-    await page.getByLabel('Email').fill(VALID_EMAIL)
-    await page.getByLabel('Password', { exact: true }).fill(VALID_PASSWORD)
-    await page.getByLabel('Confirm Password').fill(VALID_PASSWORD)
+    await page.getByLabel('Username').pressSequentially('newuser123')
+    await page.getByLabel('Email').pressSequentially(VALID_EMAIL)
+    await page
+      .getByLabel('Password', { exact: true })
+      .pressSequentially(VALID_PASSWORD)
+    await page.getByLabel('Confirm Password').pressSequentially(VALID_PASSWORD)
     await page.locator('#accept-terms').check()
   }
 
@@ -301,20 +317,26 @@ test.describe('Auth – Register', () => {
   })
 
   test('sad path: mismatched passwords disable submit', async ({ page }) => {
-    await page.getByLabel('Username').fill('newuser123')
-    await page.getByLabel('Email').fill(VALID_EMAIL)
-    await page.getByLabel('Password', { exact: true }).fill(VALID_PASSWORD)
-    await page.getByLabel('Confirm Password').fill('DifferentPass123!')
+    await page.getByLabel('Username').pressSequentially('newuser123')
+    await page.getByLabel('Email').pressSequentially(VALID_EMAIL)
+    await page
+      .getByLabel('Password', { exact: true })
+      .pressSequentially(VALID_PASSWORD)
+    await page
+      .getByLabel('Confirm Password')
+      .pressSequentially('DifferentPass123!')
     await page.locator('#accept-terms').check()
 
     await expect(page.getByRole('button', { name: 'Register' })).toBeDisabled()
   })
 
   test('sad path: unchecked terms disable submit', async ({ page }) => {
-    await page.getByLabel('Username').fill('newuser123')
-    await page.getByLabel('Email').fill(VALID_EMAIL)
-    await page.getByLabel('Password', { exact: true }).fill(VALID_PASSWORD)
-    await page.getByLabel('Confirm Password').fill(VALID_PASSWORD)
+    await page.getByLabel('Username').pressSequentially('newuser123')
+    await page.getByLabel('Email').pressSequentially(VALID_EMAIL)
+    await page
+      .getByLabel('Password', { exact: true })
+      .pressSequentially(VALID_PASSWORD)
+    await page.getByLabel('Confirm Password').pressSequentially(VALID_PASSWORD)
     // intentionally do not check the terms checkbox
 
     await expect(page.getByRole('button', { name: 'Register' })).toBeDisabled()
@@ -332,7 +354,7 @@ test.describe('Auth – Register', () => {
   test('sad path: short username shows validation error on blur', async ({
     page,
   }) => {
-    await page.getByLabel('Username').fill('ab') // too short
+    await page.getByLabel('Username').pressSequentially('ab') // too short
     await page.getByLabel('Email').click()
 
     await expect(page.getByText(/3-50 chars/)).toBeVisible()
@@ -341,8 +363,12 @@ test.describe('Auth – Register', () => {
   test('sad path: password mismatch shows validation error on blur', async ({
     page,
   }) => {
-    await page.getByLabel('Password', { exact: true }).fill(VALID_PASSWORD)
-    await page.getByLabel('Confirm Password').fill('DifferentPass123!')
+    await page
+      .getByLabel('Password', { exact: true })
+      .pressSequentially(VALID_PASSWORD)
+    await page
+      .getByLabel('Confirm Password')
+      .pressSequentially('DifferentPass123!')
     await page.getByLabel('Username').click() // blur confirm password
 
     await expect(page.getByText('Passwords do not match')).toBeVisible()

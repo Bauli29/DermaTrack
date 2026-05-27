@@ -36,6 +36,9 @@ const createRequest = (
   ({
     nextUrl: { pathname },
     url: `http://localhost${pathname}`,
+    headers: {
+      get: (_name: string) => undefined,
+    },
     cookies: {
       get: (name: string) =>
         cookies[name] ? { value: cookies[name] as string } : undefined,
