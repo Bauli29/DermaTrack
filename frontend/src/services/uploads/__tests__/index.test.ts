@@ -33,6 +33,31 @@ const createEmptyResponse = (status: number): Response =>
     text: async () => '',
   }) as Response
 
+const createTextResponse = (body: string, status: number): Response =>
+  ({
+    ok: status >= 200 && status < 300,
+    status,
+    headers: {
+      get: () => 'text/plain',
+    },
+    json: async () => null,
+    text: async () => body,
+  }) as Response
+
+const createInvalidJsonResponse = (status: number): Response =>
+  ({
+    ok: status >= 200 && status < 300,
+    status,
+    headers: {
+      get: (name: string) =>
+        name.toLowerCase() === 'content-type' ? 'application/json' : null,
+    },
+    json: async () => {
+      throw new Error('Invalid JSON')
+    },
+    text: async () => '',
+  }) as Response
+
 describe('uploads service', () => {
   it('uploads an image through the frontend API route', async () => {
     const fetchImpl = jest.fn().mockResolvedValue(
@@ -93,5 +118,64 @@ describe('uploads service', () => {
       { success: true }
     )
     expect(fetchImpl).not.toHaveBeenCalled()
+  })
+
+  it('returns API error messages for failed uploads and deletes', async () => {
+    const uploadFetch = jest.fn().mockResolvedValue(
+      createJsonResponse(
+        {
+          message: 'File type is not supported',
+        },
+        415
+      )
+    )
+    const deleteFetch = jest
+      .fn()
+      .mockResolvedValue(createTextResponse('Image not found', 404))
+
+    await expect(
+      uploadImage(createMockFile('photo.gif', 'image/gif', 2048), uploadFetch)
+    ).resolves.toEqual({
+      success: false,
+      error: 'File type is not supported',
+    })
+    await expect(
+      deleteImage('/api/uploads/images/missing.png', deleteFetch)
+    ).resolves.toEqual({
+      success: false,
+      error: 'Image not found',
+    })
+  })
+
+  it('falls back to runtime and default error messages', async () => {
+    await expect(
+      uploadImage(
+        createMockFile('photo.png', 'image/png', 1024),
+        jest.fn().mockRejectedValue(new Error('Network offline'))
+      )
+    ).resolves.toEqual({
+      success: false,
+      error: 'Network offline',
+    })
+
+    await expect(
+      deleteImage(
+        '/api/uploads/images/photo.png',
+        jest.fn().mockRejectedValue('unknown failure')
+      )
+    ).resolves.toEqual({
+      success: false,
+      error: 'Image request failed. Please try again.',
+    })
+
+    await expect(
+      uploadImage(
+        createMockFile('photo.png', 'image/png', 1024),
+        jest.fn().mockResolvedValue(createInvalidJsonResponse(400))
+      )
+    ).resolves.toEqual({
+      success: false,
+      error: 'Failed to upload image.',
+    })
   })
 })
