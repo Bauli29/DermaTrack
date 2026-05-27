@@ -54,8 +54,9 @@ export const createDiaryEntry = async (
   fetchImpl: TDiaryFetch = fetch
 ): Promise<TCreateDiaryEntryResult> => {
   try {
-    const isUpdate = Boolean(payload.id)
-    const path = isUpdate ? `/api/diary/${payload.id}` : '/api/diary'
+    const { id, ...diaryPayload } = payload
+    const isUpdate = Boolean(id)
+    const path = isUpdate ? `/api/diary/${id}` : '/api/diary'
     const method = isUpdate ? 'PUT' : 'POST'
 
     const response = await sessionAwareFetch(
@@ -63,7 +64,7 @@ export const createDiaryEntry = async (
       {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(diaryPayload),
       },
       { fetchImpl }
     )

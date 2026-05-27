@@ -168,7 +168,10 @@ describe('diary service', () => {
     expect(fetchImpl).toHaveBeenCalledWith('/api/diary/entry-3', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        entryDate: payload.entryDate,
+        tracking: payload.tracking,
+      }),
     })
   })
 

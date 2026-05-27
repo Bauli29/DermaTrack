@@ -117,8 +117,11 @@ public class DiaryService {
         existingEntry.setMentalStrain(diaryEntry.getMentalStrain());
 
         existingEntry.setContactShower(diaryEntry.getContactShower());
+        existingEntry.setContactShowerNotes(diaryEntry.getContactShowerNotes());
         existingEntry.setContactClothing(diaryEntry.getContactClothing());
+        existingEntry.setContactClothingNotes(diaryEntry.getContactClothingNotes());
         existingEntry.setContactAnimal(diaryEntry.getContactAnimal());
+        existingEntry.setContactAnimalNotes(diaryEntry.getContactAnimalNotes());
         existingEntry.setCustomContactFactors(diaryEntry.getCustomContactFactors());
 
         existingEntry.setNutritionNuts(diaryEntry.getNutritionNuts());

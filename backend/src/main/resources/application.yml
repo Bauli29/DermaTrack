@@ -3,6 +3,10 @@
 spring:
   application:
     name: backend
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 25MB
   jpa:
     hibernate:
       ddl-auto: update
@@ -46,6 +50,13 @@ app:
         - Accept
       allow-credentials: true
       max-age-seconds: 3600
+  uploads:
+    images:
+      storage-path: ${DERMATRACK_UPLOAD_DIR:uploads/images}
+      max-file-size-bytes: 5242880
+      allowed-content-types:
+        - image/jpeg
+        - image/png
 
 server:
   port: ${PORT:8080}
