@@ -278,7 +278,6 @@ const DashboardTemplate = () => {
             the month, or jump straight to your statistics.
           </Text>
           <SC.BadgeRow>
-            <SC.Badge>Last 7 days</SC.Badge>
             <SC.Badge>{trackedDays} tracked days</SC.Badge>
             <SC.Badge>
               {hasEntries ? 'Tracking active' : 'No entries yet'}
@@ -470,13 +469,10 @@ const DashboardTemplate = () => {
 
         <SC.CardPanel>
           <Headline as='h3' variant='h4' noSpacing>
-            Entry recorded
+            {selectedDateLabel}
           </Headline>
           <Text size='small' color='textSecondary' noSpacing>
             {selectedDate}
-          </Text>
-          <Text size='small' color='textSecondary' noSpacing>
-            {selectedDateLabel}
           </Text>
 
           {selectedEntrySummary ? (
