@@ -10,6 +10,7 @@ Diese Dokumentation beschreibt den aktuellen Image-Flow für Symptomfotos in Der
 - Der Backend-Upload speichert die Bilddateien user-scoped im Dateisystem.
 - Der Diary-Eintrag speichert nur die zurückgegebenen URL-Strings, nicht die Bildbytes.
 - Gespeicherte Bilder werden später über die geschützte Upload-Route geladen und in der Preview angezeigt.
+- Daily Tracking und Timeline öffnen gespeicherte beziehungsweise ausgewählte Bilder per Klick in einer größeren Vorschau.
 
 ## Relevante Dateien
 
@@ -22,6 +23,9 @@ Diese Dokumentation beschreibt den aktuellen Image-Flow für Symptomfotos in Der
   - bindet `ImageUpload` in das Daily Tracking ein
   - lädt neue Dateien vor dem Diary-Speichern hoch
   - hängt erfolgreiche Upload-URLs an `spreadPhotoUrls` an
+- `frontend/src/components/templates/timeline/index.tsx`
+  - zeigt gespeicherte Bild-URLs im ausgewählten Timeline-Eintrag
+  - öffnet Bildkacheln per Klick in einer größeren Vorschau
 - `frontend/src/services/uploads/index.ts`
   - stellt `uploadImage` und `deleteImage` bereit
   - nutzt `sessionAwareFetch`, damit ein abgelaufener Access Token per Refresh-Flow behandelt werden kann
@@ -110,6 +114,12 @@ app:
 ```
 
 Für lokale Entwicklung wird ohne zusätzliche Umgebungskonfiguration `backend/uploads/images` verwendet. Für produktionsähnliche Umgebungen sollte `DERMATRACK_UPLOAD_DIR` auf ein dauerhaftes Volume oder eine andere persistente Ablage zeigen.
+
+### Production Deployment
+
+Der Spring-Boot-Container läuft als nicht-root Nutzer. Das Docker-Image legt deshalb `/app/uploads/images` an und macht `/app/uploads` für den App-Nutzer beschreibbar. Ohne diese Vorbereitung schlägt der erste Upload in Production mit `500 Internal Server Error` fehl, weil der Prozess das Standardverzeichnis nicht erstellen darf.
+
+Wichtig: Dieses Verzeichnis ist nur dauerhaft, wenn die Deployment-Plattform dort ein persistentes Volume mountet. Für Render kann `DERMATRACK_UPLOAD_DIR` auf einen gemounteten Disk-Pfad zeigen. Für Vercel Functions oder andere serverless Umgebungen sollte nicht in das lokale Dateisystem geschrieben werden; dafür ist Object Storage wie Vercel Blob, S3, Azure Blob oder ein vergleichbarer Dienst nötig.
 
 ## Abruf und Löschen
 

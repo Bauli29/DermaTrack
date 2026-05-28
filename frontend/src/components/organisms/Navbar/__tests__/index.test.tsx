@@ -5,9 +5,9 @@ import { ThemeProvider } from 'styled-components'
 import Navbar from '..'
 
 import { useAuth } from '@/hooks/use-auth'
+import { replaceBrowserLocation } from '@/lib/client-navigation'
 import { lightTheme } from '@/lib/themes'
 
-const pushMock = jest.fn()
 const logoutMock = jest.fn()
 
 let pathname = '/timeline'
@@ -19,13 +19,14 @@ let authState = {
 
 jest.mock('next/navigation', () => ({
   usePathname: () => pathname,
-  useRouter: () => ({
-    push: pushMock,
-  }),
 }))
 
 jest.mock('@/hooks/use-auth', () => ({
   useAuth: jest.fn(),
+}))
+
+jest.mock('@/lib/client-navigation', () => ({
+  replaceBrowserLocation: jest.fn(),
 }))
 
 describe('Navbar', () => {
@@ -46,7 +47,7 @@ describe('Navbar', () => {
       logout: logoutMock,
     }
     ;(useAuth as jest.Mock).mockImplementation(() => authState)
-    pushMock.mockClear()
+    ;(replaceBrowserLocation as jest.Mock).mockClear()
     logoutMock.mockReset().mockResolvedValue(undefined)
     container = document.createElement('div')
     document.body.appendChild(container)
@@ -114,7 +115,7 @@ describe('Navbar', () => {
     })
 
     expect(logoutMock).toHaveBeenCalledTimes(1)
-    expect(pushMock).toHaveBeenCalledWith('/login')
+    expect(replaceBrowserLocation).toHaveBeenCalledWith('/login')
   })
 
   it('disables logout action while auth state is loading', () => {

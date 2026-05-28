@@ -93,7 +93,9 @@ describe('ImageUpload', () => {
       />
     )
 
-    const buttons = Array.from(container.querySelectorAll('button'))
+    const buttons = Array.from(container.querySelectorAll('button')).filter(
+      button => button.textContent?.includes('Remove')
+    )
 
     act(() => {
       buttons[0].dispatchEvent(new MouseEvent('click', { bubbles: true }))
@@ -104,5 +106,37 @@ describe('ImageUpload', () => {
       '/api/uploads/images/saved.png'
     )
     expect(onRemoveSelectedImage).toHaveBeenCalledWith(0)
+  })
+
+  it('opens and closes a full image preview', () => {
+    renderWithTheme(
+      <ImageUpload
+        savedImageUrls={['/api/uploads/images/saved.png']}
+        selectedImages={[]}
+        onPickImages={jest.fn()}
+        onRemoveSavedImage={jest.fn()}
+        onRemoveSelectedImage={jest.fn()}
+      />
+    )
+
+    const previewButton = container.querySelector(
+      'button[aria-label="View saved tracking image 1"]'
+    )
+
+    act(() => {
+      previewButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    expect(container.querySelector('[role="dialog"]')).not.toBeNull()
+
+    const closeButton = container.querySelector(
+      'button[aria-label="Close image preview"]'
+    )
+
+    act(() => {
+      closeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+
+    expect(container.querySelector('[role="dialog"]')).toBeNull()
   })
 })

@@ -309,11 +309,104 @@ export const ImageGrid = styled.div`
   gap: 8px;
 `
 
-export const EntryImage = styled.img`
+export const EntryImageButton = styled.button`
   width: 100%;
   aspect-ratio: 1 / 1;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: zoom-in;
+  overflow: hidden;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.focus};
+    outline-offset: 2px;
+  }
+`
+
+export const EntryImage = styled.img`
+  width: 100%;
+  height: 100%;
+  display: block;
   object-fit: cover;
   border-radius: 8px;
   border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  background: ${({ theme }) => theme.colors.card};
+  transition: transform 0.18s ease;
+
+  ${EntryImageButton}:hover & {
+    transform: scale(1.04);
+  }
+`
+
+export const LightboxBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.72);
+`
+
+export const LightboxDialog = styled.div`
+  width: min(92vw, 56rem);
+  max-height: min(86vh, 48rem);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.surface};
+  box-shadow: 0 20px 48px ${({ theme }) => theme.colors.shadow};
+`
+
+export const LightboxHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+`
+
+export const LightboxTitle = styled.span`
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: ${({ theme }) => theme.colors.text};
+  font-weight: 600;
+`
+
+export const LightboxCloseButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 8px;
+  background: ${({ theme }) => theme.colors.card};
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.hover};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.focus};
+    outline-offset: 2px;
+  }
+`
+
+export const LightboxImage = styled.img`
+  width: 100%;
+  max-height: calc(min(86vh, 48rem) - 4.5rem);
+  display: block;
+  object-fit: contain;
+  border-radius: 6px;
   background: ${({ theme }) => theme.colors.card};
 `

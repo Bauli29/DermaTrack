@@ -9,6 +9,10 @@ import Input from '@/components/molecules/Input'
 
 import { useAuth } from '@/hooks/use-auth'
 import { usePageTitle } from '@/hooks/use-page-title'
+import {
+  getSafeRedirectPathFromSearch,
+  replaceBrowserLocation,
+} from '@/lib/client-navigation'
 
 import { validatePassword, validateUsername } from '@/validation/auth'
 import {
@@ -50,8 +54,9 @@ const LoginTemplate = () => {
     if (validationResult.isValid) {
       try {
         await login(username, password)
-        const nextPath = new URLSearchParams(window.location.search).get('next')
-        router.push(nextPath ?? '/')
+        replaceBrowserLocation(
+          getSafeRedirectPathFromSearch(window.location.search)
+        )
       } catch {
         return
       }
