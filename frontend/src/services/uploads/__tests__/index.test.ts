@@ -4,59 +4,66 @@ import assert from 'node:assert'
 
 import { deleteImage, uploadImage } from '../'
 
+interface IMockResponse {
+  ok: boolean
+  status: number
+  headers: Pick<Headers, 'get'>
+  json: () => Promise<unknown>
+  text: () => Promise<string>
+}
+
 const createMockFile = (
   name: string,
   type: string,
   sizeInBytes: number
 ): File => ({ name, type, size: sizeInBytes }) as File
 
-const createJsonResponse = (body: unknown, status: number): Response =>
-  ({
-    ok: status >= 200 && status < 300,
-    status,
-    headers: {
-      get: (name: string) =>
-        name.toLowerCase() === 'content-type' ? 'application/json' : null,
-    },
-    json: async () => body,
-    text: async () => JSON.stringify(body),
-  }) as Response
+const createJsonResponse = (
+  body: { [key: string]: unknown },
+  status: number
+): IMockResponse => ({
+  ok: status >= 200 && status < 300,
+  status,
+  headers: {
+    get: (name: string) =>
+      name.toLowerCase() === 'content-type' ? 'application/json' : null,
+  },
+  json: async () => body,
+  text: async () => JSON.stringify(body),
+})
 
-const createEmptyResponse = (status: number): Response =>
-  ({
-    ok: status >= 200 && status < 300,
-    status,
-    headers: {
-      get: () => null,
-    },
-    json: async () => null,
-    text: async () => '',
-  }) as unknown as Response
+const createEmptyResponse = (status: number): IMockResponse => ({
+  ok: status >= 200 && status < 300,
+  status,
+  headers: {
+    get: () => null,
+  },
+  json: async () => null,
+  text: async () => '',
+})
 
-const createTextResponse = (body: string, status: number): Response =>
-  ({
-    ok: status >= 200 && status < 300,
-    status,
-    headers: {
-      get: () => 'text/plain',
-    },
-    json: async () => null,
-    text: async () => body,
-  }) as unknown as Response
+const createTextResponse = (body: string, status: number): IMockResponse => ({
+  ok: status >= 200 && status < 300,
+  status,
+  headers: {
+    get: () => 'text/plain',
+  },
+  json: async () => null,
+  text: async () => body,
+})
 
-const createInvalidJsonResponse = (status: number): Response =>
-  ({
-    ok: status >= 200 && status < 300,
-    status,
-    headers: {
-      get: (name: string) =>
-        name.toLowerCase() === 'content-type' ? 'application/json' : null,
-    },
-    json: async () => {
-      throw new Error('Invalid JSON')
-    },
-    text: async () => '',
-  }) as unknown as Response
+const createInvalidJsonResponse = (status: number): IMockResponse => ({
+  ok: status >= 200 && status < 300,
+  status,
+  headers: {
+    get: (name: string) =>
+      name.toLowerCase() === 'content-type' ? 'application/json' : null,
+  },
+  json: async () => {
+    throw new Error('Invalid JSON')
+  },
+  text: async () => '',
+})
 
 describe('uploads service', () => {
   it('uploads an image through the frontend API route', async () => {
@@ -161,7 +168,7 @@ describe('uploads service', () => {
     await expect(
       deleteImage(
         '/api/uploads/images/photo.png',
-        jest.fn().mockRejectedValue('unknown failure')
+        jest.fn().mockRejectedValue(new Error(''))
       )
     ).resolves.toEqual({
       success: false,
