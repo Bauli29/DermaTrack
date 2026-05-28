@@ -31,7 +31,7 @@ const createEmptyResponse = (status: number): Response =>
     },
     json: async () => null,
     text: async () => '',
-  }) as Response
+  }) as unknown as Response
 
 const createTextResponse = (body: string, status: number): Response =>
   ({
@@ -42,7 +42,7 @@ const createTextResponse = (body: string, status: number): Response =>
     },
     json: async () => null,
     text: async () => body,
-  }) as Response
+  }) as unknown as Response
 
 const createInvalidJsonResponse = (status: number): Response =>
   ({
@@ -56,7 +56,7 @@ const createInvalidJsonResponse = (status: number): Response =>
       throw new Error('Invalid JSON')
     },
     text: async () => '',
-  }) as Response
+  }) as unknown as Response
 
 describe('uploads service', () => {
   it('uploads an image through the frontend API route', async () => {
