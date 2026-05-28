@@ -12,12 +12,6 @@ on:
       - "backend/**"
       - ".github/workflows/backend.yml"
   workflow_dispatch:
-    inputs:
-      run_optional_push:
-        description: "Run optional push/deploy stage manually"
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -41,6 +35,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    if: "!(github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[push]'))"
     defaults:
       run:
         working-directory: backend
@@ -96,31 +91,6 @@ jobs:
         with:
           name: backend-test-reports
           path: backend/target/surefire-reports/*.xml
-
-  optional-push-deploy:
-    runs-on: ubuntu-latest
-    needs: [build, test]
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main' &&
-      contains(github.event.head_commit.message, '[push]')) ||
-      (github.event_name == 'workflow_dispatch' && inputs.run_optional_push ==
-      true)
-    defaults:
-      run:
-        working-directory: backend
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build Docker image (push stage)
-        run: docker build -t dermatrack-backend:${{ github.sha }} .
-
-      - name: Optional push/deploy stage
-        run: |
-          echo "Optional push/deploy triggered by [push] token or manual dispatch."
-          echo "Build and test succeeded, optional push/deploy stage executed."
-          echo "If image push is needed, configure registry auth and push commands in this stage."
-    # NOTE: Primary deployment remains handled automatically by Render integration
 
   sonarcloud:
     name: SonarCloud Backend
