@@ -8,6 +8,9 @@ import {
   mockSessionLoggedIn,
 } from './test-utils'
 
+const TRACKING_IMAGE_SRC =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII='
+
 const getDateDaysAgo = (days: number): string => {
   const date = new Date()
   date.setDate(date.getDate() - days)
@@ -47,6 +50,7 @@ test.describe('Timeline page', () => {
         scratch: true,
         weepingSkin: true,
         skinCracks: false,
+        spreadPhotoUrls: [TRACKING_IMAGE_SRC],
         notes: 'Today note',
       }),
       buildDiaryEntry({
@@ -151,5 +155,21 @@ test.describe('Timeline page', () => {
     await expect(page.getByText('Edit entry')).toBeVisible()
     await page.getByRole('button', { name: /Edit entry/i }).click()
     await expect(page).toHaveURL(/\/tracking\/daily\?date=/)
+  })
+
+  test('opens timeline entry images in a full preview', async ({ page }) => {
+    await page
+      .getByRole('button', { name: /^View tracking image 1 for/ })
+      .click()
+
+    await expect(
+      page.getByRole('dialog', { name: 'Tracking image 1' })
+    ).toBeVisible()
+
+    await page.getByRole('button', { name: 'Close image preview' }).click()
+
+    await expect(
+      page.getByRole('dialog', { name: 'Tracking image 1' })
+    ).not.toBeVisible()
   })
 })

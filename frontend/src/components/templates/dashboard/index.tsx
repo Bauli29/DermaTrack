@@ -469,10 +469,13 @@ const DashboardTemplate = () => {
 
         <SC.CardPanel>
           <Headline as='h3' variant='h4' noSpacing>
-            {selectedDateLabel}
+            Entry recorded
           </Headline>
           <Text size='small' color='textSecondary' noSpacing>
             {selectedDate}
+          </Text>
+          <Text size='small' color='textSecondary' noSpacing>
+            {selectedDateLabel}
           </Text>
 
           {selectedEntrySummary ? (

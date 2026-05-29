@@ -15,6 +15,12 @@ import * as SC from './styles'
 
 import type { IImageUploadProps } from './types'
 
+interface IActivePreview {
+  src: string
+  alt: string
+  title: string
+}
+
 const ImageUpload = ({
   savedImageUrls,
   selectedImages,
@@ -27,6 +33,9 @@ const ImageUpload = ({
   const [selectedImagePreviewUrls, setSelectedImagePreviewUrls] = useState<
     string[]
   >([])
+  const [activePreview, setActivePreview] = useState<IActivePreview | null>(
+    null
+  )
   const imageCount = savedImageUrls.length + selectedImages.length
   const isAtLimit = imageCount >= MAX_IMAGES
   const inputDisabled = disabled || isAtLimit
@@ -39,6 +48,24 @@ const ImageUpload = ({
       previewUrls.forEach(url => URL.revokeObjectURL(url))
     }
   }, [selectedImages])
+
+  useEffect(() => {
+    if (!activePreview) {
+      return undefined
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setActivePreview(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [activePreview])
 
   const handleFileChange: React.ChangeEventHandler<
     HTMLInputElement
@@ -82,10 +109,22 @@ const ImageUpload = ({
 
         {savedImageUrls.map((url, index) => (
           <SC.ImagePreviewItem key={url}>
-            <SC.PreviewImage
-              src={url}
-              alt={`Saved tracking image ${index + 1}`}
-            />
+            <SC.PreviewOpenButton
+              type='button'
+              aria-label={`View saved tracking image ${index + 1}`}
+              onClick={() =>
+                setActivePreview({
+                  src: url,
+                  alt: `Saved tracking image ${index + 1}`,
+                  title: 'Saved image',
+                })
+              }
+            >
+              <SC.PreviewImage
+                src={url}
+                alt={`Saved tracking image ${index + 1}`}
+              />
+            </SC.PreviewOpenButton>
             <SC.PreviewOverlay>
               <SC.ImageName>Saved image</SC.ImageName>
               <Button
@@ -102,10 +141,22 @@ const ImageUpload = ({
 
         {selectedImages.map((file, index) => (
           <SC.ImagePreviewItem key={`${file.name}-${file.size}-${index}`}>
-            <SC.PreviewImage
-              src={selectedImagePreviewUrls[index]}
-              alt={`Selected tracking image ${index + 1}`}
-            />
+            <SC.PreviewOpenButton
+              type='button'
+              aria-label={`View selected tracking image ${index + 1}`}
+              onClick={() =>
+                setActivePreview({
+                  src: selectedImagePreviewUrls[index],
+                  alt: `Selected tracking image ${index + 1}`,
+                  title: file.name,
+                })
+              }
+            >
+              <SC.PreviewImage
+                src={selectedImagePreviewUrls[index]}
+                alt={`Selected tracking image ${index + 1}`}
+              />
+            </SC.PreviewOpenButton>
             <SC.PreviewOverlay>
               <SC.ImageName>{file.name}</SC.ImageName>
               <Button
@@ -120,6 +171,32 @@ const ImageUpload = ({
           </SC.ImagePreviewItem>
         ))}
       </SC.ImagePreviewGrid>
+
+      {activePreview && (
+        <SC.LightboxBackdrop
+          role='presentation'
+          onClick={() => setActivePreview(null)}
+        >
+          <SC.LightboxDialog
+            role='dialog'
+            aria-modal='true'
+            aria-label={activePreview.title}
+            onClick={event => event.stopPropagation()}
+          >
+            <SC.LightboxHeader>
+              <SC.LightboxTitle>{activePreview.title}</SC.LightboxTitle>
+              <SC.LightboxCloseButton
+                type='button'
+                aria-label='Close image preview'
+                onClick={() => setActivePreview(null)}
+              >
+                <Icon name='close' color='inherit' size='md' />
+              </SC.LightboxCloseButton>
+            </SC.LightboxHeader>
+            <SC.LightboxImage src={activePreview.src} alt={activePreview.alt} />
+          </SC.LightboxDialog>
+        </SC.LightboxBackdrop>
+      )}
     </SC.ImageUploadRoot>
   )
 }

@@ -38,6 +38,12 @@ const historyDateFormatter = new Intl.DateTimeFormat('en-US', {
 const formatHistoryDate = (date: string): string =>
   historyDateFormatter.format(new Date(`${date}T00:00:00`))
 
+interface IActiveTimelineImage {
+  src: string
+  alt: string
+  title: string
+}
+
 const TimelineCalendarChart = dynamic<ITimelineCalendarChartProps>(
   () => import('./timeline-calendar-chart'),
   {
@@ -68,12 +74,33 @@ const TimelineTemplate = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [notice, setNotice] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const [activeImage, setActiveImage] = useState<IActiveTimelineImage | null>(
+    null
+  )
 
   useEffect(() => {
     setTitle('Timeline')
     setBackLink(null)
     setParentTitle(null)
   }, [setTitle, setBackLink, setParentTitle])
+
+  useEffect(() => {
+    if (!activeImage) {
+      return undefined
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setActiveImage(null)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [activeImage])
 
   const monthRange = useMemo(
     () => getTimelineMonthRange(visibleMonth),
@@ -403,11 +430,23 @@ const TimelineTemplate = () => {
               {selectedEntrySummary.imageUrls.length > 0 && (
                 <SC.ImageGrid aria-label='Entry images'>
                   {selectedEntrySummary.imageUrls.map((url, index) => (
-                    <SC.EntryImage
+                    <SC.EntryImageButton
                       key={`${url}-${index}`}
-                      src={url}
-                      alt={`Tracking image for ${selectedDate}`}
-                    />
+                      type='button'
+                      aria-label={`View tracking image ${index + 1} for ${selectedDate}`}
+                      onClick={() =>
+                        setActiveImage({
+                          src: url,
+                          alt: `Tracking image ${index + 1} for ${selectedDate}`,
+                          title: `Tracking image ${index + 1}`,
+                        })
+                      }
+                    >
+                      <SC.EntryImage
+                        src={url}
+                        alt={`Tracking image for ${selectedDate}`}
+                      />
+                    </SC.EntryImageButton>
                   ))}
                 </SC.ImageGrid>
               )}
@@ -488,6 +527,32 @@ const TimelineTemplate = () => {
           )}
         </SC.HistoryCard>
       </SC.DetailGrid>
+
+      {activeImage && (
+        <SC.LightboxBackdrop
+          role='presentation'
+          onClick={() => setActiveImage(null)}
+        >
+          <SC.LightboxDialog
+            role='dialog'
+            aria-modal='true'
+            aria-label={activeImage.title}
+            onClick={event => event.stopPropagation()}
+          >
+            <SC.LightboxHeader>
+              <SC.LightboxTitle>{activeImage.title}</SC.LightboxTitle>
+              <SC.LightboxCloseButton
+                type='button'
+                aria-label='Close image preview'
+                onClick={() => setActiveImage(null)}
+              >
+                <Icon name='close' color='inherit' size='md' />
+              </SC.LightboxCloseButton>
+            </SC.LightboxHeader>
+            <SC.LightboxImage src={activeImage.src} alt={activeImage.alt} />
+          </SC.LightboxDialog>
+        </SC.LightboxBackdrop>
+      )}
     </SC.PageWrapper>
   )
 }
