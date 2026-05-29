@@ -278,7 +278,6 @@ const DashboardTemplate = () => {
             the month, or jump straight to your statistics.
           </Text>
           <SC.BadgeRow>
-            <SC.Badge>Last 7 days</SC.Badge>
             <SC.Badge>{trackedDays} tracked days</SC.Badge>
             <SC.Badge>
               {hasEntries ? 'Tracking active' : 'No entries yet'}
