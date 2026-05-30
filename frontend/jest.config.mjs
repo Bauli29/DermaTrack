@@ -20,10 +20,10 @@ const config = {
   ],
   coverageThreshold: {
     global: {
-      statements: 60,
-      branches: 60,
-      functions: 60,
-      lines: 60,
+      statements: 80,
+      branches: 80,
+      functions: 80,
+      lines: 80,
     },
   },
   moduleNameMapper: {

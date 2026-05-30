@@ -3,6 +3,7 @@ package de.dermatrack.backend.auth.jwt;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -79,7 +80,7 @@ class JwtServiceTest {
                 .subject("alice")
                 .issuedAt(new Date(System.currentTimeMillis() - 20_000))
                 .expiration(new Date(System.currentTimeMillis() - 10_000))
-                .signWith(Keys.hmacShaKeyFor(ACCESS_SECRET.getBytes()))
+                .signWith(Keys.hmacShaKeyFor(ACCESS_SECRET.getBytes(StandardCharsets.UTF_8)))
                 .compact();
 
         assertThat(jwtService.parseAccessToken(expired)).isNull();
@@ -103,6 +104,11 @@ class JwtServiceTest {
     }
 
     @Test
+    void isRefreshTokenValid_shouldReturnFalse_forInvalidToken() {
+        assertThat(jwtService.isRefreshTokenValid("bad")).isFalse();
+    }
+
+    @Test
     void extractUsernameFromAccessToken_shouldReturnUsername() {
         String token = jwtService.generateAccessToken("alice");
         assertThat(jwtService.extractUsernameFromAccessToken(token)).isEqualTo("alice");
@@ -122,13 +128,29 @@ class JwtServiceTest {
     }
 
     @Test
+    void extractUsernameFromRefreshToken_shouldReturnUsername() {
+        String token = jwtService.generateRefreshToken("alice");
+        assertThat(jwtService.extractUsernameFromRefreshToken(token)).isEqualTo("alice");
+    }
+
+    @Test
+    void extractUsernameFromRefreshToken_shouldReturnNull_forInvalidToken() {
+        assertThat(jwtService.extractUsernameFromRefreshToken("bad")).isNull();
+    }
+
+    @Test
+    void extractRefreshTokenExpiration_shouldReturnNull_forInvalidToken() {
+        assertThat(jwtService.extractRefreshTokenExpiration("bad")).isNull();
+    }
+
+    @Test
     void parseAccessToken_shouldReturnNull_forWrongIssuer() {
         String wrongIssuer = Jwts.builder()
                 .issuer("wrong-issuer")
                 .subject("alice")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 900_000))
-                .signWith(Keys.hmacShaKeyFor(ACCESS_SECRET.getBytes()))
+                .signWith(Keys.hmacShaKeyFor(ACCESS_SECRET.getBytes(StandardCharsets.UTF_8)))
                 .compact();
 
         assertThat(jwtService.parseAccessToken(wrongIssuer)).isNull();

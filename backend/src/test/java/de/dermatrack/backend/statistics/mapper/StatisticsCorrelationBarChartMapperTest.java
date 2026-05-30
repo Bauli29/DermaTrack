@@ -3,7 +3,6 @@ package de.dermatrack.backend.statistics.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,7 +24,6 @@ import de.dermatrack.backend.statistics.model.common.HighchartsModel;
 import de.dermatrack.backend.statistics.model.correlation.StatisticsMainCategory;
 import de.dermatrack.backend.statistics.service.ICorrelationCalculator;
 import de.dermatrack.backend.statistics.service.IWeightedSymptomCalculator;
-import de.dermatrack.backend.statistics.support.StatisticsTestDataFactory;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("StatisticsCorrelationBarChartMapper Unit Tests")
@@ -63,7 +61,7 @@ class StatisticsCorrelationBarChartMapperTest {
         when(weightedSymptomCalculator.calculateSymptomWeight(any(DiaryEntry.class)))
                 .thenReturn(2.5, 3.0, 2.0, 3.5, 2.8, 3.2, 2.9);
 
-        when(correlationCalculator.calculatePearsonCorrelation(any(List.class), any(List.class)))
+        when(correlationCalculator.calculatePearsonCorrelation(any(), any()))
                 .thenReturn(0.85, 0.65, 0.75, -0.45);
 
         HighchartsModel result = mapper.toHighchartsModel(
@@ -76,8 +74,8 @@ class StatisticsCorrelationBarChartMapperTest {
         assertThat(result.getCategories()).hasSize(4);
         assertThat(result.getCategories()).containsExactly("Skin Care", "Hair Products", "Soap Shampoo", "Cosmetics");
         assertThat(result.getSeries()).hasSize(1);
-        assertThat(result.getSeries().get(0).getName()).isEqualTo("Correlation");
-        assertThat(result.getSeries().get(0).getData()).hasSize(4);
+        assertThat(result.getSeries().getFirst().getName()).isEqualTo("Correlation");
+        assertThat(result.getSeries().getFirst().getData()).hasSize(4);
         assertThat(result.getDateRange().getFrom()).isEqualTo(fromDate);
         assertThat(result.getDateRange().getTo()).isEqualTo(endDate);
     }
@@ -101,7 +99,7 @@ class StatisticsCorrelationBarChartMapperTest {
         when(weightedSymptomCalculator.calculateSymptomWeight(any(DiaryEntry.class)))
                 .thenReturn(2.5, 3.0, 2.0, 3.5, 2.8, 3.2, 2.9);
 
-        when(correlationCalculator.calculatePearsonCorrelation(any(List.class), any(List.class)))
+        when(correlationCalculator.calculatePearsonCorrelation(any(), any()))
                 .thenReturn(0.85, // Skin Care
                         0.65, // Hair Products
                         null, // Soap Shampoo returns null
@@ -116,7 +114,7 @@ class StatisticsCorrelationBarChartMapperTest {
         // Should only include non-null correlations
         assertThat(result.getCategories()).hasSize(3);
         assertThat(result.getCategories()).containsExactly("Skin Care", "Hair Products", "Cosmetics");
-        assertThat(result.getSeries().get(0).getData()).containsExactly(0.85, 0.65, -0.45);
+        assertThat(result.getSeries().getFirst().getData()).containsExactly(0.85, 0.65, -0.45);
     }
 
     @Test
@@ -156,7 +154,7 @@ class StatisticsCorrelationBarChartMapperTest {
         when(weightedSymptomCalculator.calculateSymptomWeight(any(DiaryEntry.class)))
                 .thenReturn(2.5);
 
-        when(correlationCalculator.calculatePearsonCorrelation(any(List.class), any(List.class)))
+        when(correlationCalculator.calculatePearsonCorrelation(any(), any()))
                 .thenReturn(0.5);
 
         HighchartsModel result = mapper.toHighchartsModel(
@@ -203,7 +201,7 @@ class StatisticsCorrelationBarChartMapperTest {
         when(weightedSymptomCalculator.calculateSymptomWeight(any(DiaryEntry.class)))
                 .thenReturn(2.5);
 
-        when(correlationCalculator.calculatePearsonCorrelation(any(List.class), any(List.class)))
+        when(correlationCalculator.calculatePearsonCorrelation(any(), any()))
                 .thenReturn(0.5);
 
         HighchartsModel result = mapper.toHighchartsModel(
@@ -249,7 +247,7 @@ class StatisticsCorrelationBarChartMapperTest {
         when(weightedSymptomCalculator.calculateSymptomWeight(any(DiaryEntry.class)))
                 .thenReturn(2.5);
 
-        when(correlationCalculator.calculatePearsonCorrelation(any(List.class), any(List.class)))
+        when(correlationCalculator.calculatePearsonCorrelation(any(), any()))
                 .thenReturn(0.5);
 
         HighchartsModel result = mapper.toHighchartsModel(
@@ -295,7 +293,7 @@ class StatisticsCorrelationBarChartMapperTest {
         when(weightedSymptomCalculator.calculateSymptomWeight(any(DiaryEntry.class)))
                 .thenReturn(2.5);
 
-        when(correlationCalculator.calculatePearsonCorrelation(any(List.class), any(List.class)))
+        when(correlationCalculator.calculatePearsonCorrelation(any(), any()))
                 .thenReturn(0.5);
 
         HighchartsModel result = mapper.toHighchartsModel(
@@ -336,7 +334,7 @@ class StatisticsCorrelationBarChartMapperTest {
         when(weightedSymptomCalculator.calculateSymptomWeight(any(DiaryEntry.class)))
                 .thenReturn(2.5);
 
-        when(correlationCalculator.calculatePearsonCorrelation(any(List.class), any(List.class)))
+        when(correlationCalculator.calculatePearsonCorrelation(any(), any()))
                 .thenReturn(0.8, 0.6, 0.7, 0.5);
 
         mapper.toHighchartsModel(
@@ -348,7 +346,7 @@ class StatisticsCorrelationBarChartMapperTest {
         // Verify correlation calculator was called 4 times (once for each care product
         // subcategory)
         verify(correlationCalculator, times(4))
-                .calculatePearsonCorrelation(any(List.class), any(List.class));
+                .calculatePearsonCorrelation(any(), any());
     }
 
     @Test
@@ -359,14 +357,14 @@ class StatisticsCorrelationBarChartMapperTest {
 
         List<DiaryEntry> entries = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
-            DiaryEntry entry = buildEntryWithNutritionFactors(fromDate.plusDays(i), true, false, true, false, true);
+            DiaryEntry entry = buildEntryWithNutritionFactors(fromDate.plusDays(i));
             entries.add(entry);
         }
 
         when(weightedSymptomCalculator.calculateSymptomWeight(any(DiaryEntry.class)))
                 .thenReturn(2.5);
 
-        when(correlationCalculator.calculatePearsonCorrelation(any(List.class), any(List.class)))
+        when(correlationCalculator.calculatePearsonCorrelation(any(), any()))
                 .thenReturn(0.5);
 
         HighchartsModel result = mapper.toHighchartsModel(
@@ -393,15 +391,14 @@ class StatisticsCorrelationBarChartMapperTest {
         return entry;
     }
 
-    private DiaryEntry buildEntryWithNutritionFactors(LocalDate date, Boolean nuts, Boolean fruits,
-            Boolean shellfish, Boolean dairy, Boolean gluten) {
+    private DiaryEntry buildEntryWithNutritionFactors(LocalDate date) {
         DiaryEntry entry = new DiaryEntry();
         entry.setEntryDate(date);
-        entry.setNutritionNuts(nuts);
-        entry.setNutritionFruits(fruits);
-        entry.setNutritionShellfish(shellfish);
-        entry.setNutritionDairy(dairy);
-        entry.setNutritionGluten(gluten);
+        entry.setNutritionNuts(true);
+        entry.setNutritionFruits(false);
+        entry.setNutritionShellfish(true);
+        entry.setNutritionDairy(false);
+        entry.setNutritionGluten(true);
         entry.setSymptomItchiness(2);
         entry.setSymptomDryness(1);
         entry.setSymptomInflammation(1);

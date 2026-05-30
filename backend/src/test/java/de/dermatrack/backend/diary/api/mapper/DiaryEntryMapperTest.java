@@ -16,6 +16,7 @@ import de.dermatrack.backend.diary.api.dto.ContactFactorsDto;
 import de.dermatrack.backend.diary.api.dto.DailyTrackingPayloadDto;
 import de.dermatrack.backend.diary.api.dto.DiaryEntryCreateRequest;
 import de.dermatrack.backend.diary.api.dto.DiaryEntryResponse;
+import de.dermatrack.backend.diary.api.dto.DiaryEntryUpdateRequest;
 import de.dermatrack.backend.diary.api.dto.HealthDto;
 import de.dermatrack.backend.diary.api.dto.NutritionDto;
 import de.dermatrack.backend.diary.api.dto.PsycheDto;
@@ -32,7 +33,7 @@ class DiaryEntryMapperTest {
     void toEntity_CreateRequest_ShouldMapTrackingPayload() {
         DiaryEntryCreateRequest request = new DiaryEntryCreateRequest();
         request.setEntryDate(LocalDate.of(2026, 4, 23));
-        request.setTracking(buildTracking(7, 4, "pollen"));
+        request.setTracking(buildTracking());
 
         DiaryEntry entity = mapper.toEntity(request);
 
@@ -40,12 +41,12 @@ class DiaryEntryMapperTest {
         assertThat(entity.getStressLevel()).isEqualTo(7);
         assertThat(entity.getSleep()).isEqualTo(6);
         assertThat(entity.getMentalStrain()).isEqualTo(5);
-        assertThat(entity.getContactShower()).isEqualTo(true);
+        assertThat(entity.getContactShower()).isTrue();
         assertThat(entity.getContactShowerNotes()).isEqualTo("shower-note");
         assertThat(entity.getContactClothingNotes()).isEqualTo("cotton");
-        assertThat(entity.getNutritionFruits()).isEqualTo(true);
+        assertThat(entity.getNutritionFruits()).isTrue();
         assertThat(entity.getNutritionFruitsNotes()).isEqualTo("yes");
-        assertThat(entity.getCareSkinCare()).isEqualTo(true);
+        assertThat(entity.getCareSkinCare()).isTrue();
         assertThat(entity.getCareSkinCareNotes()).isEqualTo("basic");
         assertThat(entity.getHealthOtherAllergiesNotes()).isEqualTo("pollen");
         assertThat(entity.getSymptomItchiness()).isEqualTo(4);
@@ -120,17 +121,80 @@ class DiaryEntryMapperTest {
                 .containsExactly("https://example.com/p1.jpg");
     }
 
-    private DailyTrackingPayloadDto buildTracking(int stressLevel, int itchiness, String allergies) {
+    @Test
+    @DisplayName("toEntity(createRequest) should tolerate missing tracking")
+    void toEntity_CreateRequest_ShouldTolerateMissingTracking() {
+        DiaryEntryCreateRequest request = new DiaryEntryCreateRequest();
+        request.setEntryDate(LocalDate.of(2026, 5, 30));
+        request.setNotes("minimal entry");
+
+        DiaryEntry entity = mapper.toEntity(request);
+
+        assertThat(entity.getEntryDate()).isEqualTo(LocalDate.of(2026, 5, 30));
+        assertThat(entity.getNotes()).isEqualTo("minimal entry");
+        assertThat(entity.getStressLevel()).isNull();
+        assertThat(entity.getCustomContactFactors()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("toEntity(updateRequest) should map only present sections and default null lists")
+    void toEntity_UpdateRequest_ShouldMapOnlyPresentSectionsAndDefaultNullLists() {
         DailyTrackingPayloadDto tracking = new DailyTrackingPayloadDto();
-        tracking.setPsyche(new PsycheDto(stressLevel, 6, 5));
+        tracking.setContactFactors(new ContactFactorsDto(true, null, false, null, true, null, null));
+        tracking.setNutrition(new NutritionDto(null, null, null, null, null, null, null, null, null, null, null));
+        tracking.setCareProducts(new CareProductsDto(null, null, null, null, null, null, null, null, null));
+        tracking.setSymptoms(new SymptomsDto(1, false, 2, 3, false, true, null));
+
+        DiaryEntryUpdateRequest request = new DiaryEntryUpdateRequest();
+        request.setEntryDate(LocalDate.of(2026, 5, 31));
+        request.setNotes("partial update");
+        request.setTracking(tracking);
+
+        DiaryEntry entity = mapper.toEntity(request);
+
+        assertThat(entity.getEntryDate()).isEqualTo(LocalDate.of(2026, 5, 31));
+        assertThat(entity.getNotes()).isEqualTo("partial update");
+        assertThat(entity.getStressLevel()).isNull();
+        assertThat(entity.getContactShower()).isTrue();
+        assertThat(entity.getContactClothing()).isFalse();
+        assertThat(entity.getContactAnimal()).isTrue();
+        assertThat(entity.getCustomContactFactors()).isEmpty();
+        assertThat(entity.getCustomNutritionFactors()).isEmpty();
+        assertThat(entity.getCustomCareProducts()).isEmpty();
+        assertThat(entity.getHealthOtherAllergies()).isNull();
+        assertThat(entity.getSymptomItchiness()).isEqualTo(1);
+        assertThat(entity.getSymptomSkinCracks()).isTrue();
+        assertThat(entity.getSymptomSpreadPhotoUrls()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("toResponseList should map every entity")
+    void toResponseList_ShouldMapEveryEntity() {
+        DiaryEntry first = new DiaryEntry();
+        first.setId(UUID.randomUUID());
+        first.setEntryDate(LocalDate.of(2026, 5, 29));
+        DiaryEntry second = new DiaryEntry();
+        second.setId(UUID.randomUUID());
+        second.setEntryDate(LocalDate.of(2026, 5, 30));
+
+        List<DiaryEntryResponse> responses = mapper.toResponseList(List.of(first, second));
+
+        assertThat(responses).extracting(DiaryEntryResponse::getId).containsExactly(first.getId(), second.getId());
+        assertThat(responses).extracting(DiaryEntryResponse::getEntryDate)
+                .containsExactly(LocalDate.of(2026, 5, 29), LocalDate.of(2026, 5, 30));
+    }
+
+    private DailyTrackingPayloadDto buildTracking() {
+        DailyTrackingPayloadDto tracking = new DailyTrackingPayloadDto();
+        tracking.setPsyche(new PsycheDto(7, 6, 5));
         tracking.setContactFactors(
                 new ContactFactorsDto(true, "shower-note", true, "cotton", false, "none", List.of("dust")));
         tracking.setNutrition(
                 new NutritionDto(false, "no", true, "yes", false, "no", true, "yes", false, "no", List.of("coffee")));
         tracking.setCareProducts(new CareProductsDto(true, "basic", false, "none", true, "sensitive", false, "none",
                 List.of("cream-a")));
-        tracking.setHealth(new HealthDto(true, allergies, false, "none"));
-        tracking.setSymptoms(new SymptomsDto(itchiness, true, 3, 2, false, false,
+        tracking.setHealth(new HealthDto(true, "pollen", false, "none"));
+        tracking.setSymptoms(new SymptomsDto(4, true, 3, 2, false, false,
                 List.of("https://example.com/p1.jpg")));
         return tracking;
     }
