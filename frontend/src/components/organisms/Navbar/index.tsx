@@ -1,11 +1,12 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import React from 'react'
 
 import Icon from '@/components/atoms/Icon'
 import Text from '@/components/atoms/Text'
 import { useAuth } from '@/hooks/use-auth'
+import { replaceBrowserLocation } from '@/lib/client-navigation'
 
 import * as SC from './styles'
 
@@ -46,7 +47,6 @@ const NavItems: INavItem[] = [
 
 const NavBar = ({ items = NavItems }: IBottomNavProps) => {
   const pathname = usePathname()
-  const router = useRouter()
   const { isLoggedIn, isLoading, logout } = useAuth()
 
   // Memoize active state check to avoid recalculations
@@ -63,8 +63,8 @@ const NavBar = ({ items = NavItems }: IBottomNavProps) => {
 
   const handleLogout = React.useCallback(async () => {
     await logout()
-    router.push('/login')
-  }, [logout, router])
+    replaceBrowserLocation('/login')
+  }, [logout])
 
   // used from NavLink and NavActionButton
   const renderNavItemContent = React.useCallback(

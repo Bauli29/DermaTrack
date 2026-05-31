@@ -29,7 +29,9 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # Change ownership to non-root user
-RUN chown appuser:appgroup /app/app.jar
+RUN mkdir -p /app/uploads/images && \
+    chown appuser:appgroup /app/app.jar && \
+    chown -R appuser:appgroup /app/uploads
 
 # Switch to non-root user
 USER appuser
