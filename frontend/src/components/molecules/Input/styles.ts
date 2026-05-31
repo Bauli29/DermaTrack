@@ -7,7 +7,7 @@ import {
   FieldWrapper,
   StatusIcon,
   validationFieldBaseStyles,
-} from '../shared/form-field.styles'
+} from '../shared/form-field'
 
 export { Container, FieldWrapper, StatusIcon }
 

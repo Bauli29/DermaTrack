@@ -174,7 +174,8 @@ export const buildStatisticsExportFileName = (
   const safeTitle = title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '')
 
   const baseName = safeTitle.length > 0 ? safeTitle : 'statistics'
 
