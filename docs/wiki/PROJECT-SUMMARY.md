@@ -1,8 +1,8 @@
 # DermaTrack - Project Summary
 
-## 📋 Overview
+## Overview
 
-**DermaTrack** is a comprehensive web application designed for tracking and analyzing skin changes, specifically focused on Neurodermitis (atopic eczema) management. The project enables users to monitor their skin condition over time with detailed logging, symptom tracking, and visual documentation.
+**DermaTrack** is a comprehensive web application designed for tracking and analyzing skin changes, specifically focused on Neurodermitis (atopic eczema) management. The project enables users to monitor skin conditions and track treatment progress over time.
 
 **Team:** Bastian, Philip, Johanna, Sebastian, Sribriddhi
 
@@ -11,7 +11,7 @@
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Frontend
 - **Framework:** Next.js (React)
@@ -36,7 +36,7 @@
 
 ---
 
-## 📦 Project Structure
+## Project Structure
 
 ```
 DermaTrack/
@@ -67,7 +67,7 @@ DermaTrack/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js & pnpm (frontend)
@@ -107,7 +107,7 @@ cd backend && mvn spring-boot:run
 
 ---
 
-## ✅ Testing & Coverage
+## Testing & Coverage
 
 ### Frontend Testing
 - **Framework:** Jest with ts-jest preset
@@ -135,7 +135,7 @@ npx husky add .husky/pre-commit "node ./scripts/pre-commit-backend-coverage.js"
 
 ---
 
-## 📊 Code Quality & Metrics
+## Code Quality & Metrics
 
 ### SonarCloud Projects
 - **Organization Dashboard:** [SonarCloud DermaTrack](https://sonarcloud.io/organizations/dermatrack/projects)
@@ -150,7 +150,7 @@ npx husky add .husky/pre-commit "node ./scripts/pre-commit-backend-coverage.js"
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 ### Developer Documentation
 1. **[Metrics Setup Guide](https://github.com/Bauli29/DermaTrack/blob/main/docs/developer-docs/metrics-setup.md)** - How to generate and view code metrics, CK reports, and SonarCloud analysis
@@ -171,7 +171,7 @@ Key topics typically covered in wikis:
 
 ---
 
-## 🔐 Authentication & Security
+## Authentication & Security
 
 The application implements JWT-based authentication:
 - **Access Tokens:** Short-lived JWT tokens for API requests
@@ -187,7 +187,7 @@ The application implements JWT-based authentication:
 
 ---
 
-## 🐳 Deployment
+## Deployment
 
 ### Docker Deployment
 
@@ -217,7 +217,7 @@ The application implements JWT-based authentication:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 ### Development Workflow
 1. Create a feature branch from `main`
@@ -241,7 +241,7 @@ npx husky install
 
 ---
 
-## 📝 Key Files Reference
+## Key Files Reference
 
 | File | Purpose |
 |------|---------|
@@ -258,7 +258,7 @@ npx husky install
 
 ---
 
-## 🔗 Important Links
+## Important Links
 
 - **Repository:** https://github.com/Bauli29/DermaTrack
 - **Live Application:** https://derma-track.vercel.app
@@ -269,7 +269,7 @@ npx husky install
 
 ---
 
-## ❓ Frequently Asked Questions
+## Frequently Asked Questions
 
 **Q: How do I start development locally?**  
 A: Run `pnpm dev` from the project root to start both frontend and backend.
