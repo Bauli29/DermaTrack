@@ -121,4 +121,6 @@ jobs:
           ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.token=${SONAR_TOKEN} \
             -Dsonar.projectKey=dermatrack_backend \
-            -Dsonar.organization=${SONAR_ORGANIZATION}
+            -Dsonar.organization=${SONAR_ORGANIZATION} \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dsonar.coverage.exclusions=**/mock/**,**/config/**,**/exception/**,**/BackendApplication.java
