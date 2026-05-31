@@ -33,7 +33,8 @@ const LoginTemplate = () => {
   const { setTitle } = usePageTitle()
   useEffect(() => {
     setTitle('Login')
-  }, [setTitle])
+    clearError()
+  }, [setTitle, clearError])
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')

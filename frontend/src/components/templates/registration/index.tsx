@@ -36,7 +36,8 @@ const RegistrationTemplate = () => {
   const { setTitle } = usePageTitle()
   useEffect(() => {
     setTitle('Registration')
-  }, [setTitle])
+    clearError()
+  }, [setTitle, clearError])
 
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
