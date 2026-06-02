@@ -7,14 +7,14 @@ Table app_user {
   email varchar(100) [unique, not null]
   username varchar(50) [unique, not null]
   password varchar(255) [not null]
-  created_at timestamp [not null]
-  updated_at timestamp [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
 }
 
 Table diary_entry {
   id uuid [pk, not null]
   user_id uuid [not null]
-  created_at timestamp [not null]
+  created_at timestamptz [not null]
   entry_date date [not null]
 
   stress_level integer
@@ -22,36 +22,36 @@ Table diary_entry {
   mental_strain integer
 
   contact_shower boolean
-  contact_shower_notes text
+  contact_shower_notes varchar(255)
   contact_clothing boolean
-  contact_clothing_notes text
+  contact_clothing_notes varchar(255)
   contact_animal boolean
-  contact_animal_notes text
+  contact_animal_notes varchar(255)
 
   nutrition_nuts boolean
-  nutrition_nuts_notes text
+  nutrition_nuts_notes varchar(255)
   nutrition_fruits boolean
-  nutrition_fruits_notes text
+  nutrition_fruits_notes varchar(255)
   nutrition_shellfish boolean
-  nutrition_shellfish_notes text
+  nutrition_shellfish_notes varchar(255)
   nutrition_dairy boolean
-  nutrition_dairy_notes text
+  nutrition_dairy_notes varchar(255)
   nutrition_gluten boolean
-  nutrition_gluten_notes text
+  nutrition_gluten_notes varchar(255)
 
   care_skin_care boolean
-  care_skin_care_notes text
+  care_skin_care_notes varchar(255)
   care_hair_products boolean
-  care_hair_products_notes text
-  care_soapShampoo boolean
-  care_soapShampoo_notes text
+  care_hair_products_notes varchar(255)
+  care_soapshampoo boolean
+  care_soapshampoo_notes varchar(255)
   care_cosmetics boolean
-  care_cosmetics_notes text
+  care_cosmetics_notes varchar(255)
 
   health_other_allergies boolean
-  health_other_allergies_notes text
+  health_other_allergies_notes varchar(255)
   health_infections boolean
-  health_infections_notes text
+  health_infections_notes varchar(255)
 
   symptom_itchiness integer
   symptom_scratch boolean
@@ -61,21 +61,25 @@ Table diary_entry {
   symptom_skin_cracks boolean
 
   notes text
+
+  indexes {
+    (user_id, entry_date) [unique, name: 'uk_diary_entry_user_entry_date']
+  }
 }
 
 Table diary_entry_custom_contact {
   diary_entry_id uuid [not null]
-  factor text
+  factor varchar(255)
 }
 
 Table diary_entry_custom_nutrition {
   diary_entry_id uuid [not null]
-  factor text
+  factor varchar(255)
 }
 
 Table diary_entry_custom_care {
   diary_entry_id uuid [not null]
-  product text
+  product varchar(255)
 }
 
 Table diary_entry_spread_photo {
@@ -87,8 +91,8 @@ Table refresh_token {
   id uuid [pk, not null]
   user_id uuid [not null]
   token text [not null, unique]
-  expires_at timestamp [not null]
-  created_at timestamp [not null]
+  expires_at timestamptz [not null]
+  created_at timestamptz [not null]
   revoked boolean [not null]
 }
 
