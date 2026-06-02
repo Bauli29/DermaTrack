@@ -88,7 +88,7 @@ export const lightTheme: ITheme = {
 
     subsectionBg: '#F1FAF9',
     subsectionBorderAccent: '#A8DADC',
-    title: '#4F8F97',
+    title: '#1A1A1A',
     accentText: '#6B8F8B',
     label: '#3F4A4A', // slightly stronger than textSecondary
   },
@@ -145,7 +145,7 @@ export const darkTheme: ITheme = {
     subsectionBg: '#16222E',
     subsectionBorderAccent: '#92d1ef',
 
-    title: '#92d1ef',
+    title: 'white',
     label: '#B8C4D6',
   },
 }

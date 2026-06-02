@@ -88,8 +88,8 @@ export const LabelContainer = styled.div`
 `
 
 export const OptionLabel = styled.label`
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 400;
   color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
   display: flex;

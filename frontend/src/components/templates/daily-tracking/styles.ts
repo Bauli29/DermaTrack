@@ -13,21 +13,43 @@ export const Section = styled.section`
     border-top: 1px solid ${({ theme }) => theme.colors.borderLight};
   }
 `
+export const PageWrapper = styled.main`
+  width: 100%;
+  min-height: calc(100dvh - 128px);
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 12px 12px 20px;
+  background: ${({ theme }) => theme.colors.background};
+  color: ${({ theme }) => theme.colors.text};
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  @media (min-width: 480px) {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  @media (min-width: 900px) {
+    padding: 20px 24px 24px;
+  }
+`
+
+export const PageHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
 export const Card = styled.div`
   background: ${({ theme }) => theme.colors.surface};
-  border-radius: 14px;
-  box-shadow: 0 2px 10px ${({ theme }) => theme.colors.shadow};
+  border: 1px solid ${({ theme }) => theme.colors.borderLight};
+  border-radius: 8px;
+  box-shadow: 0 2px 8px ${({ theme }) => theme.colors.shadow};
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-`
-
-export const SectionTitle = styled.div`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.title};
-  letter-spacing: 0.2px;
 `
 
 export const SubsectionContainer = styled.div`
@@ -35,7 +57,7 @@ export const SubsectionContainer = styled.div`
   flex-direction: column;
   gap: 10px;
   padding: 8px 0;
-  font-weight: 500;
+  font-weight: 400;
 
   &:not(:first-child) {
     border-top: 1px dashed ${({ theme }) => theme.colors.borderLight};
@@ -60,7 +82,9 @@ export const SliderWithMeta = styled.div`
 
 export const SliderFieldHelperText = styled.span`
   font-size: 0.75rem;
-  color: ${({ theme }) => theme.colors.textMuted};
+  color: ${({ theme }) => theme.colors.text};
+  font-weight: 400;
+  font-family: inherit;
   margin-top: 2px;
 `
 
@@ -190,6 +214,6 @@ export const SuccessText = styled.span`
 `
 
 export const HelperText = styled.span`
-  color: ${({ theme }) => theme.colors.textMuted};
+  color: ${({ theme }) => theme.colors.text};
   font-size: 0.85rem;
 `

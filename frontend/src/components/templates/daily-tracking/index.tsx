@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import Button from '@/components/atoms/Button'
+import Headline from '@/components/atoms/Headline'
 import Slider from '@/components/atoms/Slider'
 import Text from '@/components/atoms/Text'
 
@@ -34,7 +35,6 @@ import {
   SYMPTOM_FIELD_DEFINITIONS,
   validateSelectedImages,
 } from '@/components/templates/daily-tracking/utils'
-import { ContentPageWrapper } from '@/components/templates/shared/styles'
 
 import { formatDateInput } from '@/lib/date'
 
@@ -91,7 +91,7 @@ const DailyTrackingTemplate = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    const requestedDate = new URLSearchParams(window.location.search).get(
+    const requestedDate = new URLSearchParams(globalThis.location.search).get(
       'date'
     )
 
@@ -277,7 +277,9 @@ const DailyTrackingTemplate = () => {
 
   const onDiscard = () => {
     if (hasPendingChanges) {
-      const confirmed = window.confirm(DAILY_TRACKING_DISCARD_CONFIRMATION_TEXT)
+      const confirmed = globalThis.confirm(
+        DAILY_TRACKING_DISCARD_CONFIRMATION_TEXT
+      )
 
       if (!confirmed) {
         return
@@ -359,7 +361,15 @@ const DailyTrackingTemplate = () => {
   }
 
   return (
-    <ContentPageWrapper>
+    <SC.PageWrapper>
+      <SC.PageHeader>
+        <Headline as='h2' variant='h3' noSpacing>
+          Daily Tracking
+        </Headline>
+        <Text size='small' color='textSecondary' noSpacing>
+          Record your symptoms, care factors, and progress for a specific day.
+        </Text>
+      </SC.PageHeader>
       {/* Date section: UI-only validation to prevent future dates */}
       <SC.Card>
         <Text size='small' color='textSecondary'>
@@ -385,13 +395,15 @@ const DailyTrackingTemplate = () => {
       </SC.Card>
 
       <SC.Card>
-        <SC.SectionTitle>Factors</SC.SectionTitle>
+        <Headline as='h3' variant='h4' noSpacing>
+          Factors
+        </Headline>
         <SC.SubsectionContainer>
           {PSYCHE_FACTOR_DEFINITIONS.map(renderSliderField)}
         </SC.SubsectionContainer>
 
         <SC.SubsectionContainer>
-          <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
+          <Text size='small' weight={600} margin='1rem 0 0.5rem 0'>
             Contact Factors
           </Text>
           <SC.HelperText>
@@ -437,7 +449,7 @@ const DailyTrackingTemplate = () => {
         </SC.SubsectionContainer>
 
         <SC.SubsectionContainer>
-          <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
+          <Text size='small' weight={600} margin='1rem 0 0.5rem 0'>
             Nutrition
           </Text>
           <SC.HelperText>
@@ -483,7 +495,7 @@ const DailyTrackingTemplate = () => {
         </SC.SubsectionContainer>
 
         <SC.SubsectionContainer>
-          <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
+          <Text size='small' weight={600} margin='1rem 0 0.5rem 0'>
             Care Products
           </Text>
           <SC.HelperText>
@@ -527,7 +539,7 @@ const DailyTrackingTemplate = () => {
         </SC.SubsectionContainer>
 
         <SC.SubsectionContainer>
-          <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
+          <Text size='small' weight={600} margin='1rem 0 0.5rem 0'>
             Health Factor
           </Text>
           <SC.HelperText>
@@ -574,12 +586,14 @@ const DailyTrackingTemplate = () => {
       </SC.Card>
 
       <SC.Card>
-        <SC.SectionTitle>Symptoms</SC.SectionTitle>
+        <Headline as='h3' variant='h4' noSpacing>
+          Symptoms
+        </Headline>
         <SC.SubsectionContainer>
           {SYMPTOM_FIELD_DEFINITIONS.map(renderSliderField)}
         </SC.SubsectionContainer>
         <SC.SubsectionContainer>
-          <Text size='small' weight={500} margin='1rem 0 0.5rem 0'>
+          <Text size='small' weight={600} margin='1rem 0 0.5rem 0'>
             Skin symptoms
           </Text>
           <CompoundCheckboxes
@@ -592,7 +606,9 @@ const DailyTrackingTemplate = () => {
       </SC.Card>
 
       <SC.Card>
-        <SC.SectionTitle>Notes</SC.SectionTitle>
+        <Headline as='h3' variant='h4' noSpacing>
+          Notes
+        </Headline>
         <SC.NoteTextarea
           placeholder='Optional: add any context (medication, weather, triggers, etc.)'
           value={notes}
@@ -601,7 +617,9 @@ const DailyTrackingTemplate = () => {
       </SC.Card>
 
       <SC.Card>
-        <SC.SectionTitle>Images</SC.SectionTitle>
+        <Headline as='h3' variant='h4' noSpacing>
+          Images
+        </Headline>
         <ImageUpload
           savedImageUrls={formValues.spreadPhotoUrls}
           selectedImages={images}
@@ -638,7 +656,7 @@ const DailyTrackingTemplate = () => {
         By saving you agree that your entry is stored securely. You can edit or
         delete entries later (once edit UI is available).
       </SC.HelperText>
-    </ContentPageWrapper>
+    </SC.PageWrapper>
   )
 }
 
