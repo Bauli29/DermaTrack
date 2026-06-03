@@ -262,8 +262,6 @@ npx husky install
 
 - **Repository:** https://github.com/Bauli29/DermaTrack
 - **Live Application:** https://derma-track.vercel.app
-- **Issues & Projects:** https://github.com/Bauli29/DermaTrack/issues
-- **Pull Requests:** https://github.com/Bauli29/DermaTrack/pulls
 - **GitHub Wiki:** https://github.com/Bauli29/DermaTrack/wiki
 - **SonarCloud:** https://sonarcloud.io/organizations/dermatrack/projects
 
