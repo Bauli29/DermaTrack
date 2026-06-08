@@ -57,7 +57,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "husky": "^9.1.7",
     "jest": "^30.3.0",
-    "jest-environment-jsdom": "^30.3.0",
+    "jest-environment-jsdom": "^30.4.1",
     "prettier": "^3.7.4",
     "ts-jest": "^29.4.9",
     "typescript": "^5.9.3",
